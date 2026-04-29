@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -13,9 +14,11 @@ import {
 import { usePets } from '@/hooks/use-pets'
 import { mockPets } from '@/lib/mock-data'
 import { formatDate, calculateAge, speciesEmoji, speciesLabel } from '@/lib/utils'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { ApiPet } from '@/services/pets.service'
+
+const PAGE_SIZE = 12
 
 export default function PatientsPage() {
   return (
@@ -29,6 +32,7 @@ function PatientsContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [speciesFilter, setSpeciesFilter] = useState('all')
+  const [page, setPage] = useState(1)
 
   const { data: apiPets, isLoading, isError } = usePets()
 
@@ -65,6 +69,9 @@ function PatientsContent() {
       return matchQuery && matchSpecies
     })
   }, [pets, query, speciesFilter])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div>
@@ -138,7 +145,7 @@ function PatientsContent() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map(pet => {
+            {paginated.map(pet => {
               const species = pet.species.toLowerCase()
               const ownerName = pet.owner?.fullName ?? '—'
               return (
@@ -187,6 +194,40 @@ function PatientsContent() {
                 </Link>
               )
             })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && totalPages > 1 && (
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-sm text-muted-foreground">
+              {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} / {filtered.length} hasta
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="gap-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Önceki
+              </Button>
+              <span className="text-sm text-muted-foreground px-2">
+                {page} / {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="gap-1"
+              >
+                Sonraki
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
