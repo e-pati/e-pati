@@ -18,6 +18,7 @@ import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination
 import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 import { AddLabResultModal } from '@/components/AddLabResultModal'
 import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
+import { AddExaminationModal } from '@/components/AddExaminationModal'
 import { Linking } from 'react-native'
 import { prescriptionsService } from '@/services/prescriptions.service'
 
@@ -40,6 +41,7 @@ export default function PetDetailScreen() {
   const [vaccinationModalVisible, setVaccinationModalVisible] = useState(false)
   const [labModalVisible, setLabModalVisible] = useState(false)
   const [prescriptionModalVisible, setPrescriptionModalVisible] = useState(false)
+  const [examinationModalVisible, setExaminationModalVisible] = useState(false)
 
   const petQuery = useQuery({
     queryKey: ['pets', id],
@@ -230,6 +232,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'exams' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setExaminationModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Muayene Ekle</Text>
+            </TouchableOpacity>
             {exams.length === 0
               ? <EmptyState emoji="🩺" text="Henüz muayene kaydı yok" />
               : exams.map(exam => (
@@ -399,6 +407,11 @@ export default function PetDetailScreen() {
         petId={pet.id}
         visible={prescriptionModalVisible}
         onClose={() => setPrescriptionModalVisible(false)}
+      />
+      <AddExaminationModal
+        petId={pet.id}
+        visible={examinationModalVisible}
+        onClose={() => setExaminationModalVisible(false)}
       />
     </SafeAreaView>
   )
