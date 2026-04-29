@@ -1,6 +1,10 @@
 import { useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native'
+import { useQuery } from '@tanstack/react-query'
 import { mockVaccinations, mockPets } from '@/lib/mock-data'
+import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
+import { petsService, type ApiPet } from '@/services/pets.service'
+import type { PetSpecies } from '@/types'
 import { formatDateShort, speciesEmoji, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
@@ -8,13 +12,32 @@ type FilterType = 'all' | 'upcoming' | 'overdue'
 
 export default function CalendarScreen() {
   const [filter, setFilter] = useState<FilterType>('all')
+  const vaccinationsQuery = useQuery({
+    queryKey: ['vaccinations', 'upcoming'],
+    queryFn: vaccinationsService.getUpcoming,
+    retry: 1,
+  })
+  const petsQuery = useQuery({
+    queryKey: ['pets'],
+    queryFn: petsService.getAll,
+    retry: 1,
+  })
 
-  const allVaccines = mockVaccinations.map(v => ({
-    ...v,
-    pet: mockPets.find(p => p.id === v.petId),
-    overdue: isVaccinationOverdue(v.nextDate),
-    soon: isVaccinationDueSoon(v.nextDate, 30),
-  })).sort((a, b) => new Date(a.nextDate).getTime() - new Date(b.nextDate).getTime())
+  const pets = petsQuery.data ?? (petsQuery.isError ? mockPets.map(mapMockPet) : [])
+  const vaccines = vaccinationsQuery.data ?? (
+    vaccinationsQuery.isError ? mockVaccinations.map(mapMockVaccination) : []
+  )
+
+  const allVaccines = vaccines.map(v => {
+    const dueAt = v.dueAt ?? v.appliedAt
+    return {
+      ...v,
+      pet: pets.find(p => p.id === v.petId),
+      dueAt,
+      overdue: isVaccinationOverdue(dueAt),
+      soon: isVaccinationDueSoon(dueAt, 30),
+    }
+  }).sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())
 
   const filtered = allVaccines.filter(v => {
     if (filter === 'upcoming') return v.soon && !v.overdue
@@ -31,6 +54,19 @@ export default function CalendarScreen() {
         <Text style={styles.title}>Takvim</Text>
         <Text style={styles.subtitle}>Aşı ve kontrol takibi</Text>
       </View>
+
+      {(vaccinationsQuery.isLoading || petsQuery.isLoading) && (
+        <View style={styles.loadingRow}>
+          <ActivityIndicator color={Colors.primary} size="small" />
+          <Text style={styles.loadingText}>Aşı takvimi yükleniyor...</Text>
+        </View>
+      )}
+
+      {(vaccinationsQuery.isError || petsQuery.isError) && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>⚠️ API bağlantısı kurulamadı — örnek aşı takvimi gösteriliyor</Text>
+        </View>
+      )}
 
       {/* Özet kartları */}
       <View style={styles.summaryRow}>
@@ -77,12 +113,12 @@ export default function CalendarScreen() {
           filtered.map(item => (
             <View key={item.id} style={[styles.item, item.overdue && styles.itemOverdue, item.soon && !item.overdue && styles.itemSoon]}>
               <View style={styles.itemLeft}>
-                <Text style={styles.itemEmoji}>{speciesEmoji(item.pet?.species ?? 'other')}</Text>
+                <Text style={styles.itemEmoji}>{speciesEmoji(normalizeSpecies(item.pet?.species ?? 'other'))}</Text>
               </View>
               <View style={styles.itemCenter}>
-                <Text style={styles.itemPet}>{item.pet?.name}</Text>
-                <Text style={styles.itemVaccine}>{item.vaccineName}</Text>
-                {item.manufacturer && <Text style={styles.itemManufacturer}>{item.manufacturer}</Text>}
+                <Text style={styles.itemPet}>{item.pet?.name ?? 'Hasta bilgisi yok'}</Text>
+                <Text style={styles.itemVaccine}>{item.name}</Text>
+                {item.notes && <Text style={styles.itemManufacturer}>{item.notes}</Text>}
               </View>
               <View style={styles.itemRight}>
                 <Text style={[
@@ -90,7 +126,7 @@ export default function CalendarScreen() {
                   item.overdue && { color: Colors.danger },
                   item.soon && !item.overdue && { color: Colors.warning },
                 ]}>
-                  {formatDateShort(item.nextDate)}
+                  {formatDateShort(item.dueAt)}
                 </Text>
                 <View style={[
                   styles.statusDot,
@@ -105,12 +141,53 @@ export default function CalendarScreen() {
   )
 }
 
+function normalizeSpecies(species: string): PetSpecies {
+  const normalized = species.toLowerCase()
+  if (normalized === 'dog' || normalized === 'cat' || normalized === 'bird' || normalized === 'rabbit') {
+    return normalized
+  }
+  return 'other'
+}
+
+function mapMockPet(pet: (typeof mockPets)[number]): ApiPet {
+  return {
+    id: pet.id,
+    ownerId: pet.ownerId,
+    name: pet.name,
+    species: normalizeSpecies(pet.species),
+    breed: pet.breed,
+    sex: pet.gender,
+    birthDate: pet.birthDate,
+    microchipNo: pet.microchipNo,
+    createdAt: new Date().toISOString(),
+  }
+}
+
+function mapMockVaccination(vaccination: (typeof mockVaccinations)[number]): ApiVaccination {
+  return {
+    id: vaccination.id,
+    petId: vaccination.petId,
+    name: vaccination.vaccineName,
+    appliedAt: vaccination.appliedDate,
+    dueAt: vaccination.nextDate,
+    notes: vaccination.manufacturer,
+  }
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface },
   header: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: Spacing.md },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
   subtitle: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: 2 },
   summaryRow: { flexDirection: 'row', paddingHorizontal: Spacing.xl, gap: 10, marginBottom: Spacing.lg },
+  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: Spacing.xl, marginBottom: Spacing.md },
+  loadingText: { fontSize: FontSize.xs, color: Colors.textMuted },
+  errorBanner: {
+    marginHorizontal: Spacing.xl, marginBottom: Spacing.md,
+    backgroundColor: '#fef3cd', borderRadius: Radius.md,
+    padding: Spacing.sm, borderWidth: 1, borderColor: '#fde68a',
+  },
+  errorText: { fontSize: FontSize.xs, color: '#92400e' },
   summaryCard: {
     flex: 1, borderRadius: Radius.lg, padding: Spacing.md,
     alignItems: 'center', borderWidth: 1,
