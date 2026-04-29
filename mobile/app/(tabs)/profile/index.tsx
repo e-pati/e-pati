@@ -65,9 +65,9 @@ export default function ProfileScreen() {
     {
       title: 'Hesap',
       rows: [
-        { label: 'Kişisel Bilgiler', icon: '👤', onPress: () => {} },
-        { label: 'Güvenlik', icon: '🔒', onPress: () => {} },
-        { label: 'KVKK Ayarları', icon: '📋', onPress: () => {} },
+        { label: 'Kişisel Bilgiler', icon: '👤', onPress: () => Alert.alert('Yakında', 'Kişisel bilgi düzenleme özelliği yakında eklenecek.') },
+        { label: 'Güvenlik', icon: '🔒', onPress: () => Alert.alert('Güvenlik', 'Şifre değiştirmek için sistem yöneticinizle iletişime geçin.') },
+        { label: 'KVKK Ayarları', icon: '📋', onPress: () => Alert.alert('KVKK', 'Kişisel verilerinize ilişkin talepler için destek@epati.com adresine yazabilirsiniz.') },
       ],
     },
     {
@@ -81,9 +81,9 @@ export default function ProfileScreen() {
     {
       title: 'Uygulama',
       rows: [
-        { label: 'Yardım ve Destek', icon: '❓', onPress: () => {} },
-        { label: 'Gizlilik Politikası', icon: '🛡️', onPress: () => {} },
-        { label: 'Versiyon 1.0.0', icon: 'ℹ️', onPress: () => {} },
+        { label: 'Yardım ve Destek', icon: '❓', onPress: () => Alert.alert('Destek', 'Sorularınız için destek@epati.com adresine yazabilirsiniz.') },
+        { label: 'Gizlilik Politikası', icon: '🛡️', onPress: () => Alert.alert('Gizlilik Politikası', 'Detaylı bilgi için epati.com/gizlilik adresini ziyaret edin.') },
+        { label: 'Versiyon 1.0.0', icon: 'ℹ️', onPress: () => Alert.alert('e-Pati v1.0.0', 'Güncel sürümü kullanıyorsunuz.') },
       ],
     },
   ]

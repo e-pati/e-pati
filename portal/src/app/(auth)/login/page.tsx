@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { cn } from '@/lib/utils'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/auth.store'
+import { toast } from 'sonner'
 
 const loginSchema = z.object({
   email: z.string().email('Geçerli bir e-posta giriniz'),
@@ -135,7 +136,10 @@ export default function LoginPage() {
                     <button
                       type="button"
                       className="text-xs text-primary hover:underline"
-                      onClick={() => {/* TODO: forgot password */ }}
+                      onClick={() => toast.info('Şifre sıfırlama', {
+                        description: 'Klinik hesabınız için sistem yöneticinizle iletişime geçin.',
+                        duration: 5000,
+                      })}
                     >
                       Şifremi unuttum
                     </button>

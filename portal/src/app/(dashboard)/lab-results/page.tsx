@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, Suspense } from 'react'
+import { useState, useMemo, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,6 +14,9 @@ import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, FlaskConical, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
 import { labResultsService } from '@/services/lab-results.service'
+import { Pagination } from '@/components/shared/pagination'
+
+const PAGE_SIZE = 15
 
 export default function LabResultsPage() {
   return <Suspense><LabResultsContent /></Suspense>
@@ -22,6 +25,8 @@ export default function LabResultsPage() {
 function LabResultsContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const [page, setPage] = useState(1)
+  useEffect(() => { setPage(1) }, [query])
 
   const labQuery = useLabResults()
   const petsQuery = usePets()
@@ -60,6 +65,8 @@ function LabResultsContent() {
   }, [enriched, query])
 
   const isLoading = labQuery.isLoading || petsQuery.isLoading
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div>
@@ -104,7 +111,7 @@ function LabResultsContent() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map(lab => (
+            {paginated.map(lab => (
               <Card key={lab.id} className="border-border/50 hover:shadow-sm transition-all">
                 <CardContent className="p-4 flex items-center gap-4">
                   {/* İkon */}
@@ -168,6 +175,7 @@ function LabResultsContent() {
             ))}
           </div>
         )}
+        <Pagination page={page} totalPages={totalPages} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
     </div>
   )
