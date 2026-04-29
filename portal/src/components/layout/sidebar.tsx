@@ -1,13 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, Stethoscope, Syringe, FlaskConical,
   Bell, Settings, LogOut, PawPrint, ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth.store'
 
 const navItems = [
   { href: '/dashboard', label: 'Pano', icon: LayoutDashboard },
@@ -24,6 +26,14 @@ const bottomItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, clearUser } = useAuthStore()
+
+  const handleLogout = async () => {
+    await authService.logout()
+    clearUser()
+    router.push('/login')
+  }
 
   return (
     <aside className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col h-screen sticky top-0">
@@ -96,16 +106,25 @@ export function Sidebar() {
 
       {/* Kullanıcı */}
       <div className="p-3 border-t border-sidebar-border">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent/50 cursor-pointer group transition-colors">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent/50 cursor-pointer group transition-colors text-left"
+        >
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-bold text-primary">SY</span>
+            <span className="text-xs font-bold text-primary">
+              {user?.fullName?.slice(0, 2).toUpperCase() ?? 'KL'}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-sidebar-foreground truncate">Dr. Selin Yılmaz</div>
-            <div className="text-xs text-muted-foreground truncate">Veteriner Hekim</div>
+            <div className="text-sm font-medium text-sidebar-foreground truncate">
+              {user?.fullName ?? 'Kullanıcı'}
+            </div>
+            <div className="text-xs text-muted-foreground truncate">
+              {user?.role === 'VETERINARIAN' ? 'Veteriner Hekim' : user?.role === 'CLINIC_ADMIN' ? 'Klinik Yöneticisi' : 'Kullanıcı'}
+            </div>
           </div>
           <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors flex-shrink-0" />
-        </div>
+        </button>
       </div>
     </aside>
   )
