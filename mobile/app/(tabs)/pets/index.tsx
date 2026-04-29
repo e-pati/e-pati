@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  TextInput, SafeAreaView, ActivityIndicator, RefreshControl,
+  TextInput, SafeAreaView, ActivityIndicator, RefreshControl, Image,
 } from 'react-native'
 import { router } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
@@ -118,7 +118,10 @@ function PetCard({ pet }: { pet: ApiPet }) {
     >
       <View style={styles.cardLeft}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarEmoji}>{speciesEmoji(species)}</Text>
+          {pet.photoUrl
+            ? <Image source={{ uri: pet.photoUrl }} style={styles.avatarImage} />
+            : <Text style={styles.avatarEmoji}>{speciesEmoji(species)}</Text>
+          }
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.petName}>{pet.name}</Text>
@@ -170,8 +173,9 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
   cardLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 },
-  avatar: { width: 56, height: 56, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 56, height: 56, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   avatarEmoji: { fontSize: 28 },
+  avatarImage: { width: 56, height: 56, borderRadius: Radius.lg },
   cardInfo: { flex: 1 },
   petName: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: Colors.text },
   petBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },

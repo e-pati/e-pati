@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, Modal, Share,
+  SafeAreaView, ActivityIndicator, Modal, Share, Image,
 } from 'react-native'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
@@ -16,6 +16,7 @@ import { speciesEmoji, speciesLabel, calculateAge, formatDate, formatDateShort, 
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
 import { AddVaccinationModal } from '@/components/AddVaccinationModal'
+import { AddLabResultModal } from '@/components/AddLabResultModal'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 
@@ -34,6 +35,7 @@ export default function PetDetailScreen() {
   const [qrToken, setQrToken] = useState('')
   const [qrLoading, setQrLoading] = useState(false)
   const [vaccinationModalVisible, setVaccinationModalVisible] = useState(false)
+  const [labModalVisible, setLabModalVisible] = useState(false)
 
   const petQuery = useQuery({
     queryKey: ['pets', id],
@@ -138,7 +140,10 @@ export default function PetDetailScreen() {
       {/* Profil kartı */}
       <View style={styles.profileCard}>
         <View style={styles.profileAvatar}>
-          <Text style={styles.profileEmoji}>{speciesEmoji(pet.species)}</Text>
+          {pet.photoUrl
+            ? <Image source={{ uri: pet.photoUrl }} style={styles.profilePhoto} />
+            : <Text style={styles.profileEmoji}>{speciesEmoji(pet.species)}</Text>
+          }
         </View>
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>{pet.name}</Text>
@@ -311,6 +316,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'lab' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setLabModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Sonuç Ekle</Text>
+            </TouchableOpacity>
             {labs.length === 0
               ? <EmptyState emoji="🔬" text="Henüz lab sonucu yok" />
               : labs.map(lab => (
@@ -360,6 +371,11 @@ export default function PetDetailScreen() {
         petId={pet.id}
         visible={vaccinationModalVisible}
         onClose={() => setVaccinationModalVisible(false)}
+      />
+      <AddLabResultModal
+        petId={pet.id}
+        visible={labModalVisible}
+        onClose={() => setLabModalVisible(false)}
       />
     </SafeAreaView>
   )
@@ -486,8 +502,10 @@ const styles = StyleSheet.create({
   profileAvatar: {
     width: 64, height: 64, borderRadius: Radius.xl,
     backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
   },
   profileEmoji: { fontSize: 32 },
+  profilePhoto: { width: '100%', height: '100%' },
   profileInfo: { flex: 1 },
   profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
   profileBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },

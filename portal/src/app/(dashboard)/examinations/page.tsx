@@ -1,5 +1,6 @@
 'use client'
 
+import { useDebounce } from '@/hooks/use-debounce'
 import { useState, useMemo, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
@@ -24,8 +25,9 @@ export default function ExaminationsPage() {
 function ExaminationsContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const debouncedQuery = useDebounce(query)
   const [page, setPage] = useState(1)
-  useEffect(() => { setPage(1) }, [query])
+  useEffect(() => { setPage(1) }, [debouncedQuery])
 
   const examinationsQuery = useExaminations({ limit: 200 })
   const petsQuery = usePets()
@@ -54,15 +56,15 @@ function ExaminationsContent() {
   [examinations, pets])
 
   const filtered = useMemo(() => {
-    if (!query) return enriched
-    const q = query.toLowerCase()
+    if (!debouncedQuery) return enriched
+    const q = debouncedQuery.toLowerCase()
     return enriched.filter(e =>
       e.pet?.name?.toLowerCase().includes(q) ||
       e.pet?.owner?.fullName?.toLowerCase().includes(q) ||
       e.complaint.toLowerCase().includes(q) ||
       e.assessment.toLowerCase().includes(q)
     )
-  }, [enriched, query])
+  }, [enriched, debouncedQuery])
 
   const isLoading = examinationsQuery.isLoading || petsQuery.isLoading
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -93,7 +95,7 @@ function ExaminationsContent() {
           </div>
         )}
 
-        {query && !isLoading && (
+        {debouncedQuery && !isLoading && (
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{filtered.length}</span> sonuç
           </p>

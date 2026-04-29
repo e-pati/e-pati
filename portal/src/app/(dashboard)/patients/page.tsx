@@ -1,5 +1,6 @@
 'use client'
 
+import { useDebounce } from '@/hooks/use-debounce'
 import { useState, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
@@ -31,6 +32,7 @@ export default function PatientsPage() {
 function PatientsContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const debouncedQuery = useDebounce(query)
   const [speciesFilter, setSpeciesFilter] = useState('all')
   const [page, setPage] = useState(1)
 
@@ -58,7 +60,7 @@ function PatientsContent() {
 
   const filtered = useMemo(() => {
     return pets.filter(pet => {
-      const q = query.toLowerCase()
+      const q = debouncedQuery.toLowerCase()
       const ownerName = pet.owner?.fullName?.toLowerCase() ?? ''
       const matchQuery = !q ||
         pet.name.toLowerCase().includes(q) ||
@@ -68,7 +70,7 @@ function PatientsContent() {
       const matchSpecies = speciesFilter === 'all' || pet.species.toLowerCase() === speciesFilter
       return matchQuery && matchSpecies
     })
-  }, [pets, query, speciesFilter])
+  }, [pets, debouncedQuery, speciesFilter])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -108,7 +110,7 @@ function PatientsContent() {
           </Select>
         </div>
 
-        {query && !isLoading && (
+        {debouncedQuery && !isLoading && (
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{filtered.length}</span> sonuç bulundu
           </p>
