@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuthStore } from '@/stores/auth.store'
+import { usePushNotifications } from '@/hooks/use-push-notifications'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,6 +14,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const loadUser = useAuthStore(s => s.loadUser)
+  usePushNotifications()
 
   useEffect(() => {
     loadUser()

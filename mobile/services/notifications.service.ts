@@ -30,4 +30,8 @@ export const notificationsService = {
     const { data } = await api.patch<ApiNotification>(`/notifications/${id}/read`)
     return data
   },
+
+  async registerPushToken(token: string): Promise<void> {
+    await api.post('/notifications/preferences', { pushToken: token })
+  },
 }
