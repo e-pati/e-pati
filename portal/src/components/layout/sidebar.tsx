@@ -13,10 +13,10 @@ import { useAuthStore } from '@/stores/auth.store'
 
 const navItems = [
   { href: '/dashboard', label: 'Pano', icon: LayoutDashboard },
-  { href: '/patients', label: 'Hastalar', icon: Users, badge: '247' },
+  { href: '/patients', label: 'Hastalar', icon: Users },
   { href: '/examinations', label: 'Muayeneler', icon: Stethoscope },
   { href: '/vaccinations', label: 'Aşılar', icon: Syringe },
-  { href: '/lab-results', label: 'Lab Sonuçları', icon: FlaskConical, badge: '3' },
+  { href: '/lab-results', label: 'Lab Sonuçları', icon: FlaskConical },
   { href: '/notifications', label: 'Bildirimler', icon: Bell },
 ]
 
@@ -71,11 +71,6 @@ export function Sidebar() {
                   active ? 'text-primary' : 'text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80',
                 )} />
                 <span className="flex-1">{item.label}</span>
-                {item.badge && (
-                  <Badge variant="secondary" className="text-[10px] h-4.5 px-1.5 bg-primary/10 text-primary border-0">
-                    {item.badge}
-                  </Badge>
-                )}
                 {active && <ChevronRight className="w-3.5 h-3.5 text-primary/60" />}
               </Link>
             )
