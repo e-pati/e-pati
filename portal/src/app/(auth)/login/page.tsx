@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth.store'
 
 const loginSchema = z.object({
   email: z.string().email('Geçerli bir e-posta giriniz'),
@@ -21,8 +23,10 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const setUser = useAuthStore(s => s.setUser)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [apiError, setApiError] = useState('')
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -30,10 +34,16 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
-    // TODO: gerçek API çağrısı — şimdilik mock
-    await new Promise(r => setTimeout(r, 800))
-    console.log('Login:', data)
-    router.push('/dashboard')
+    setApiError('')
+    try {
+      const res = await authService.login(data.email, data.password)
+      setUser(res.user)
+      router.push('/dashboard')
+    } catch (err: any) {
+      setApiError(err?.response?.data?.message ?? 'Giriş başarısız. Bilgilerinizi kontrol edin.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -99,6 +109,11 @@ export default function LoginPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                {apiError && (
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+                    {apiError}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="email">E-posta</Label>
                   <Input
