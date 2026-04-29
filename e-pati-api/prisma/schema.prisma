@@ -1,0 +1,261 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  VETERINARIAN
+  CLINIC_ADMIN
+  SUPER_ADMIN
+}
+
+enum PetSex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+model Owner {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  phone        String?        @unique
+  passwordHash String
+  fullName     String
+  role         Role           @default(OWNER)
+  pets         Pet[]
+  refreshTokens RefreshToken[]
+  notifications Notification[]
+  auditLogs    AuditLog[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+}
+
+model Clinic {
+  id             String         @id @default(cuid())
+  name           String
+  email          String?        @unique
+  phone          String?
+  address        String?
+  isApproved     Boolean        @default(false)
+  veterinarians  Veterinarian[]
+  pets           Pet[]
+  examinations   Examination[]
+  vaccinations   Vaccination[]
+  prescriptions  Prescription[]
+  labResults     LabResult[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+}
+
+model Veterinarian {
+  id             String         @id @default(cuid())
+  clinicId       String
+  clinic         Clinic         @relation(fields: [clinicId], references: [id])
+  email          String         @unique
+  phone          String?        @unique
+  passwordHash   String
+  fullName       String
+  licenseNumber  String?        @unique
+  role           Role           @default(VETERINARIAN)
+  totpSecret     String?
+  examinations   Examination[]
+  vaccinations   Vaccination[]
+  prescriptions  Prescription[]
+  labResults     LabResult[]
+  auditLogs      AuditLog[]
+  refreshTokens  RefreshToken[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+}
+
+model RefreshToken {
+  id             String        @id @default(cuid())
+  tokenHash      String        @unique
+  ownerId        String?
+  owner          Owner?        @relation(fields: [ownerId], references: [id])
+  veterinarianId String?
+  veterinarian   Veterinarian? @relation(fields: [veterinarianId], references: [id])
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([ownerId])
+  @@index([veterinarianId])
+  @@index([expiresAt])
+}
+
+model Pet {
+  id             String         @id @default(cuid())
+  ownerId        String
+  owner          Owner          @relation(fields: [ownerId], references: [id])
+  clinicId       String?
+  clinic         Clinic?        @relation(fields: [clinicId], references: [id])
+  name           String
+  species        String
+  breed          String?
+  sex            PetSex         @default(UNKNOWN)
+  birthDate      DateTime?
+  microchipNo    String?        @unique
+  photoUrl       String?
+  examinations   Examination[]
+  vaccinations   Vaccination[]
+  prescriptions  Prescription[]
+  labResults     LabResult[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  @@index([ownerId])
+  @@index([clinicId])
+}
+
+model Examination {
+  id             String       @id @default(cuid())
+  petId          String
+  pet            Pet          @relation(fields: [petId], references: [id])
+  clinicId       String?
+  clinic         Clinic?      @relation(fields: [clinicId], references: [id])
+  veterinarianId String
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
+  complaint      String
+  findings       String
+  assessment     String
+  plan           String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([petId])
+  @@index([veterinarianId])
+}
+
+model Vaccination {
+  id             String       @id @default(cuid())
+  petId          String
+  pet            Pet          @relation(fields: [petId], references: [id])
+  clinicId       String?
+  clinic         Clinic?      @relation(fields: [clinicId], references: [id])
+  veterinarianId String
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
+  name           String
+  lotNumber      String?
+  appliedAt      DateTime
+  dueAt          DateTime?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([petId])
+  @@index([dueAt])
+}
+
+model Prescription {
+  id             String       @id @default(cuid())
+  petId          String
+  pet            Pet          @relation(fields: [petId], references: [id])
+  clinicId       String?
+  clinic         Clinic?      @relation(fields: [clinicId], references: [id])
+  veterinarianId String
+  veterinarian   Veterinarian @relation(fields: [veterinarianId], references: [id])
+  diagnosis      String?
+  notes          String?
+  pdfUrl         String?
+  medications    Medication[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([petId])
+}
+
+model Medication {
+  id             String       @id @default(cuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  name           String
+  dose           String
+  frequency      String
+  duration       String
+  instructions   String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model LabResult {
+  id             String       @id @default(cuid())
+  petId          String
+  pet            Pet          @relation(fields: [petId], references: [id])
+  clinicId       String?
+  clinic         Clinic?      @relation(fields: [clinicId], references: [id])
+  veterinarianId String?
+  veterinarian   Veterinarian? @relation(fields: [veterinarianId], references: [id])
+  title          String
+  fileUrl        String
+  mimeType       String
+  notes          String?
+  collectedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  @@index([petId])
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  ownerId     String
+  owner       Owner               @relation(fields: [ownerId], references: [id])
+  channel     NotificationChannel
+  status      NotificationStatus  @default(PENDING)
+  title       String
+  body        String
+  payload     Json?
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  readAt      DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([ownerId])
+  @@index([scheduledAt])
+}
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  ownerId        String?
+  owner          Owner?        @relation(fields: [ownerId], references: [id])
+  veterinarianId String?
+  veterinarian   Veterinarian? @relation(fields: [veterinarianId], references: [id])
+  action         String
+  resourceType   String
+  resourceId     String?
+  ipAddress      String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+
+  @@index([ownerId])
+  @@index([veterinarianId])
+  @@index([resourceType, resourceId])
+}
