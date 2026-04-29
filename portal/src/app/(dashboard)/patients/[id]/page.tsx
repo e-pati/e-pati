@@ -114,8 +114,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           <Card className="border-border/50">
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-5xl mb-3">
-                  {speciesEmoji(petSpecies)}
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-5xl mb-3 overflow-hidden">
+                  {pet.photoUrl
+                    ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
+                    : speciesEmoji(petSpecies)
+                  }
                 </div>
                 <h2 className="text-xl font-bold text-foreground">{pet.name}</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">{pet.breed ?? 'Irk belirtilmemiş'}</p>
