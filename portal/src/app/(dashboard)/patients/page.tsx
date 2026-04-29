@@ -15,7 +15,7 @@ import {
 import { usePets } from '@/hooks/use-pets'
 import { mockPets } from '@/lib/mock-data'
 import { formatDate, calculateAge, speciesEmoji, speciesLabel } from '@/lib/utils'
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import Link from 'next/link'
 import type { ApiPet } from '@/services/pets.service'
 
@@ -141,9 +141,27 @@ function PatientsContent() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="text-5xl mb-4">🔍</div>
-            <p className="text-lg font-medium text-foreground">Hasta bulunamadı</p>
-            <p className="text-sm text-muted-foreground mt-1">Farklı bir arama deneyin</p>
+            {pets.length === 0 && !debouncedQuery ? (
+              <>
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-5xl mb-6">🐾</div>
+                <p className="text-xl font-semibold text-foreground mb-2">Henüz hasta kaydı yok</p>
+                <p className="text-sm text-muted-foreground mb-6 max-w-xs">
+                  İlk evcil hayvanı ekleyerek başlayın. Kayıtlar buraya gelecek.
+                </p>
+                <Link href="/patients/new">
+                  <Button className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    İlk Hastayı Ekle
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="text-5xl mb-4">🔍</div>
+                <p className="text-lg font-medium text-foreground">Hasta bulunamadı</p>
+                <p className="text-sm text-muted-foreground mt-1">Farklı bir arama deneyin</p>
+              </>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

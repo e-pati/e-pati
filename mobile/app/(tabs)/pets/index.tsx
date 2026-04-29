@@ -4,6 +4,7 @@ import {
   TextInput, SafeAreaView, ActivityIndicator, RefreshControl, Image,
 } from 'react-native'
 import { router } from 'expo-router'
+import { haptic } from '@/lib/haptics'
 import { useQuery } from '@tanstack/react-query'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import { mockPets } from '@/lib/mock-data'
@@ -43,7 +44,7 @@ export default function PetsScreen() {
           <Text style={styles.greeting}>Merhaba 👋</Text>
           <Text style={styles.title}>Hayvanlarım</Text>
         </View>
-        <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/(tabs)/pets/new')}>
+        <TouchableOpacity style={styles.addBtn} onPress={() => { haptic.light(); router.push('/(tabs)/pets/new') }}>
           <Text style={styles.addBtnText}>+ Ekle</Text>
         </TouchableOpacity>
       </View>
@@ -113,7 +114,7 @@ function PetCard({ pet }: { pet: ApiPet }) {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/(tabs)/pets/${pet.id}`)}
+      onPress={() => { haptic.light(); router.push(`/(tabs)/pets/${pet.id}`) }}
       activeOpacity={0.85}
     >
       <View style={styles.cardLeft}>

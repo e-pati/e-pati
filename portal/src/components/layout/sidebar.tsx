@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/auth.store'
+import { useNotifications } from '@/hooks/use-notifications'
 
 const navItems = [
   { href: '/dashboard', label: 'Pano', icon: LayoutDashboard },
@@ -33,6 +34,8 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, clearUser } = useAuthStore()
+  const notificationsQuery = useNotifications()
+  const unreadCount = notificationsQuery.data?.filter(n => !n.isRead && !n.readAt).length ?? 0
 
   const handleLogout = async () => {
     await authService.logout()
@@ -77,6 +80,11 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
                   active ? 'text-primary' : 'text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80',
                 )} />
                 <span className="flex-1">{item.label}</span>
+                {item.href === '/notifications' && unreadCount > 0 && (
+                  <Badge className="text-[9px] h-4 px-1.5 bg-destructive text-destructive-foreground border-0 min-w-4">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
                 {active && <ChevronRight className="w-3.5 h-3.5 text-primary/60" />}
               </Link>
             )
