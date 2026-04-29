@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -13,11 +13,16 @@ import { formatDateShort, isVaccinationOverdue, isVaccinationDueSoon, speciesEmo
 import { AlertTriangle, Clock, CheckCircle2, Syringe, Filter } from 'lucide-react'
 import Link from 'next/link'
 import type { ApiVaccination } from '@/services/vaccinations.service'
+import { Pagination } from '@/components/shared/pagination'
+
+const PAGE_SIZE = 15
 
 type FilterMode = 'all' | 'overdue' | 'upcoming'
 
 export default function VaccinationsPage() {
   const [filter, setFilter] = useState<FilterMode>('all')
+  const [page, setPage] = useState(1)
+  useEffect(() => { setPage(1) }, [filter])
 
   const vaccinationsQuery = useVaccinations()
   const petsQuery = usePets()
@@ -57,6 +62,8 @@ export default function VaccinationsPage() {
   const upcomingCount = enriched.filter(v => v.soon && !v.overdue).length
 
   const isLoading = vaccinationsQuery.isLoading || petsQuery.isLoading
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div>
@@ -124,7 +131,7 @@ export default function VaccinationsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map(v => (
+            {paginated.map(v => (
               <Card key={v.id} className={`border-border/50 transition-colors ${v.overdue ? 'border-destructive/30 bg-destructive/[0.02]' : v.soon ? 'border-amber-300/50 bg-amber-50/30' : ''}`}>
                 <CardContent className="p-4 flex items-center gap-4">
                   {/* Durum ikonu */}
@@ -185,6 +192,7 @@ export default function VaccinationsPage() {
             ))}
           </div>
         )}
+        <Pagination page={page} totalPages={totalPages} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
     </div>
   )

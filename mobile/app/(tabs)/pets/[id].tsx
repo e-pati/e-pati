@@ -120,9 +120,17 @@ export default function PetDetailScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>← Geri</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={openQr} style={styles.qrBtn}>
-          <Text style={styles.qrBtnText}>QR</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity
+            onPress={() => router.push(`/(tabs)/pets/edit?id=${pet.id}`)}
+            style={styles.editBtn}
+          >
+            <Text style={styles.editBtnText}>Düzenle</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openQr} style={styles.qrBtn}>
+            <Text style={styles.qrBtnText}>QR</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Profil kartı */}
@@ -441,6 +449,12 @@ const styles = StyleSheet.create({
   },
   backBtn: {},
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
+  editBtn: {
+    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border,
+    backgroundColor: Colors.background,
+  },
+  editBtnText: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
   qrBtn: {
     minWidth: 44, height: 32, borderRadius: Radius.full,
     alignItems: 'center', justifyContent: 'center',
