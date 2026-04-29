@@ -1,299 +1,139 @@
 # e-Pati Projesi — AI Devir Teslim Promptu
 
-> **Son güncelleme:** 29 Nisan 2026 — token yenileme öncesi handoff
+> **Son güncelleme:** 29 Nisan 2026 — tüm core özellikler tamamlandı
 
 ## Sen Kimsin, Ne Yapacaksın?
 
-Ben bu projenin frontend/mobil geliştiricisiyim. Seninle birlikte **e-Pati** adlı bir evcil hayvan sağlık uygulaması geliştiriyoruz. Kod yazıyorsun, push yapıyorsun, sorun çözüyorsun — tam bir geliştirici gibi davranıyorsun.
-
----
-
-## Proje Nedir?
-
-Türkiye'nin e-Nabız sisteminden ilham alınan, veteriner klinikleri ile evcil hayvan sahiplerini dijital olarak birleştiren bir platform.
-
-- **Veteriner tarafı:** Web portalı — hasta kayıtları, muayene notları, aşı takibi
-- **Sahip tarafı:** Mobil uygulama (iOS + Android) — sağlık geçmişi, bildirimler, aşı takvimi
+Burak ile birlikte **e-Pati** adlı evcil hayvan sağlık uygulaması geliştiriyorsun. Kod yazıyorsun, push yapıyorsun, sorun çözüyorsun — tam bir geliştirici gibi.
 
 ---
 
 ## Ekip
 
-- **Burak (kullanıcı):** Frontend + Mobil (Next.js portal, React Native mobil)
-- **Erol:** Backend (NestJS API) — `dev/backend` branch'inde çalışıyor
+- **Burak (kullanıcı):** Frontend + Mobil
+- **Erol:** Backend (NestJS API) — `dev/backend` branch'inde
 - **AI (sen):** Burak'ın pair programmer'ı
 
 ---
 
-## GitHub Repo
+## GitHub
 
-**Organizasyon:** `e-pati`
 **Repo:** `https://github.com/e-pati/e-pati`
-**Çalışma branch'i:** `feature/portal` ← buraya push et, başka yere değil
-
-```
-main
-├── feature/portal   ← BİZİM BRANCH (buraya push et)
-└── dev/backend      ← Erol'un branch'i (dokunma)
-```
+**Çalışma branch'i:** `feature/portal` ← sadece buraya push et
 
 ---
 
-## Proje Klasör Yapısı
+## Proje Yapısı
 
 ```
 /Users/gemici/Documents/e-pati/
-├── portal/          ← Next.js 16 klinik web portalı (BİZİM)
-├── mobile/          ← React Native + Expo mobil uygulama (BİZİM)
-├── e-pati-api/      ← NestJS backend (EROL'UN — dokunma)
-├── GELISTIRICI-1-BACKEND.md
-├── GELISTIRICI-2-FRONTEND-MOBIL.md
-└── epati-gelistirme-plani.md
+├── portal/       ← Next.js 16 web portalı (BİZİM)
+├── mobile/       ← React Native + Expo mobil (BİZİM)
+├── e-pati-api/   ← NestJS backend (EROL'UN — dokunma)
 ```
 
 ---
 
-## Teknoloji Stack
-
-### Portal (`portal/`)
-- **Framework:** Next.js 16 (App Router, TypeScript)
-- **Stil:** Tailwind CSS + shadcn/ui
-- **State:** Zustand (`src/stores/auth.store.ts`)
-- **Data:** TanStack Query (`src/hooks/`)
-- **HTTP:** Axios (`src/lib/api.ts`) — JWT interceptor var, otomatik token yenileme yapıyor
-- **Form:** React Hook Form + Zod
-- **Toast:** Sonner
-- **Deploy:** Vercel → `https://e-pati.vercel.app`
-
-### Mobile (`mobile/`)
-- **Framework:** React Native 0.81 + Expo SDK 54
-- **Navigation:** Expo Router (file-based)
-- **State:** TanStack Query
-- **HTTP:** Axios (`lib/api.ts`) — SecureStore token yönetimi
-- **Form:** React Hook Form + Zod
-
----
-
-## Mevcut Dosya Yapıları
+## Stack
 
 ### Portal
-```
-portal/src/
-├── app/
-│   ├── (auth)/login/         ← Giriş sayfası (API bağlı ✅)
-│   ├── (dashboard)/
-│   │   ├── dashboard/        ← Ana pano (mock data)
-│   │   ├── patients/         ← Hasta listesi (API bağlı ✅)
-│   │   │   ├── [id]/         ← Hasta detay (mock data — bağlanacak)
-│   │   │   └── new/          ← Yeni hasta formu (API bağlı ✅)
-│   │   ├── examinations/new/ ← Muayene formu (mock — bağlanacak)
-│   │   └── notifications/    ← Bildirimler (mock — bağlanacak)
-│   └── page.tsx              ← /login'e redirect
-├── components/
-│   ├── layout/sidebar.tsx    ← Sidebar + logout (çalışıyor ✅)
-│   ├── layout/header.tsx
-│   └── shared/
-├── services/
-│   ├── auth.service.ts       ← login, register, logout (API bağlı ✅)
-│   └── pets.service.ts       ← CRUD (API bağlı ✅)
-├── hooks/
-│   └── use-pets.ts           ← TanStack Query hooks
-├── stores/
-│   └── auth.store.ts         ← Zustand auth state
-├── lib/
-│   ├── api.ts                ← Axios instance
-│   ├── mock-data.ts          ← Geçici veriler (silme!)
-│   └── utils.ts
-├── types/index.ts
-└── middleware.ts             ← Auth koruması (cookie tabanlı ✅)
-```
+- Next.js 16 App Router, TypeScript, Tailwind, shadcn/ui
+- Zustand (`src/stores/auth.store.ts`), TanStack Query (`src/hooks/`)
+- Axios (`src/lib/api.ts`), React Hook Form + Zod, Sonner
+- Deploy: `https://e-pati.vercel.app`
 
 ### Mobile
-```
-mobile/app/
-├── (auth)/
-│   ├── onboarding.tsx        ← 3 slide tanıtım ✅
-│   ├── login.tsx             ← API bağlı ✅
-│   ├── register.tsx          ← Form hazır, API bağlanacak
-│   └── otp.tsx               ← Mock
-├── (tabs)/
-│   ├── pets/
-│   │   ├── index.tsx         ← Liste (API bağlı ✅, fallback var)
-│   │   ├── [id].tsx          ← Detay (mock data — bağlanacak)
-│   │   └── new.tsx           ← Yeni hayvan (API bağlı ✅)
-│   ├── calendar/index.tsx    ← Aşı takvimi (mock — bağlanacak)
-│   ├── notifications/index.tsx ← Mock — bağlanacak
-│   └── profile/index.tsx
-└── index.tsx                 ← Token kontrolü → yönlendirme ✅
-```
+- React Native 0.81 + Expo SDK 54, Expo Router
+- TanStack Query, Axios (`lib/api.ts`) + SecureStore
+- Zustand (`stores/auth.store.ts`), React Hook Form + Zod/v4
 
 ---
 
-## Backend API Durumu — TÜMÜ HAZIR ✅
+## Tamamlanan Özellikler
 
-Erol bugün tüm modülleri tamamladı. Şu an çalışan tüm endpoint'ler:
+### Portal ✅
+| Sayfa/Bileşen | Durum |
+|---|---|
+| `/login` | API bağlı |
+| `/dashboard` | Gerçek API (pets, examinations, aşı uyarıları, haftalık chart) |
+| `/patients` | API bağlı, pagination (12/sayfa), tür filtresi |
+| `/patients/[id]` | API bağlı, 4 sekme (muayene/aşı/reçete/lab) |
+| `/patients/new` | API bağlı |
+| `/examinations` | API bağlı, arama |
+| `/examinations/new` | API bağlı, hasta arama, SOAP |
+| `/vaccinations` | API bağlı, filtreler |
+| `/lab-results` | API bağlı |
+| `/notifications` | API bağlı, okundu işareti |
+| `/settings` | Kullanıcı profili, logout |
+| Modallar | Aşı ekle ✅, Reçete yaz ✅, Lab sonucu ✅, Hasta düzenle ✅ |
+| Auth koruması | `proxy.ts` (cookie tabanlı) |
+| Error boundary | `error.tsx`, `not-found.tsx` |
+
+### Mobile ✅
+| Ekran | Durum |
+|---|---|
+| Onboarding (3 slide) | ✅ |
+| Login | API bağlı |
+| Register | API bağlı |
+| OTP | Mock (SMS backend gerekli) |
+| Pets listesi | API bağlı, pull-to-refresh, boş durum CTA |
+| Pet detay | API bağlı, 5 sekme, QR modal + Paylaş |
+| Yeni hayvan | API bağlı |
+| Takvim | API bağlı (vaccinations/upcoming) |
+| Bildirimler | API bağlı, okundu işareti |
+| Profil | Gerçek kullanıcı bilgisi, logout |
+| Tab bar badge | Gerçek okunmamış sayısı |
+| Push notifications | Expo token → backend'e kaydediliyor |
+
+---
+
+## Backend API — TÜMÜ HAZIR
 
 **Base URL:** `http://localhost:3000`
-**Swagger:** `http://localhost:3000/api`
 
 ```
-# AUTH
-POST /auth/register    → { fullName, email, phone?, password }
-POST /auth/login       → { email, password }
-POST /auth/refresh
-POST /auth/logout
-
-# PETS
-GET    /pets
-POST   /pets           → { name, species, breed?, sex?, birthDate?, microchipNo? }
-GET    /pets/:id
-PATCH  /pets/:id
-DELETE /pets/:id
-GET    /pets/:id/qr    → { token }
-
-# EXAMINATIONS
-GET    /examinations?petId=&page=&limit=
-POST   /examinations   → { petId, complaint, findings, assessment, plan }
-GET    /examinations/:id
-PATCH  /examinations/:id
-
-# VACCINATIONS
-GET    /vaccinations?petId=&page=&limit=
-GET    /vaccinations/upcoming
-POST   /vaccinations   → { petId, name, lotNumber?, appliedAt, dueAt?, notes? }
-GET    /vaccinations/:id
-PATCH  /vaccinations/:id
-
-# PRESCRIPTIONS
-POST   /prescriptions  → { petId, examinationId?, medications: [{name, dose, frequency, duration, instructions?}], notes? }
-GET    /prescriptions/:id
-GET    /prescriptions/:id/pdf
-
-# LAB RESULTS
-POST   /lab-results    → { petId, testType, fileUrl?, comment? }
-GET    /lab-results?petId=
-GET    /lab-results/:id/file
-
-# NOTIFICATIONS
-GET    /notifications
-PATCH  /notifications/:id/read
-POST   /notifications/preferences
-```
-
-### Auth Response Formatı
-```json
-{
-  "accessToken": "...",
-  "refreshToken": "...",
-  "user": { "id": "...", "email": "...", "fullName": "...", "role": "OWNER" }
-}
+POST /auth/register, /auth/login, /auth/refresh, /auth/logout
+GET/POST/PATCH/DELETE /pets, GET /pets/:id/qr
+GET/POST/PATCH /examinations
+GET/POST/PATCH /vaccinations, GET /vaccinations/upcoming
+POST /prescriptions, GET /prescriptions/:id, GET /prescriptions/:id/pdf
+POST /lab-results, GET /lab-results, GET /lab-results/:id/file
+GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferences
 ```
 
 ---
 
-## ⚡ YAPILACAKLAR — ÖNCELİK SIRASI
+## Yapılabilecek Sonraki İşler
 
-Erol tüm endpoint'leri yazdı. Şu an tek yapılması gereken bunları portal ve mobile'a bağlamak.
-
-### 1. Portal — Servis dosyaları yaz (henüz yok)
-Şu an sadece `portal/src/services/auth.service.ts` ve `portal/src/services/pets.service.ts` var.
-Bunlar eksik, yazılacak:
-- `portal/src/services/examinations.service.ts`
-- `portal/src/services/vaccinations.service.ts`
-- `portal/src/services/prescriptions.service.ts`
-- `portal/src/services/lab-results.service.ts`
-- `portal/src/services/notifications.service.ts`
-
-### 2. Portal — Hook'lar yaz
-`portal/src/hooks/` altında her modül için TanStack Query hook'ları.
-
-### 3. Portal — Hasta detay sayfasını API'ye bağla
-`portal/src/app/(dashboard)/patients/[id]/page.tsx` şu an tamamen mock data kullanıyor.
-Sekmeleri (muayene, aşı, reçete, lab) gerçek API'ye bağla.
-
-### 4. Portal — Muayene formunu API'ye bağla
-`portal/src/app/(dashboard)/examinations/new/page.tsx` form var, submit mock.
-
-### 5. Portal — Bildirimler sayfasını API'ye bağla
-`portal/src/app/(dashboard)/notifications/page.tsx` şu an hardcode mock liste kullanıyor.
-
-### 6. Mobile — Servis dosyaları yaz
-`mobile/services/` altında examinations, vaccinations, prescriptions, lab-results, notifications servisleri yok. Yazılacak.
-
-### 7. Mobile — Hayvan detay sayfasını API'ye bağla
-`mobile/app/(tabs)/pets/[id].tsx` mock data kullanıyor. `petsService.getOne()` + yeni servisler bağlanacak.
-
-### 8. Mobile — Register ekranını API'ye bağla
-`mobile/app/(auth)/register.tsx` form var ama submit mock. `authService.register()` çağrısı eklenecek.
-
-### 9. Mobile — Takvim sayfasını API'ye bağla
-`mobile/app/(tabs)/calendar/index.tsx` mock vaccination data kullanıyor. Gerçek API'ye bağlanacak.
-
-### 10. Mobile — QR Kod ekranı
-`petsService.getQr()` hazır. Hayvan detay sayfasına QR paylaşım butonu + modal eklenecek.
+1. **SMS/OTP gerçek entegrasyon** — OTP ekranı mock, backend'de SMS servisi (Netgsm) gerekli
+2. **Portal pagination** — examinations, vaccinations, lab-results sayfalarına da pagination ekle
+3. **Mobile — hayvan düzenleme** — pet detail'de edit butonu yok mobilde
+4. **Portal — klinik onboarding** — yeni klinik kayıt akışı
+5. **Vercel env variable** — `NEXT_PUBLIC_API_URL` production backend URL ile güncellenmeli
+6. **Erol'un ileride ekleyebilecekleri** — randevu sistemi, AI semptom yönlendirme
 
 ---
 
 ## Önemli Kurallar
 
-1. **Push:** Sadece `feature/portal` branch'ine push et. `main` veya `dev/backend`'e DOKUNMA.
-2. **`e-pati-api/` klasörüne dokunma** — Erol'un kodu, çakışma yaratır.
-3. **Mock data silme:** `portal/src/lib/mock-data.ts` ve `mobile/lib/mock-data.ts` — API bağlantısı başarısız olunca fallback olarak kullanılıyor.
-4. **TypeScript:** Tip güvenli yaz, `any` kullanma.
-5. **Build kontrolü:** Push öncesi `cd /Users/gemici/Documents/e-pati/portal && npm run build` çalıştır.
-6. **Onay al:** Push yapmadan önce Burak'a sor — özellikle ilk push'ta.
-7. **Commit formatı:**
-   ```
-   feat(portal): connect patient detail to real API
-   feat(mobile): add examinations service and hook
-   ```
+1. **Sadece `feature/portal` branch'ine push et** — main veya dev/backend'e dokunma
+2. **`e-pati-api/` klasörüne dokunma** — Erol'un kodu
+3. **Push öncesi build:** `cd /Users/gemici/Documents/e-pati/portal && npm run build`
+4. **Mobilde Zod:** `import { z } from 'zod/v4'`
+5. **`Notification` type çakışması:** `import type { Notification as AppNotification }`
+6. **shadcn Select onValueChange:** `v => { if (v) setValue(...) }` pattern
+7. **Vercel deploy:** `cd portal && vercel --yes`
 
 ---
 
-## Git Komutları
+## Git
 
 ```bash
-# Başlamadan önce her zaman pull yap
-cd /Users/gemici/Documents/e-pati
+# Başlamadan önce
 git fetch origin && git pull origin feature/portal
 
 # Push
 git add portal/ mobile/
-git commit -m "feat(...): ..."
+git commit -m "feat(portal): ..."
 git push origin feature/portal
-```
-
----
-
-## Vercel Deploy
-
-```bash
-cd /Users/gemici/Documents/e-pati/portal
-vercel --yes
-```
-Canlı URL: `https://e-pati.vercel.app`
-
----
-
-## Dikkat Edilecek Tuzaklar
-
-- `portal/.env.local` → `NEXT_PUBLIC_API_URL=http://localhost:3000`
-- Portal middleware cookie-based: `epati-logged-in` cookie'si login/logout'ta set/clear ediliyor.
-- Mobil token → `expo-secure-store` (AsyncStorage yasak).
-- Mobilde Zod: `import { z } from 'zod/v4'` (zod/v4 kullan, normal zod değil)
-- Portal'da `Notification` tipi browser global'i ile çakışıyor → import ederken `as AppNotification` kullan.
-- shadcn Select `onValueChange` null gelebilir → `v => { if (v) setValue(...) }` pattern kullan.
-
----
-
-## Hızlı Test
-
-```bash
-# Portal
-cd /Users/gemici/Documents/e-pati/portal && npm run dev
-# → http://localhost:3001
-
-# Mobile
-cd /Users/gemici/Documents/e-pati/mobile && npx expo start
-# → QR kodu Expo Go ile tara
 ```

@@ -1,5 +1,7 @@
 import { Tabs } from 'expo-router'
 import { View, Text, StyleSheet } from 'react-native'
+import { useQuery } from '@tanstack/react-query'
+import { notificationsService } from '@/services/notifications.service'
 import { Colors } from '@/constants/theme'
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
@@ -11,6 +13,15 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 }
 
 export default function TabLayout() {
+  const { data: notifications } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: notificationsService.getAll,
+    retry: 1,
+    refetchInterval: 60 * 1000, // her dakika yenile
+  })
+
+  const unreadCount = notifications?.filter(n => !n.isRead && !n.readAt).length ?? 0
+
   return (
     <Tabs
       screenOptions={{
@@ -40,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: 'Bildirimler',
           tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} />,
-          tabBarBadge: 2,
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
           tabBarBadgeStyle: { backgroundColor: Colors.danger, fontSize: 10 },
         }}
       />

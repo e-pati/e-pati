@@ -1,6 +1,6 @@
 'use client'
 
-import { use } from 'react'
+import { use, useState } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
@@ -19,6 +19,10 @@ import type { ApiExamination } from '@/services/examinations.service'
 import type { ApiVaccination } from '@/services/vaccinations.service'
 import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
 import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
+import { AddVaccinationDialog } from '@/components/patients/add-vaccination-dialog'
+import { AddPrescriptionDialog } from '@/components/patients/add-prescription-dialog'
+import { AddLabResultDialog } from '@/components/patients/add-lab-result-dialog'
+import { EditPatientDialog } from '@/components/patients/edit-patient-dialog'
 import type { PetSpecies } from '@/types'
 import {
   mockPets, mockExaminations, mockVaccinations, mockPrescriptions, mockLabResults,
@@ -28,13 +32,17 @@ import {
   isVaccinationDueSoon, isVaccinationOverdue,
 } from '@/lib/utils'
 import {
-  Phone, Mail, MapPin, Calendar, Weight, Cpu, Plus,
+  Phone, Mail, MapPin, Calendar, Cpu, Plus, Pencil,
   AlertTriangle, CheckCircle2, Clock, FileText, FlaskConical,
   Stethoscope, Syringe, Pill,
 } from 'lucide-react'
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const [vaccinationDialogOpen, setVaccinationDialogOpen] = useState(false)
+  const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(false)
+  const [labDialogOpen, setLabDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
   const petQuery = usePet(id)
   const examinationsQuery = useExaminations({ petId: id, limit: 100 })
   const vaccinationsQuery = useVaccinations({ petId: id, limit: 100 })
@@ -82,6 +90,16 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         subtitle={`${speciesLabel(petSpecies)} · ${pet.breed ?? 'Irk belirtilmemiş'}`}
         action={{ label: 'Yeni Muayene', href: `/examinations/new?petId=${pet.id}` }}
       />
+      {/* Düzenle butonu */}
+      <div className="px-6 pt-2 flex justify-end">
+        <button
+          onClick={() => setEditDialogOpen(true)}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Pencil className="w-3 h-3" />
+          Hasta bilgilerini düzenle
+        </button>
+      </div>
 
       <div className="p-6 space-y-6">
         {hasFallbackData && (
@@ -268,7 +286,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           {/* Aşılar */}
           <TabsContent value="vaccinations" className="mt-4">
             <div className="flex justify-end mb-4">
-              <Button size="sm" variant="outline" className="gap-1.5">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setVaccinationDialogOpen(true)}>
                 <Plus className="w-4 h-4" />
                 Aşı Ekle
               </Button>
@@ -314,6 +332,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Reçeteler */}
           <TabsContent value="prescriptions" className="mt-4 space-y-4">
+            <div className="flex justify-end">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setPrescriptionDialogOpen(true)}>
+                <Plus className="w-4 h-4" />
+                Reçete Yaz
+              </Button>
+            </div>
             {prescriptions.length === 0 ? (
               <EmptyState icon={FileText} message="Henüz reçete yok" />
             ) : (
@@ -357,7 +381,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           {/* Lab */}
           <TabsContent value="lab" className="mt-4 space-y-3">
             <div className="flex justify-end mb-4">
-              <Button size="sm" variant="outline" className="gap-1.5">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setLabDialogOpen(true)}>
                 <Plus className="w-4 h-4" />
                 Sonuç Yükle
               </Button>
@@ -398,6 +422,29 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </TabsContent>
         </Tabs>
       </div>
+
+      <AddVaccinationDialog
+        petId={id}
+        open={vaccinationDialogOpen}
+        onClose={() => setVaccinationDialogOpen(false)}
+      />
+      <AddPrescriptionDialog
+        petId={id}
+        open={prescriptionDialogOpen}
+        onClose={() => setPrescriptionDialogOpen(false)}
+      />
+      <AddLabResultDialog
+        petId={id}
+        open={labDialogOpen}
+        onClose={() => setLabDialogOpen(false)}
+      />
+      {editDialogOpen && (
+        <EditPatientDialog
+          pet={pet}
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+        />
+      )}
     </div>
   )
 }

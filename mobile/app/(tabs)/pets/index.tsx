@@ -83,9 +83,23 @@ export default function PetsScreen() {
           ListEmptyComponent={
             <View style={styles.empty}>
               <Text style={styles.emptyEmoji}>🐾</Text>
-              <Text style={styles.emptyText}>
-                {query ? 'Sonuç bulunamadı' : 'Henüz kayıtlı hayvan yok'}
+              <Text style={styles.emptyTitle}>
+                {query ? 'Sonuç bulunamadı' : 'Henüz hayvan eklenmedi'}
               </Text>
+              {!query && (
+                <>
+                  <Text style={styles.emptyText}>
+                    Evcil dostunuzun sağlık geçmişini takip etmek için ilk hayvanınızı ekleyin.
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.emptyBtn}
+                    onPress={() => router.push('/(tabs)/pets/new')}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.emptyBtnText}>+ İlk Hayvanımı Ekle</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           }
         />
@@ -166,7 +180,13 @@ const styles = StyleSheet.create({
   speciesBadge: { backgroundColor: Colors.primaryBg, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3 },
   speciesBadgeText: { fontSize: FontSize.xs, color: Colors.primary, fontWeight: FontWeight.medium },
   arrow: { fontSize: 20, color: Colors.textMuted },
-  empty: { alignItems: 'center', paddingTop: 60 },
-  emptyEmoji: { fontSize: 48, marginBottom: Spacing.lg },
-  emptyText: { fontSize: FontSize.base, color: Colors.textMuted },
+  empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: Spacing.xxxl },
+  emptyEmoji: { fontSize: 56, marginBottom: Spacing.lg },
+  emptyTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: Colors.text, marginBottom: Spacing.sm },
+  emptyText: { fontSize: FontSize.sm, color: Colors.textMuted, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xl },
+  emptyBtn: {
+    backgroundColor: Colors.primary, borderRadius: Radius.full,
+    paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.md,
+  },
+  emptyBtnText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
 })

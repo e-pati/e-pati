@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, Modal,
+  SafeAreaView, ActivityIndicator, Modal, Share,
 } from 'react-native'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
@@ -319,9 +319,23 @@ export default function PetDetailScreen() {
                 : <QRCode value={qrToken || `e-pati-pet:${pet.id}`} size={190} />
               }
             </View>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => setQrVisible(false)}>
-              <Text style={styles.closeBtnText}>Kapat</Text>
-            </TouchableOpacity>
+            <Text style={styles.qrHint}>
+              Bu QR kodu veterinerinize gösterin veya paylaşın.
+            </Text>
+            <View style={styles.qrActions}>
+              <TouchableOpacity
+                style={[styles.qrBtn2, { backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder }]}
+                onPress={() => Share.share({
+                  message: `e-Pati: ${pet.name} hayvanının sağlık kaydı\nToken: ${qrToken || pet.id}`,
+                  title: `${pet.name} - e-Pati`,
+                })}
+              >
+                <Text style={[styles.qrBtnText2, { color: Colors.primary }]}>📤 Paylaş</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.qrBtn2, { backgroundColor: Colors.primary }]} onPress={() => setQrVisible(false)}>
+                <Text style={[styles.qrBtnText2, { color: '#fff' }]}>Kapat</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -542,6 +556,10 @@ const styles = StyleSheet.create({
     width: 220, height: 220, borderRadius: Radius.lg, backgroundColor: '#fff',
     alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg,
   },
+  qrHint: { fontSize: FontSize.xs, color: Colors.textMuted, textAlign: 'center', marginTop: Spacing.md, marginBottom: Spacing.lg, paddingHorizontal: Spacing.lg },
+  qrActions: { flexDirection: 'row', gap: 10, width: '100%' },
+  qrBtn2: { flex: 1, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  qrBtnText2: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold },
   closeBtn: {
     height: 44, alignSelf: 'stretch', borderRadius: Radius.md,
     backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center',

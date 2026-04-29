@@ -1,40 +1,76 @@
 import { useState } from 'react'
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from 'react-native'
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity,
+  SafeAreaView, ActivityIndicator, RefreshControl,
+} from 'react-native'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { notificationsService, type ApiNotification } from '@/services/notifications.service'
 import { mockNotifications } from '@/lib/mock-data'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
-import type { AppNotification } from '@/types'
 
-const typeIcon: Record<AppNotification['type'], string> = {
+const typeIcon: Record<string, string> = {
   examination: '🩺',
   vaccination: '💉',
   prescription: '💊',
+  lab: '🔬',
   reminder: '⏰',
 }
 
-const typeBg: Record<AppNotification['type'], string> = {
+const typeBg: Record<string, string> = {
   examination: Colors.primary + '15',
   vaccination: '#3b82f615',
   prescription: '#8b5cf615',
+  lab: '#ef444415',
   reminder: Colors.warning + '15',
 }
 
-function formatRelative(dateStr: string): string {
+function formatRelative(dateStr?: string): string {
+  if (!dateStr) return ''
   const diff = Date.now() - new Date(dateStr).getTime()
   const minutes = Math.floor(diff / 60000)
   if (minutes < 60) return `${minutes} dk önce`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours} saat önce`
-  const days = Math.floor(hours / 24)
-  return `${days} gün önce`
+  return `${Math.floor(hours / 24)} gün önce`
+}
+
+function mapMockNotification(n: (typeof mockNotifications)[number]): ApiNotification {
+  return {
+    id: n.id,
+    type: n.type as any,
+    title: n.title,
+    message: n.message,
+    sentAt: n.sentAt,
+    isRead: n.isRead,
+  }
 }
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState(mockNotifications)
+  const qc = useQueryClient()
 
-  const markAllRead = () => setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
-  const markRead = (id: string) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: notificationsService.getAll,
+    retry: 1,
+  })
 
-  const unreadCount = notifications.filter(n => !n.isRead).length
+  const markRead = useMutation({
+    mutationFn: (id: string) => notificationsService.markRead(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+  })
+
+  const notifications: ApiNotification[] = data ?? (
+    isError ? mockNotifications.map(mapMockNotification) : []
+  )
+
+  const unreadCount = notifications.filter(n => !n.isRead && !n.readAt).length
+
+  const handleMarkAll = async () => {
+    const unread = notifications.filter(n => !n.isRead && !n.readAt)
+    for (const n of unread) {
+      markRead.mutate(n.id)
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,48 +78,65 @@ export default function NotificationsScreen() {
         <View>
           <Text style={styles.title}>Bildirimler</Text>
           {unreadCount > 0 && (
-            <Text style={styles.subtitle}>{unreadCount} okunmamış bildirim</Text>
+            <Text style={styles.subtitle}>{unreadCount} okunmamış</Text>
           )}
         </View>
         {unreadCount > 0 && (
-          <TouchableOpacity onPress={markAllRead}>
+          <TouchableOpacity onPress={handleMarkAll}>
             <Text style={styles.markAll}>Tümünü Oku</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <FlatList
-        data={notifications}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.item, !item.isRead && styles.itemUnread]}
-            onPress={() => markRead(item.id)}
-            activeOpacity={0.85}
-          >
-            <View style={[styles.iconBox, { backgroundColor: typeBg[item.type] }]}>
-              <Text style={styles.icon}>{typeIcon[item.type]}</Text>
+      {isError && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>⚠️ API bağlantısı kurulamadı — örnek veriler gösteriliyor</Text>
+        </View>
+      )}
+
+      {isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator color={Colors.primary} size="large" />
+        </View>
+      ) : (
+        <FlatList
+          data={notifications}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
+          }
+          renderItem={({ item }) => {
+            const isRead = item.isRead || !!item.readAt
+            return (
+              <TouchableOpacity
+                style={[styles.item, !isRead && styles.itemUnread]}
+                onPress={() => !isRead && markRead.mutate(item.id)}
+                activeOpacity={0.85}
+              >
+                <View style={[styles.iconBox, { backgroundColor: typeBg[item.type] ?? typeBg.reminder }]}>
+                  <Text style={styles.icon}>{typeIcon[item.type] ?? '🔔'}</Text>
+                </View>
+                <View style={styles.itemContent}>
+                  <View style={styles.itemTop}>
+                    <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
+                    <Text style={styles.itemTime}>{formatRelative(item.sentAt ?? item.createdAt)}</Text>
+                  </View>
+                  <Text style={styles.itemMessage} numberOfLines={2}>{item.message}</Text>
+                </View>
+                {!isRead && <View style={styles.unreadDot} />}
+              </TouchableOpacity>
+            )
+          }}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyEmoji}>🔔</Text>
+              <Text style={styles.emptyText}>Henüz bildirim yok</Text>
             </View>
-            <View style={styles.itemContent}>
-              <View style={styles.itemTop}>
-                <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
-                <Text style={styles.itemTime}>{formatRelative(item.sentAt)}</Text>
-              </View>
-              <Text style={styles.itemMessage} numberOfLines={2}>{item.message}</Text>
-              <Text style={styles.itemPet}>🐾 {item.petName}</Text>
-            </View>
-            {!item.isRead && <View style={styles.unreadDot} />}
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyEmoji}>🔔</Text>
-            <Text style={styles.emptyText}>Henüz bildirim yok</Text>
-          </View>
-        }
-      />
+          }
+        />
+      )}
     </SafeAreaView>
   )
 }
@@ -97,6 +150,13 @@ const styles = StyleSheet.create({
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
   subtitle: { fontSize: FontSize.sm, color: Colors.primary, marginTop: 2 },
   markAll: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.medium },
+  errorBanner: {
+    marginHorizontal: Spacing.xl, marginBottom: Spacing.md,
+    backgroundColor: '#fef3cd', borderRadius: Radius.md,
+    padding: Spacing.sm, borderWidth: 1, borderColor: '#fde68a',
+  },
+  errorText: { fontSize: FontSize.xs, color: '#92400e' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   list: { paddingHorizontal: Spacing.xl, paddingBottom: 24, gap: 10 },
   item: {
     flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md,
@@ -111,7 +171,6 @@ const styles = StyleSheet.create({
   itemTitle: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text, flex: 1 },
   itemTime: { fontSize: FontSize.xs, color: Colors.textMuted, marginLeft: Spacing.sm },
   itemMessage: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 20 },
-  itemPet: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 4 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary, marginTop: 6 },
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyEmoji: { fontSize: 48, marginBottom: Spacing.lg },
