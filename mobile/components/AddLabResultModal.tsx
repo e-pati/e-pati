@@ -1,3 +1,4 @@
+import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
@@ -25,13 +26,13 @@ export function AddLabResultModal({ petId, visible, onClose }: Props) {
 
   const mutation = useMutation({
     mutationFn: () => labResultsService.create({ petId, testType, comment: comment || undefined }),
-    onSuccess: () => {
+    onSuccess: () => { haptic.success()
       qc.invalidateQueries({ queryKey: ['lab-results', { petId }] })
       Alert.alert('Başarılı', 'Lab sonucu kaydedildi.')
       setTestType(''); setComment('')
       onClose()
     },
-    onError: () => Alert.alert('Hata', 'Lab sonucu kaydedilemedi.'),
+    onError: () => { haptic.error(); Alert.alert('Hata', 'Lab sonucu kaydedilemedi.'),
   })
 
   return (

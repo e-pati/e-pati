@@ -1,3 +1,4 @@
+import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
@@ -35,12 +36,12 @@ export function AddVaccinationModal({ petId, visible, onClose }: Props) {
       lotNumber: lotNumber || undefined,
       notes: notes || undefined,
     }),
-    onSuccess: () => {
+    onSuccess: () => { haptic.success()
       qc.invalidateQueries({ queryKey: ['vaccinations', { petId }] })
       Alert.alert('Başarılı', 'Aşı kaydedildi.')
       resetAndClose()
     },
-    onError: () => Alert.alert('Hata', 'Aşı kaydedilemedi.'),
+    onError: () => { haptic.error(); Alert.alert('Hata', 'Aşı kaydedilemedi.'),
   })
 
   const resetAndClose = () => {

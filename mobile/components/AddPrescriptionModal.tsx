@@ -1,3 +1,4 @@
+import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
@@ -39,13 +40,13 @@ export function AddPrescriptionModal({ petId, visible, onClose }: Props) {
       medications: medications.filter(m => m.name.trim()),
       notes: notes || undefined,
     }),
-    onSuccess: () => {
+    onSuccess: () => { haptic.success()
       qc.invalidateQueries({ queryKey: ['prescriptions', { petId }] })
       Alert.alert('Başarılı', 'Reçete kaydedildi.')
       setMedications([emptyMed()]); setNotes(''); setActiveMedIndex(0)
       onClose()
     },
-    onError: () => Alert.alert('Hata', 'Reçete kaydedilemedi.'),
+    onError: () => { haptic.error(); Alert.alert('Hata', 'Reçete kaydedilemedi.'),
   })
 
   const updateMed = (index: number, field: keyof Medication, value: string) => {
