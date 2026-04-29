@@ -9,9 +9,10 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { authService } from '@/services/auth.service'
 
 const schema = z.object({
-  phone: z.string().min(10, 'Geçerli telefon numarası girin'),
+  email: z.string().email('Geçerli e-posta girin'),
   password: z.string().min(6, 'Şifre en az 6 karakter olmalı'),
 })
 
@@ -20,16 +21,23 @@ type FormData = z.infer<typeof schema>
 export default function LoginScreen() {
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [apiError, setApiError] = useState('')
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true)
-    await new Promise(r => setTimeout(r, 800))
-    setLoading(false)
-    router.replace('/(tabs)/pets')
+    setApiError('')
+    try {
+      await authService.login(data.email, data.password)
+      router.replace('/(tabs)/pets')
+    } catch (err: any) {
+      setApiError(err?.response?.data?.message ?? 'Giriş başarısız. Bilgilerinizi kontrol edin.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -53,25 +61,32 @@ export default function LoginScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Giriş Yap</Text>
 
-          {/* Telefon */}
+          {apiError ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorBoxText}>{apiError}</Text>
+            </View>
+          ) : null}
+
+          {/* E-posta */}
           <View style={styles.field}>
-            <Text style={styles.label}>Telefon Numarası</Text>
+            <Text style={styles.label}>E-posta</Text>
             <Controller
               control={control}
-              name="phone"
+              name="email"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  style={[styles.input, errors.phone && styles.inputError]}
+                  style={[styles.input, errors.email && styles.inputError]}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="05XX XXX XX XX"
-                  keyboardType="phone-pad"
-                  autoComplete="tel"
+                  placeholder="ornek@mail.com"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  autoCapitalize="none"
                   placeholderTextColor={Colors.textMuted}
                 />
               )}
             />
-            {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
+            {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
           </View>
 
           {/* Şifre */}
@@ -187,4 +202,9 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.xl },
   footerText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   footerLink: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.semibold },
+  errorBox: {
+    backgroundColor: '#fef2f2', borderRadius: Radius.md,
+    padding: Spacing.md, borderWidth: 1, borderColor: '#fecaca',
+  },
+  errorBoxText: { fontSize: FontSize.sm, color: Colors.danger },
 })
