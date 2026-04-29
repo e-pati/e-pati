@@ -11,9 +11,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { usePets } from '@/hooks/use-pets'
+import { useCreateExamination } from '@/hooks/use-examinations'
+import type { ApiPet } from '@/services/pets.service'
+import type { PetSpecies } from '@/types'
 import { mockPets } from '@/lib/mock-data'
 import { speciesEmoji, speciesLabel, calculateAge } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import { Search, ChevronRight, CheckCircle2 } from 'lucide-react'
 
 const examinationSchema = z.object({
@@ -42,21 +47,22 @@ function NewExaminationForm() {
 
   const [petSearch, setPetSearch] = useState('')
   const [selectedPetId, setSelectedPetId] = useState(preselectedPetId)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const petsQuery = usePets()
+  const createExamination = useCreateExamination()
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<ExaminationForm>({
     resolver: zodResolver(examinationSchema),
     defaultValues: { petId: preselectedPetId },
   })
 
-  const selectedPet = mockPets.find(p => p.id === selectedPetId)
+  const pets = petsQuery.data ?? (petsQuery.isError ? mockPets.map(mapMockPet) : [])
+  const selectedPet = pets.find(p => p.id === selectedPetId)
 
-  const filteredPets = mockPets.filter(pet => {
+  const filteredPets = pets.filter(pet => {
     const q = petSearch.toLowerCase()
     return !q || pet.name.toLowerCase().includes(q) ||
-      pet.owner.firstName.toLowerCase().includes(q) ||
-      pet.owner.lastName.toLowerCase().includes(q)
+      (pet.owner?.fullName?.toLowerCase() ?? '').includes(q)
   })
 
   const handlePetSelect = (petId: string) => {
@@ -66,11 +72,21 @@ function NewExaminationForm() {
   }
 
   const onSubmit = async (data: ExaminationForm) => {
-    setIsSubmitting(true)
-    await new Promise(r => setTimeout(r, 1000))
-    console.log('Muayene kaydı:', data)
-    setSubmitted(true)
-    setTimeout(() => router.push(`/patients/${data.petId}`), 1500)
+    try {
+      await createExamination.mutateAsync({
+        petId: data.petId,
+        complaint: data.complaint,
+        findings: data.findings,
+        assessment: data.assessment,
+        plan: data.plan,
+      })
+      setSubmitted(true)
+      setTimeout(() => router.push(`/patients/${data.petId}`), 1200)
+    } catch {
+      toast.error('Muayene kaydedilemedi', {
+        description: 'API bağlantısını kontrol edip tekrar deneyin.',
+      })
+    }
   }
 
   if (submitted) {
@@ -93,6 +109,11 @@ function NewExaminationForm() {
 
       <div className="p-6 max-w-4xl">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {petsQuery.isError && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
+              API hasta listesi alınamadı; örnek hasta verileri gösteriliyor.
+            </div>
+          )}
 
           {/* Hasta seçimi */}
           <Card className="border-border/50">
@@ -107,14 +128,15 @@ function NewExaminationForm() {
             <CardContent className="space-y-4">
               {selectedPet ? (
                 <div className="flex items-center gap-4 p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                  <div className="text-4xl">{speciesEmoji(selectedPet.species)}</div>
+                  <div className="text-4xl">{speciesEmoji(normalizeSpecies(selectedPet.species))}</div>
                   <div className="flex-1">
                     <div className="font-semibold text-foreground">{selectedPet.name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {speciesLabel(selectedPet.species)} · {selectedPet.breed} · {calculateAge(selectedPet.birthDate)}
+                      {speciesLabel(normalizeSpecies(selectedPet.species))} · {selectedPet.breed ?? 'Irk belirtilmemiş'}
+                      {selectedPet.birthDate ? ` · ${calculateAge(selectedPet.birthDate)}` : ''}
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      Sahip: {selectedPet.owner.firstName} {selectedPet.owner.lastName}
+                      Sahip: {selectedPet.owner?.fullName ?? 'Sahip bilgisi yok'}
                     </div>
                   </div>
                   <Button
@@ -146,11 +168,11 @@ function NewExaminationForm() {
                         onClick={() => handlePetSelect(pet.id)}
                         className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/70 transition-colors text-left"
                       >
-                        <span className="text-2xl">{speciesEmoji(pet.species)}</span>
+                        <span className="text-2xl">{speciesEmoji(normalizeSpecies(pet.species))}</span>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium text-foreground">{pet.name}</div>
                           <div className="text-xs text-muted-foreground truncate">
-                            {pet.owner.firstName} {pet.owner.lastName} · {pet.breed}
+                            {pet.owner?.fullName ?? 'Sahip bilgisi yok'} · {pet.breed ?? 'Irk belirtilmemiş'}
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
@@ -245,8 +267,8 @@ function NewExaminationForm() {
             >
               İptal
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="gap-2 min-w-36">
-              {isSubmitting ? (
+            <Button type="submit" disabled={createExamination.isPending} className="gap-2 min-w-36">
+              {createExamination.isPending ? (
                 <>
                   <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                   Kaydediliyor...
@@ -260,3 +282,31 @@ function NewExaminationForm() {
   )
 }
 
+function normalizeSpecies(species: string): PetSpecies {
+  const normalized = species.toLowerCase()
+  if (normalized === 'dog' || normalized === 'cat' || normalized === 'bird' || normalized === 'rabbit') {
+    return normalized
+  }
+  return 'other'
+}
+
+function mapMockPet(pet: (typeof mockPets)[number]): ApiPet {
+  return {
+    id: pet.id,
+    ownerId: pet.ownerId,
+    name: pet.name,
+    species: pet.species,
+    breed: pet.breed,
+    sex: pet.gender,
+    birthDate: pet.birthDate,
+    microchipNo: pet.microchipNo,
+    createdAt: pet.createdAt,
+    updatedAt: pet.createdAt,
+    owner: {
+      id: pet.ownerId,
+      fullName: `${pet.owner.firstName} ${pet.owner.lastName}`,
+      email: pet.owner.email,
+      phone: pet.owner.phone,
+    },
+  }
+}

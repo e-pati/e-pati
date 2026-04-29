@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert,
 } from 'react-native'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
+import { authService } from '@/services/auth.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
 const schema = z.object({
@@ -26,11 +27,21 @@ export default function RegisterScreen() {
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true)
-    await new Promise(r => setTimeout(r, 800))
-    setLoading(false)
-    router.push('/(auth)/otp')
+    try {
+      await authService.register({
+        fullName: `${data.firstName} ${data.lastName}`.trim(),
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+      })
+      router.replace('/(tabs)/pets')
+    } catch {
+      Alert.alert('Kayıt başarısız', 'Bilgileri kontrol edip tekrar deneyin.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const fields: Array<{

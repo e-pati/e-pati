@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView,
+  SafeAreaView, ActivityIndicator, Modal,
 } from 'react-native'
 import { useLocalSearchParams, router } from 'expo-router'
+import { useQuery } from '@tanstack/react-query'
+import QRCode from 'react-native-qrcode-svg'
 import { mockPets, mockExaminations, mockVaccinations, mockPrescriptions, mockLabResults } from '@/lib/mock-data'
+import { petsService, type ApiPet } from '@/services/pets.service'
+import { examinationsService, type ApiExamination } from '@/services/examinations.service'
+import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
+import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
+import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
 import { speciesEmoji, speciesLabel, calculateAge, formatDate, formatDateShort, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 
@@ -21,21 +29,89 @@ const TABS: { key: Tab; label: string; emoji: string }[] = [
 export default function PetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const [activeTab, setActiveTab] = useState<Tab>('summary')
+  const [qrVisible, setQrVisible] = useState(false)
+  const [qrToken, setQrToken] = useState('')
+  const [qrLoading, setQrLoading] = useState(false)
 
-  const pet = mockPets.find(p => p.id === id)
+  const petQuery = useQuery({
+    queryKey: ['pets', id],
+    queryFn: () => petsService.getOne(id),
+    enabled: !!id,
+    retry: 1,
+  })
+  const examinationsQuery = useQuery({
+    queryKey: ['examinations', { petId: id }],
+    queryFn: () => examinationsService.getAll({ petId: id, limit: 100 }),
+    enabled: !!id,
+    retry: 1,
+  })
+  const vaccinationsQuery = useQuery({
+    queryKey: ['vaccinations', { petId: id }],
+    queryFn: () => vaccinationsService.getAll({ petId: id, limit: 100 }),
+    enabled: !!id,
+    retry: 1,
+  })
+  const prescriptionsQuery = useQuery({
+    queryKey: ['prescriptions', { petId: id }],
+    queryFn: () => prescriptionsService.getAll({ petId: id }),
+    enabled: !!id,
+    retry: 1,
+  })
+  const labResultsQuery = useQuery({
+    queryKey: ['lab-results', { petId: id }],
+    queryFn: () => labResultsService.getAll({ petId: id }),
+    enabled: !!id,
+    retry: 1,
+  })
+
+  const fallbackPet = mockPets.find(p => p.id === id)
+  const pet = petQuery.data ? mapApiPet(petQuery.data) : petQuery.isError && fallbackPet ? fallbackPet : undefined
+
+  if (petQuery.isLoading) return (
+    <View style={styles.center}>
+      <ActivityIndicator color={Colors.primary} size="large" />
+      <Text style={styles.loadingText}>Hasta bilgisi yükleniyor...</Text>
+    </View>
+  )
+
   if (!pet) return (
     <View style={styles.center}>
       <Text>Hayvan bulunamadı</Text>
     </View>
   )
 
-  const exams = mockExaminations.filter(e => e.petId === id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  const vaccines = mockVaccinations.filter(v => v.petId === id)
-  const prescriptions = mockPrescriptions.filter(p => p.petId === id)
-  const labs = mockLabResults.filter(l => l.petId === id)
+  const exams = (examinationsQuery.data
+    ? examinationsQuery.data.map(mapApiExamination)
+    : examinationsQuery.isError ? mockExaminations.filter(e => e.petId === id) : []
+  ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  const vaccines = vaccinationsQuery.data
+    ? vaccinationsQuery.data.map(mapApiVaccination)
+    : vaccinationsQuery.isError ? mockVaccinations.filter(v => v.petId === id) : []
+  const prescriptions = prescriptionsQuery.data
+    ? prescriptionsQuery.data.map(mapApiPrescription)
+    : prescriptionsQuery.isError ? mockPrescriptions.filter(p => p.petId === id) : []
+  const labs = labResultsQuery.data
+    ? labResultsQuery.data.map(mapApiLabResult)
+    : labResultsQuery.isError ? mockLabResults.filter(l => l.petId === id) : []
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
+  const hasFallbackData = petQuery.isError || examinationsQuery.isError || vaccinationsQuery.isError ||
+    prescriptionsQuery.isError || labResultsQuery.isError
+
+  const openQr = async () => {
+    setQrVisible(true)
+    if (qrToken) return
+    setQrLoading(true)
+    try {
+      const { token } = await petsService.getQr(pet.id)
+      setQrToken(token)
+    } catch {
+      setQrToken(`e-pati-pet:${pet.id}`)
+    } finally {
+      setQrLoading(false)
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -43,6 +119,9 @@ export default function PetDetailScreen() {
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>← Geri</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={openQr} style={styles.qrBtn}>
+          <Text style={styles.qrBtnText}>QR</Text>
         </TouchableOpacity>
       </View>
 
@@ -74,6 +153,11 @@ export default function PetDetailScreen() {
 
       {/* İçerik */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+        {hasFallbackData && (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorText}>⚠️ API kayıtları alınamadı — örnek veriler gösteriliyor</Text>
+          </View>
+        )}
 
         {activeTab === 'summary' && (
           <View style={styles.section}>
@@ -224,8 +308,104 @@ export default function PetDetailScreen() {
           </View>
         )}
       </ScrollView>
+
+      <Modal visible={qrVisible} transparent animationType="fade" onRequestClose={() => setQrVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>{pet.name} QR Kodu</Text>
+            <View style={styles.qrBox}>
+              {qrLoading
+                ? <ActivityIndicator color={Colors.primary} size="large" />
+                : <QRCode value={qrToken || `e-pati-pet:${pet.id}`} size={190} />
+              }
+            </View>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setQrVisible(false)}>
+              <Text style={styles.closeBtnText}>Kapat</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
+}
+
+function normalizeSpecies(species: string): PetSpecies {
+  const normalized = species.toLowerCase()
+  if (normalized === 'dog' || normalized === 'cat' || normalized === 'bird' || normalized === 'rabbit') {
+    return normalized
+  }
+  return 'other'
+}
+
+function mapApiPet(pet: ApiPet): Pet {
+  return {
+    id: pet.id,
+    ownerId: pet.ownerId,
+    name: pet.name,
+    species: normalizeSpecies(pet.species),
+    breed: pet.breed ?? 'Irk belirtilmemiş',
+    gender: pet.sex === 'female' ? 'female' : 'male',
+    birthDate: pet.birthDate ?? pet.createdAt,
+    microchipNo: pet.microchipNo,
+  }
+}
+
+function mapApiExamination(exam: ApiExamination): Examination {
+  return {
+    id: exam.id,
+    petId: exam.petId,
+    vetName: formatVetName(exam.vet),
+    date: exam.date ?? exam.createdAt,
+    complaint: exam.complaint,
+    findings: exam.findings,
+    assessment: exam.assessment,
+    plan: exam.plan,
+    followUpDate: exam.followUpDate,
+  }
+}
+
+function mapApiVaccination(vaccination: ApiVaccination): Vaccination {
+  return {
+    id: vaccination.id,
+    petId: vaccination.petId,
+    vaccineName: vaccination.name,
+    appliedDate: vaccination.appliedAt,
+    nextDate: vaccination.dueAt ?? vaccination.appliedAt,
+    manufacturer: vaccination.notes ?? vaccination.lotNumber,
+  }
+}
+
+function mapApiPrescription(prescription: ApiPrescription): Prescription {
+  return {
+    id: prescription.id,
+    petId: prescription.petId ?? '',
+    vetName: formatVetName(prescription.vet),
+    date: prescription.date ?? prescription.createdAt ?? new Date().toISOString(),
+    medications: prescription.medications.map((medication, index) => ({
+      id: medication.id ?? `${prescription.id}-${index}`,
+      drugName: medication.name,
+      dose: medication.dose,
+      frequency: medication.frequency,
+      duration: medication.duration,
+      instructions: medication.instructions,
+    })),
+  }
+}
+
+function mapApiLabResult(labResult: ApiLabResult): LabResult {
+  return {
+    id: labResult.id,
+    petId: labResult.petId,
+    testType: labResult.testType,
+    date: labResult.date ?? labResult.createdAt ?? new Date().toISOString(),
+    comment: labResult.comment,
+  }
+}
+
+function formatVetName(vet: ApiExamination['vet'] | ApiPrescription['vet']): string {
+  if (!vet) return 'Veteriner bilgisi yok'
+  if (vet.fullName) return `${vet.title ?? ''} ${vet.fullName}`.trim()
+  return `${vet.title ?? ''} ${vet.firstName ?? ''} ${vet.lastName ?? ''}`.trim() || 'Veteriner bilgisi yok'
 }
 
 function EmptyState({ emoji, text }: { emoji: string; text: string }) {
@@ -240,9 +420,19 @@ function EmptyState({ emoji, text }: { emoji: string; text: string }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  topBar: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.md, paddingBottom: Spacing.sm },
+  loadingText: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: Spacing.md },
+  topBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: Spacing.xl, paddingTop: Spacing.md, paddingBottom: Spacing.sm,
+  },
   backBtn: {},
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
+  qrBtn: {
+    minWidth: 44, height: 32, borderRadius: Radius.full,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder,
+  },
+  qrBtnText: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.semibold },
   profileCard: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.lg,
     marginHorizontal: Spacing.xl, marginBottom: Spacing.lg,
@@ -273,6 +463,12 @@ const styles = StyleSheet.create({
   tabLabel: { fontSize: FontSize.xs, fontWeight: FontWeight.medium, color: Colors.textSecondary },
   tabLabelActive: { color: Colors.primary },
   content: { flex: 1, paddingHorizontal: Spacing.xl, marginTop: Spacing.md },
+  errorBanner: {
+    backgroundColor: '#fef3cd', borderRadius: Radius.md,
+    padding: Spacing.sm, borderWidth: 1, borderColor: '#fde68a',
+    marginBottom: Spacing.md,
+  },
+  errorText: { fontSize: FontSize.xs, color: '#92400e' },
   section: { gap: 12 },
   statsRow: { flexDirection: 'row', gap: 10 },
   statCard: {
@@ -333,4 +529,22 @@ const styles = StyleSheet.create({
   labDate: { fontSize: FontSize.sm, color: Colors.textMuted },
   labComment: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 6, lineHeight: 20 },
   emptyState: { alignItems: 'center', paddingTop: 48 },
+  modalBackdrop: {
+    flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    alignItems: 'center', justifyContent: 'center', padding: Spacing.xl,
+  },
+  modalCard: {
+    width: '100%', maxWidth: 320, backgroundColor: Colors.background,
+    borderRadius: Radius.xl, padding: Spacing.xl, alignItems: 'center',
+  },
+  modalTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: Spacing.lg },
+  qrBox: {
+    width: 220, height: 220, borderRadius: Radius.lg, backgroundColor: '#fff',
+    alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg,
+  },
+  closeBtn: {
+    height: 44, alignSelf: 'stretch', borderRadius: Radius.md,
+    backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center',
+  },
+  closeBtnText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
 })
