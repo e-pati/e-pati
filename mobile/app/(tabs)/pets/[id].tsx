@@ -15,6 +15,7 @@ import { labResultsService, type ApiLabResult } from '@/services/lab-results.ser
 import { speciesEmoji, speciesLabel, calculateAge, formatDate, formatDateShort, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
+import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 
@@ -32,6 +33,7 @@ export default function PetDetailScreen() {
   const [qrVisible, setQrVisible] = useState(false)
   const [qrToken, setQrToken] = useState('')
   const [qrLoading, setQrLoading] = useState(false)
+  const [vaccinationModalVisible, setVaccinationModalVisible] = useState(false)
 
   const petQuery = useQuery({
     queryKey: ['pets', id],
@@ -251,6 +253,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'vaccines' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setVaccinationModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Aşı Ekle</Text>
+            </TouchableOpacity>
             {vaccines.length === 0
               ? <EmptyState emoji="💉" text="Henüz aşı kaydı yok" />
               : vaccines.map(vac => {
@@ -347,6 +355,12 @@ export default function PetDetailScreen() {
           </View>
         </View>
       </Modal>
+
+      <AddVaccinationModal
+        petId={pet.id}
+        visible={vaccinationModalVisible}
+        onClose={() => setVaccinationModalVisible(false)}
+      />
     </SafeAreaView>
   )
 }
@@ -556,6 +570,12 @@ const styles = StyleSheet.create({
   labType: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   labDate: { fontSize: FontSize.sm, color: Colors.textMuted },
   labComment: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 6, lineHeight: 20 },
+  addBtn: {
+    alignSelf: 'flex-end', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.primary,
+    backgroundColor: Colors.primaryBg, marginBottom: Spacing.md,
+  },
+  addBtnText: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.medium },
   emptyState: { alignItems: 'center', paddingTop: 48 },
   modalBackdrop: {
     flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.45)',
