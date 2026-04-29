@@ -1,6 +1,6 @@
 'use client'
 
-import { use } from 'react'
+import { use, useState } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
@@ -19,6 +19,7 @@ import type { ApiExamination } from '@/services/examinations.service'
 import type { ApiVaccination } from '@/services/vaccinations.service'
 import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
 import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
+import { AddVaccinationDialog } from '@/components/patients/add-vaccination-dialog'
 import type { PetSpecies } from '@/types'
 import {
   mockPets, mockExaminations, mockVaccinations, mockPrescriptions, mockLabResults,
@@ -28,13 +29,14 @@ import {
   isVaccinationDueSoon, isVaccinationOverdue,
 } from '@/lib/utils'
 import {
-  Phone, Mail, MapPin, Calendar, Weight, Cpu, Plus,
+  Phone, Mail, MapPin, Calendar, Cpu, Plus,
   AlertTriangle, CheckCircle2, Clock, FileText, FlaskConical,
   Stethoscope, Syringe, Pill,
 } from 'lucide-react'
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const [vaccinationDialogOpen, setVaccinationDialogOpen] = useState(false)
   const petQuery = usePet(id)
   const examinationsQuery = useExaminations({ petId: id, limit: 100 })
   const vaccinationsQuery = useVaccinations({ petId: id, limit: 100 })
@@ -268,7 +270,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           {/* Aşılar */}
           <TabsContent value="vaccinations" className="mt-4">
             <div className="flex justify-end mb-4">
-              <Button size="sm" variant="outline" className="gap-1.5">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setVaccinationDialogOpen(true)}>
                 <Plus className="w-4 h-4" />
                 Aşı Ekle
               </Button>
@@ -398,6 +400,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </TabsContent>
         </Tabs>
       </div>
+
+      <AddVaccinationDialog
+        petId={id}
+        open={vaccinationDialogOpen}
+        onClose={() => setVaccinationDialogOpen(false)}
+      />
     </div>
   )
 }
