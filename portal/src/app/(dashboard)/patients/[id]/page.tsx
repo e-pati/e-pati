@@ -1,15 +1,16 @@
 'use client'
 
 import { use, useState } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { Header } from '@/components/layout/header'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { usePet } from '@/hooks/use-pets'
+import { usePet, useDeletePet } from '@/hooks/use-pets'
 import { useExaminations } from '@/hooks/use-examinations'
 import { useVaccinations } from '@/hooks/use-vaccinations'
 import { usePrescriptions } from '@/hooks/use-prescriptions'
@@ -32,17 +33,27 @@ import {
   isVaccinationDueSoon, isVaccinationOverdue,
 } from '@/lib/utils'
 import {
-  Phone, Mail, MapPin, Calendar, Cpu, Plus, Pencil,
+  Phone, Mail, MapPin, Calendar, Cpu, Plus, Pencil, Trash2,
   AlertTriangle, CheckCircle2, Clock, FileText, FlaskConical,
   Stethoscope, Syringe, Pill,
 } from 'lucide-react'
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const router = useRouter()
   const [vaccinationDialogOpen, setVaccinationDialogOpen] = useState(false)
   const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(false)
   const [labDialogOpen, setLabDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const deletePet = useDeletePet()
+
+  const handleDelete = async () => {
+    const petName = petQuery.data?.name ?? 'Hasta'
+    if (!window.confirm(`${petName} adlı hastayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return
+    await deletePet.mutateAsync(id)
+    toast.success(`${petName} silindi`)
+    router.push('/patients')
+  }
   const petQuery = usePet(id)
   const examinationsQuery = useExaminations({ petId: id, limit: 100 })
   const vaccinationsQuery = useVaccinations({ petId: id, limit: 100 })
@@ -90,14 +101,22 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         subtitle={`${speciesLabel(petSpecies)} · ${pet.breed ?? 'Irk belirtilmemiş'}`}
         action={{ label: 'Yeni Muayene', href: `/examinations/new?petId=${pet.id}` }}
       />
-      {/* Düzenle butonu */}
-      <div className="px-6 pt-2 flex justify-end">
+      {/* Düzenle + Sil butonları */}
+      <div className="px-6 pt-2 flex justify-end gap-4">
         <button
           onClick={() => setEditDialogOpen(true)}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
         >
           <Pencil className="w-3 h-3" />
-          Hasta bilgilerini düzenle
+          Düzenle
+        </button>
+        <button
+          onClick={handleDelete}
+          disabled={deletePet.isPending}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+        >
+          <Trash2 className="w-3 h-3" />
+          {deletePet.isPending ? 'Siliniyor...' : 'Hastayı Sil'}
         </button>
       </div>
 
