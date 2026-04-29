@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +10,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
 import {
   User, Lock, Bell, Shield, FileText, LogOut,
-  ChevronRight, Building2, Info,
+  ChevronRight, Building2, Info, Sun, Moon, Monitor,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -24,6 +25,7 @@ interface SettingRow {
 export default function SettingsPage() {
   const router = useRouter()
   const { user, clearUser } = useAuthStore()
+  const { theme, setTheme } = useTheme()
 
   const handleLogout = async () => {
     await authService.logout()
@@ -108,6 +110,45 @@ export default function SettingsPage() {
       <Header title="Ayarlar" />
 
       <div className="p-6 max-w-2xl space-y-6">
+
+        {/* Görünüm */}
+        <div>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Görünüm</h3>
+          <Card className="border-border/50">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  {theme === 'dark' ? <Moon className="w-4 h-4 text-muted-foreground" /> : theme === 'light' ? <Sun className="w-4 h-4 text-muted-foreground" /> : <Monitor className="w-4 h-4 text-muted-foreground" />}
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-foreground">Tema</div>
+                  <div className="text-xs text-muted-foreground">{theme === 'dark' ? 'Koyu' : theme === 'light' ? 'Açık' : 'Sistem'}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {([
+                  { value: 'light', icon: Sun, label: 'Açık' },
+                  { value: 'system', icon: Monitor, label: 'Sistem' },
+                  { value: 'dark', icon: Moon, label: 'Koyu' },
+                ] as const).map(t => (
+                  <button
+                    key={t.value}
+                    onClick={() => setTheme(t.value)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      theme === t.value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    <t.icon className="w-3 h-3" />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Kullanıcı kartı */}
         <Card className="border-border/50">
           <CardContent className="p-6">
