@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, Stethoscope, Syringe, FlaskConical,
-  Bell, Settings, LogOut, PawPrint, ChevronRight,
+  Bell, Settings, LogOut, PawPrint, ChevronRight, Pill,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +16,7 @@ const navItems = [
   { href: '/patients', label: 'Hastalar', icon: Users },
   { href: '/examinations', label: 'Muayeneler', icon: Stethoscope },
   { href: '/vaccinations', label: 'Aşılar', icon: Syringe },
+  { href: '/prescriptions', label: 'Reçeteler', icon: Pill },
   { href: '/lab-results', label: 'Lab Sonuçları', icon: FlaskConical },
   { href: '/notifications', label: 'Bildirimler', icon: Bell },
 ]
