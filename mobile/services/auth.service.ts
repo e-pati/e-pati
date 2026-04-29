@@ -19,6 +19,7 @@ export const authService = {
     const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
     await SecureStore.setItemAsync('accessToken', data.accessToken)
     await SecureStore.setItemAsync('refreshToken', data.refreshToken)
+    await SecureStore.setItemAsync('auth-user', JSON.stringify(data.user))
     return data
   },
 
@@ -31,6 +32,7 @@ export const authService = {
     const { data } = await api.post<AuthResponse>('/auth/register', payload)
     await SecureStore.setItemAsync('accessToken', data.accessToken)
     await SecureStore.setItemAsync('refreshToken', data.refreshToken)
+    await SecureStore.setItemAsync('auth-user', JSON.stringify(data.user))
     return data
   },
 
@@ -38,6 +40,7 @@ export const authService = {
     try { await api.post('/auth/logout') } catch { }
     await SecureStore.deleteItemAsync('accessToken')
     await SecureStore.deleteItemAsync('refreshToken')
+    await SecureStore.deleteItemAsync('auth-user')
   },
 
   async isLoggedIn(): Promise<boolean> {
