@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import * as ImagePicker from 'expo-image-picker'
 import { petsService } from '@/services/pets.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
@@ -33,6 +34,25 @@ export default function EditPetScreen() {
   const qc = useQueryClient()
   const [selectedSpecies, setSelectedSpecies] = useState('')
   const [done, setDone] = useState(false)
+  const [photoUri, setPhotoUri] = useState<string | null>(null)
+
+  const pickPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (status !== 'granted') return
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7,
+    })
+    if (!result.canceled) setPhotoUri(result.assets[0].uri)
+  }
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync()
+    if (status !== 'granted') return
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true, aspect: [1, 1], quality: 0.7,
+    })
+    if (!result.canceled) setPhotoUri(result.assets[0].uri)
+  }
 
   const { data: pet, isLoading } = useQuery({
     queryKey: ['pets', id],
@@ -47,6 +67,7 @@ export default function EditPetScreen() {
       breed: data.breed || undefined,
       birthDate: data.birthDate || undefined,
       microchipNo: data.microchipNo || undefined,
+      photoUrl: photoUri ?? pet?.photoUrl ?? undefined,
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['pets', id] })
@@ -95,6 +116,29 @@ export default function EditPetScreen() {
         </TouchableOpacity>
 
         <Text style={styles.title}>Hayvan Bilgilerini Düzenle</Text>
+
+        {/* Fotoğraf */}
+        <View style={styles.photoSection}>
+          <TouchableOpacity style={styles.photoBox} onPress={pickPhoto}>
+            {(photoUri || pet?.photoUrl)
+              ? <Image source={{ uri: photoUri ?? pet?.photoUrl }} style={styles.photoImage} />
+              : (
+                <View style={styles.photoPlaceholder}>
+                  <Text style={styles.photoEmoji}>📷</Text>
+                  <Text style={styles.photoText}>Fotoğraf</Text>
+                </View>
+              )
+            }
+          </TouchableOpacity>
+          <View style={styles.photoButtons}>
+            <TouchableOpacity style={styles.photoBtn} onPress={pickPhoto}>
+              <Text style={styles.photoBtnText}>📂 Galeriden</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.photoBtn} onPress={takePhoto}>
+              <Text style={styles.photoBtnText}>📸 Kamera</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {update.error && (
           <View style={styles.errorBox}>
@@ -252,4 +296,16 @@ const styles = StyleSheet.create({
   buttonDisabled: { opacity: 0.7 },
   buttonText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
   doneText: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
+  photoSection: { alignItems: 'center', marginBottom: Spacing.xl },
+  photoBox: {
+    width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.primaryBg,
+    borderWidth: 2, borderColor: Colors.primaryBorder, overflow: 'hidden', marginBottom: Spacing.md,
+  },
+  photoImage: { width: '100%', height: '100%' },
+  photoPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  photoEmoji: { fontSize: 28 },
+  photoText: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 4 },
+  photoButtons: { flexDirection: 'row', gap: 10 },
+  photoBtn: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.background },
+  photoBtnText: { fontSize: FontSize.xs, color: Colors.textSecondary },
 })

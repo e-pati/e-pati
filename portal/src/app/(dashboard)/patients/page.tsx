@@ -155,8 +155,11 @@ function PatientsContent() {
                   <Card className="border-border/50 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform">
-                          {speciesEmoji(species as any)}
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                          {pet.photoUrl
+                            ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
+                            : speciesEmoji(species as any)
+                          }
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
