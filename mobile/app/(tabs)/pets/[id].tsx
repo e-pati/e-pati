@@ -106,6 +106,8 @@ export default function PetDetailScreen() {
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
+  // Aktif ilaçlar: son reçetedeki ilaçlar
+  const activeMedications = prescriptions.length > 0 ? prescriptions[0].medications : []
   const hasFallbackData = petQuery.isError || examinationsQuery.isError || vaccinationsQuery.isError ||
     prescriptionsQuery.isError || labResultsQuery.isError
 
@@ -216,6 +218,24 @@ export default function PetDetailScreen() {
                   <Text key={v.id} style={styles.alertText}>
                     {v.vaccineName} — {isVaccinationOverdue(v.nextDate) ? 'Gecikmiş!' : 'Yakında'} ({formatDateShort(v.nextDate)})
                   </Text>
+                ))}
+              </View>
+            )}
+
+            {/* Aktif ilaçlar */}
+            {activeMedications.length > 0 && (
+              <View style={[styles.infoCard, styles.medicationCard]}>
+                <Text style={styles.infoCardTitle}>💊 Aktif İlaçlar</Text>
+                {activeMedications.map((med, i) => (
+                  <View key={i} style={styles.medicationRow}>
+                    <View style={styles.medicationDot} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.medicationName}>{med.drugName}</Text>
+                      <Text style={styles.medicationDetail}>
+                        {med.dose} · {med.frequency} · {med.duration}
+                      </Text>
+                    </View>
+                  </View>
                 ))}
               </View>
             )}
@@ -591,6 +611,11 @@ const styles = StyleSheet.create({
   alertTitle: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.warning, marginBottom: 6 },
   alertText: { fontSize: FontSize.sm, color: Colors.text, marginTop: 3 },
   microchipNo: { fontSize: FontSize.base, fontFamily: 'monospace', color: Colors.text, marginTop: 4 },
+  medicationCard: { borderLeftWidth: 3, borderLeftColor: Colors.primary },
+  medicationRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm, marginTop: 8 },
+  medicationDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary, marginTop: 5 },
+  medicationName: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.text },
+  medicationDetail: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
   recordCard: {
     backgroundColor: Colors.background, borderRadius: Radius.xl,
     padding: Spacing.lg,

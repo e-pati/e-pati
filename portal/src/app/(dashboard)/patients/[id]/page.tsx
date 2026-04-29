@@ -10,6 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { usePet, useDeletePet } from '@/hooks/use-pets'
 import { useExaminations } from '@/hooks/use-examinations'
 import { useVaccinations } from '@/hooks/use-vaccinations'
@@ -45,11 +49,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(false)
   const [labDialogOpen, setLabDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const deletePet = useDeletePet()
 
   const handleDelete = async () => {
     const petName = petQuery.data?.name ?? 'Hasta'
-    if (!window.confirm(`${petName} adlı hastayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return
     await deletePet.mutateAsync(id)
     toast.success(`${petName} silindi`)
     router.push('/patients')
@@ -111,7 +115,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           Düzenle
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => setDeleteDialogOpen(true)}
           disabled={deletePet.isPending}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
         >
@@ -467,6 +471,26 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           onClose={() => setEditDialogOpen(false)}
         />
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hastayı sil</AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{pet.name}</strong> adlı hasta ve tüm kayıtları (muayene, aşı, reçete, lab) silinecek. Bu işlem geri alınamaz.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletePet.isPending ? 'Siliniyor...' : 'Evet, Sil'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
