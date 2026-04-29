@@ -17,6 +17,7 @@ import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme
 import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
 import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 import { AddLabResultModal } from '@/components/AddLabResultModal'
+import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 
@@ -36,6 +37,7 @@ export default function PetDetailScreen() {
   const [qrLoading, setQrLoading] = useState(false)
   const [vaccinationModalVisible, setVaccinationModalVisible] = useState(false)
   const [labModalVisible, setLabModalVisible] = useState(false)
+  const [prescriptionModalVisible, setPrescriptionModalVisible] = useState(false)
 
   const petQuery = useQuery({
     queryKey: ['pets', id],
@@ -293,6 +295,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'prescriptions' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setPrescriptionModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Reçete Yaz</Text>
+            </TouchableOpacity>
             {prescriptions.length === 0
               ? <EmptyState emoji="💊" text="Henüz reçete yok" />
               : prescriptions.map(rx => (
@@ -376,6 +384,11 @@ export default function PetDetailScreen() {
         petId={pet.id}
         visible={labModalVisible}
         onClose={() => setLabModalVisible(false)}
+      />
+      <AddPrescriptionModal
+        petId={pet.id}
+        visible={prescriptionModalVisible}
+        onClose={() => setPrescriptionModalVisible(false)}
       />
     </SafeAreaView>
   )

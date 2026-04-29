@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router'
 import { View, Text, StyleSheet } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { notificationsService } from '@/services/notifications.service'
+import { OfflineBanner } from '@/components/OfflineBanner'
 import { Colors } from '@/constants/theme'
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
@@ -23,6 +24,8 @@ export default function TabLayout() {
   const unreadCount = notifications?.filter(n => !n.isRead && !n.readAt).length ?? 0
 
   return (
+    <View style={{ flex: 1 }}>
+      <OfflineBanner />
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -63,6 +66,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </View>
   )
 }
 
