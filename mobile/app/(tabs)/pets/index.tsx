@@ -29,7 +29,7 @@ export default function PetsScreen() {
     sex: p.gender,
     birthDate: p.birthDate,
     microchipNo: p.microchipNo,
-    createdAt: p.createdAt,
+    createdAt: new Date().toISOString(),
   } as ApiPet))
 
   const filtered = rawPets.filter(pet =>
