@@ -40,6 +40,7 @@ model Owner {
   fullName     String
   role         Role           @default(OWNER)
   pets         Pet[]
+  refreshTokens RefreshToken[]
   notifications Notification[]
   auditLogs    AuditLog[]
   createdAt    DateTime       @default(now())
@@ -81,9 +82,27 @@ model Veterinarian {
   prescriptions  Prescription[]
   labResults     LabResult[]
   auditLogs      AuditLog[]
+  refreshTokens  RefreshToken[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
+}
+
+model RefreshToken {
+  id             String        @id @default(cuid())
+  tokenHash      String        @unique
+  ownerId        String?
+  owner          Owner?        @relation(fields: [ownerId], references: [id])
+  veterinarianId String?
+  veterinarian   Veterinarian? @relation(fields: [veterinarianId], references: [id])
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([ownerId])
+  @@index([veterinarianId])
+  @@index([expiresAt])
 }
 
 model Pet {
