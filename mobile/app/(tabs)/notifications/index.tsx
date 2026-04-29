@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   SafeAreaView, ActivityIndicator, RefreshControl,
 } from 'react-native'
+import { router } from 'expo-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notificationsService, type ApiNotification } from '@/services/notifications.service'
 import { mockNotifications } from '@/lib/mock-data'
@@ -112,7 +113,10 @@ export default function NotificationsScreen() {
             return (
               <TouchableOpacity
                 style={[styles.item, !isRead && styles.itemUnread]}
-                onPress={() => !isRead && markRead.mutate(item.id)}
+                onPress={() => {
+                  if (!isRead) markRead.mutate(item.id)
+                  if (item.petId) router.push(`/(tabs)/pets/${item.petId}`)
+                }}
                 activeOpacity={0.85}
               >
                 <View style={[styles.iconBox, { backgroundColor: typeBg[item.type] ?? typeBg.reminder }]}>
@@ -125,7 +129,10 @@ export default function NotificationsScreen() {
                   </View>
                   <Text style={styles.itemMessage} numberOfLines={2}>{item.message}</Text>
                 </View>
-                {!isRead && <View style={styles.unreadDot} />}
+                <View style={styles.rightCol}>
+                  {!isRead && <View style={styles.unreadDot} />}
+                  {item.petId && <Text style={styles.chevron}>›</Text>}
+                </View>
               </TouchableOpacity>
             )
           }}
@@ -171,7 +178,9 @@ const styles = StyleSheet.create({
   itemTitle: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text, flex: 1 },
   itemTime: { fontSize: FontSize.xs, color: Colors.textMuted, marginLeft: Spacing.sm },
   itemMessage: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 20 },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary, marginTop: 6 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary },
+  rightCol: { alignItems: 'center', justifyContent: 'center', gap: 4, marginLeft: 4 },
+  chevron: { fontSize: 18, color: Colors.textMuted },
   empty: { alignItems: 'center', paddingTop: 60 },
   emptyEmoji: { fontSize: 48, marginBottom: Spacing.lg },
   emptyText: { fontSize: FontSize.base, color: Colors.textMuted },

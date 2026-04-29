@@ -18,6 +18,8 @@ import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination
 import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 import { AddLabResultModal } from '@/components/AddLabResultModal'
 import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
+import { Linking } from 'react-native'
+import { prescriptionsService } from '@/services/prescriptions.service'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 
@@ -306,8 +308,16 @@ export default function PetDetailScreen() {
               : prescriptions.map(rx => (
                 <View key={rx.id} style={styles.recordCard}>
                   <View style={styles.recordHeader}>
-                    <Text style={styles.recordDate}>{formatDate(rx.date)}</Text>
-                    <Text style={styles.recordVet}>{rx.vetName}</Text>
+                    <View>
+                      <Text style={styles.recordDate}>{formatDate(rx.date)}</Text>
+                      <Text style={styles.recordVet}>{rx.vetName}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.pdfBtn}
+                      onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
+                    >
+                      <Text style={styles.pdfBtnText}>📄 PDF</Text>
+                    </TouchableOpacity>
                   </View>
                   {rx.medications.map(med => (
                     <View key={med.id} style={styles.medRow}>
@@ -595,6 +605,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface, borderRadius: Radius.md,
     padding: Spacing.md, gap: 3,
   },
+  pdfBtn: { paddingHorizontal: Spacing.md, paddingVertical: 5, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surface },
+  pdfBtnText: { fontSize: FontSize.xs, color: Colors.textSecondary },
   medDrug: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   medDetail: { fontSize: FontSize.sm, color: Colors.textSecondary },
   medInstructions: { fontSize: FontSize.xs, color: Colors.textMuted, fontStyle: 'italic' },
