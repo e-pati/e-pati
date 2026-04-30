@@ -27,3 +27,13 @@ export function useClinicPatients(params?: {
     placeholderData: prev => prev,
   })
 }
+
+export function useAllClinicPatients() {
+  const clinicId = useAuthStore(s => s.user?.clinicId)
+  return useQuery({
+    queryKey: ['clinic-patients-all', clinicId],
+    queryFn: () => clinicsService.getPatients(clinicId!, { limit: 500 }),
+    enabled: !!clinicId,
+    staleTime: 5 * 60 * 1000,
+  })
+}
