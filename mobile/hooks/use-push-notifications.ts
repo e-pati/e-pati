@@ -4,20 +4,24 @@ import { Platform } from 'react-native'
 import { router } from 'expo-router'
 import { notificationsService } from '@/services/notifications.service'
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-})
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  })
+}
 
 export function usePushNotifications() {
   const responseListener = useRef<Notifications.EventSubscription | null>(null)
 
   useEffect(() => {
+    if (Platform.OS === 'web') return
+
     registerToken()
 
     // Uygulama açıkken bildirime tıklanınca
