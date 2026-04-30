@@ -11,7 +11,7 @@ import { examinationsService } from '@/services/examinations.service'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import type { PetSpecies } from '@/types'
 import { formatDateShort, speciesEmoji, isVaccinationOverdue } from '@/lib/utils'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 // Takvimi Türkçe'ye ayarla
 LocaleConfig.locales['tr'] = {
@@ -227,7 +227,7 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface },
   header: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: Spacing.sm },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   subtitle: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: 2 },
   loadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: Spacing.xl, marginBottom: Spacing.sm },
   loadingText: { fontSize: FontSize.xs, color: Colors.textMuted },
