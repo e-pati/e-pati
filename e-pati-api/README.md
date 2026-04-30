@@ -13,12 +13,14 @@ NestJS + Prisma + PostgreSQL backend for the e-Pati veterinary health record app
 Create `e-pati-api/.env` from `.env.example` and set at least:
 
 ```env
-DATABASE_URL="postgresql://..."
+DATABASE_URL="postgresql://postgres.aurjucbyusfmwkysaofz:<DB_PASSWORD>@aws-0-eu-west-1.pooler.supabase.com:5432/postgres"
 JWT_ACCESS_SECRET="change-me-to-a-long-random-value"
 JWT_REFRESH_SECRET="change-me-to-a-long-random-value"
 QR_TOKEN_SECRET="change-me-to-a-long-random-value"
-CORS_ORIGINS="http://localhost:3000,http://localhost:3001,http://localhost:5173"
+CORS_ORIGINS="http://localhost:3000,http://localhost:3001,http://localhost:5173,https://e-pati.vercel.app"
 ```
+
+The Supabase project uses the Session Pooler URL above so development works on IPv4/public networks. Replace `<DB_PASSWORD>` with the shared database password outside Git.
 
 ## Database
 
