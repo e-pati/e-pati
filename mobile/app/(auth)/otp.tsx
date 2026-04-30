@@ -63,11 +63,11 @@ export default function OtpScreen() {
 
       <View style={styles.content}>
         <View style={styles.iconBox}>
-          <Text style={styles.icon}>📱</Text>
+          <Text style={styles.icon}>✉️</Text>
         </View>
-        <Text style={styles.title}>Doğrulama Kodu</Text>
+        <Text style={styles.title}>E-posta Doğrulama</Text>
         <Text style={styles.subtitle}>
-          Telefonunuza gönderilen 6 haneli kodu girin
+          E-posta adresinize gönderilen 6 haneli kodu girin
         </Text>
 
         <View style={styles.otpRow}>
@@ -99,7 +99,7 @@ export default function OtpScreen() {
         </TouchableOpacity>
 
         <View style={styles.resendRow}>
-          <Text style={styles.resendText}>Kod gelmedi mi? </Text>
+          <Text style={styles.resendText}>Mail gelmediyse spam'i kontrol edin veya </Text>
           {countdown > 0
             ? <Text style={styles.countdown}>{countdown} saniye</Text>
             : (

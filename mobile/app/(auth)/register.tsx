@@ -14,19 +14,11 @@ import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constant
 const schema = z.object({
   firstName: z.string().min(2, 'Ad en az 2 karakter olmalı'),
   lastName: z.string().min(2, 'Soyad en az 2 karakter olmalı'),
-  phone: z.string().min(10, 'Geçerli telefon numarası girin'),
   email: z.string().email('Geçerli e-posta girin'),
   password: z.string().min(8, 'Şifre en az 8 karakter olmalı'),
 })
 
 type FormData = z.infer<typeof schema>
-
-function normalizePhone(raw: string): string {
-  const digits = raw.replace(/\D/g, '')
-  if (digits.startsWith('90')) return `+${digits}`
-  if (digits.startsWith('0')) return `+90${digits.slice(1)}`
-  return `+90${digits}`
-}
 
 export default function RegisterScreen() {
   const [loading, setLoading] = useState(false)
@@ -43,10 +35,9 @@ export default function RegisterScreen() {
       await authService.register({
         fullName: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        phone: normalizePhone(data.phone),
         password: data.password,
       })
-      router.replace('/(tabs)/pets')
+      router.replace('/(auth)/otp')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       const text = Array.isArray(msg) ? msg[0] : (msg ?? 'Bilgileri kontrol edip tekrar deneyin.')
@@ -64,13 +55,12 @@ export default function RegisterScreen() {
     name: keyof FormData
     label: string
     placeholder: string
-    keyboardType?: any
+    keyboardType?: 'default' | 'email-address'
     secure?: boolean
-    autoComplete?: any
+    autoComplete?: string
   }> = [
     { name: 'firstName', label: 'Ad', placeholder: 'Adınız', autoComplete: 'given-name' },
     { name: 'lastName', label: 'Soyad', placeholder: 'Soyadınız', autoComplete: 'family-name' },
-    { name: 'phone', label: 'Telefon', placeholder: '05XX XXX XX XX', keyboardType: 'phone-pad', autoComplete: 'tel' },
     { name: 'email', label: 'E-posta', placeholder: 'ornek@mail.com', keyboardType: 'email-address', autoComplete: 'email' },
     { name: 'password', label: 'Şifre', placeholder: 'En az 8 karakter', secure: true, autoComplete: 'new-password' },
   ]
@@ -106,9 +96,9 @@ export default function RegisterScreen() {
                     onChangeText={onChange}
                     placeholder={field.placeholder}
                     placeholderTextColor={Colors.textMuted}
-                    keyboardType={field.keyboardType}
+                    keyboardType={field.keyboardType ?? 'default'}
                     secureTextEntry={field.secure}
-                    autoComplete={field.autoComplete}
+                    autoComplete={field.autoComplete as any}
                     autoCapitalize={field.keyboardType === 'email-address' ? 'none' : 'words'}
                   />
                 )}
