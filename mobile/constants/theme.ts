@@ -1,9 +1,9 @@
 export const Colors = {
-  primary: '#16a34a',
-  primaryLight: '#22c55e',
-  primaryDark: '#15803d',
-  primaryBg: '#f0fdf6',
-  primaryBorder: '#bbf7d2',
+  primary: '#10B981',
+  primaryLight: '#34D399',
+  primaryDark: '#059669',
+  primaryBg: '#ECFDF5',
+  primaryBorder: '#A7F3D0',
 
   background: '#ffffff',
   surface: '#f8fafc',
@@ -15,12 +15,12 @@ export const Colors = {
   textMuted: '#94a3b8',
   textInverse: '#ffffff',
 
-  success: '#16a34a',
+  success: '#10B981',
   warning: '#f59e0b',
   danger: '#ef4444',
   info: '#0ea5e9',
 
-  vaccineOk: '#16a34a',
+  vaccineOk: '#10B981',
   vaccineSoon: '#f59e0b',
   vaccineOverdue: '#ef4444',
 }
@@ -58,4 +58,11 @@ export const FontWeight = {
   medium: '500' as const,
   semibold: '600' as const,
   bold: '700' as const,
+}
+
+export const Fonts = {
+  regular: 'Nunito_400Regular',
+  medium: 'Nunito_500Medium',
+  semibold: 'Nunito_600SemiBold',
+  bold: 'Nunito_700Bold',
 }

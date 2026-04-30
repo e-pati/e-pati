@@ -6,7 +6,7 @@ import {
 import { router } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 function useMobilePets() {
   const [count, setCount] = useState(0)
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.primary },
   profileInfo: { flex: 1 },
-  name: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.text },
+  name: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   email: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
   role: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
   petCount: { fontSize: FontSize.xs, color: Colors.primary, marginTop: 4, fontWeight: FontWeight.medium },
