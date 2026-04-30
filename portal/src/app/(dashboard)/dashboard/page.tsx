@@ -4,65 +4,51 @@ import { Header } from '@/components/layout/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useExaminations } from '@/hooks/use-examinations'
-import { useVaccinations, useUpcomingVaccinations } from '@/hooks/use-vaccinations'
-import { usePets } from '@/hooks/use-pets'
-import { useLabResults } from '@/hooks/use-lab-results'
-import { mockExaminations, mockVaccinations, mockPets } from '@/lib/mock-data'
-import { formatDate, speciesEmoji, isVaccinationDueSoon, isVaccinationOverdue } from '@/lib/utils'
+import { useClinicDashboard } from '@/hooks/use-clinic'
+import { formatDate, speciesEmoji, isVaccinationOverdue } from '@/lib/utils'
 import {
-  Stethoscope, Syringe, CalendarClock, Users, FlaskConical,
-  TrendingUp, AlertTriangle, CheckCircle2, Clock,
+  Stethoscope, Syringe, Users, TrendingUp, AlertTriangle, CheckCircle2, Clock,
 } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardChart } from '@/components/shared/dashboard-chart'
 
 export default function DashboardPage() {
-  const petsQuery = usePets()
-  const examinationsQuery = useExaminations({ limit: 50 })
-  const upcomingVaxQuery = useUpcomingVaccinations()
-  const allVaxQuery = useVaccinations({ limit: 200 })
-  const labQuery = useLabResults()
-
-  const pets = petsQuery.data ?? mockPets.map(p => ({
-    id: p.id, name: p.name, species: p.species, breed: p.breed ?? '',
-    ownerId: p.ownerId, sex: p.gender, createdAt: p.createdAt,
-    owner: { id: p.ownerId, fullName: `${p.owner.firstName} ${p.owner.lastName}`, email: p.owner.email },
-  }) as any)
-
-  const examinations = examinationsQuery.data ?? mockExaminations.map(e => ({
-    id: e.id, petId: e.petId, complaint: e.complaint,
-    findings: e.findings, assessment: e.assessment, plan: e.plan,
-    createdAt: e.date, followUpDate: e.followUpDate,
-  }))
-
-  const upcomingVaccinations = upcomingVaxQuery.data ?? (
-    allVaxQuery.data
-      ? allVaxQuery.data.filter(v => v.dueAt && (isVaccinationDueSoon(v.dueAt, 30) || isVaccinationOverdue(v.dueAt)))
-      : mockVaccinations.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate)).map(v => ({
-          id: v.id, petId: v.petId, name: v.vaccineName,
-          appliedAt: v.appliedDate, dueAt: v.nextDate, notes: v.manufacturer,
-        }))
-  )
-
-  const today = new Date().toDateString()
-  const todayExams = examinations.filter(e => {
-    const d = e.createdAt ?? ''
-    return d && new Date(d).toDateString() === today
-  }).length
+  const { data, isLoading } = useClinicDashboard()
 
   const stats = [
-    { title: 'Bugünkü Muayene', value: todayExams, icon: Stethoscope, color: 'text-primary', bg: 'bg-primary/10', href: '/examinations' },
-    { title: 'Yaklaşan Aşı', value: upcomingVaccinations.length, icon: Syringe, color: 'text-blue-500', bg: 'bg-blue-500/10', href: '/vaccinations' },
-    { title: 'Toplam Hasta', value: pets.length, icon: Users, color: 'text-violet-500', bg: 'bg-violet-500/10', href: '/patients' },
-    { title: 'Lab Sonucu', value: labQuery.data?.length ?? 0, icon: FlaskConical, color: 'text-rose-500', bg: 'bg-rose-500/10', href: '/lab-results' },
+    {
+      title: 'Bugünkü Muayene',
+      value: data?.stats.examinationsToday ?? 0,
+      icon: Stethoscope,
+      color: 'text-primary',
+      bg: 'bg-primary/10',
+      href: '/examinations',
+    },
+    {
+      title: 'Yaklaşan Aşı',
+      value: data?.stats.upcomingVaccinationCount ?? 0,
+      icon: Syringe,
+      color: 'text-blue-500',
+      bg: 'bg-blue-500/10',
+      href: '/vaccinations',
+    },
+    {
+      title: 'Toplam Hasta',
+      value: data?.stats.patientCount ?? 0,
+      icon: Users,
+      color: 'text-violet-500',
+      bg: 'bg-violet-500/10',
+      href: '/patients',
+    },
+    {
+      title: 'Okunmamış Bildirim',
+      value: data?.stats.unreadNotificationCount ?? 0,
+      icon: AlertTriangle,
+      color: 'text-rose-500',
+      bg: 'bg-rose-500/10',
+      href: '/notifications',
+    },
   ]
-
-  const recentExams = [...examinations]
-    .sort((a, b) => new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime())
-    .slice(0, 5)
-
-  const isLoading = petsQuery.isLoading || examinationsQuery.isLoading
 
   return (
     <div>
@@ -112,28 +98,30 @@ export default function DashboardPage() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Aşı Uyarıları</CardTitle>
-                {upcomingVaccinations.length > 0 && (
-                  <Badge variant="destructive" className="text-xs">{upcomingVaccinations.length}</Badge>
+                {(data?.upcomingVaccinations.length ?? 0) > 0 && (
+                  <Badge variant="destructive" className="text-xs">
+                    {data!.upcomingVaccinations.length}
+                  </Badge>
                 )}
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              {upcomingVaxQuery.isLoading ? (
+              {isLoading ? (
                 <div className="space-y-2">
-                  {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-12 rounded-lg" />)}
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 rounded-lg" />
+                  ))}
                 </div>
-              ) : upcomingVaccinations.length === 0 ? (
+              ) : (data?.upcomingVaccinations.length ?? 0) === 0 ? (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                   <CheckCircle2 className="w-8 h-8 text-primary mb-2" />
                   <p className="text-sm text-muted-foreground">Yaklaşan aşı yok</p>
                 </div>
               ) : (
-                upcomingVaccinations.slice(0, 5).map(vac => {
-                  const dueAt = vac.dueAt ?? vac.appliedAt
-                  const pet = pets.find((p: any) => p.id === vac.petId)
-                  const overdue = isVaccinationOverdue(dueAt)
+                data!.upcomingVaccinations.map(vac => {
+                  const overdue = isVaccinationOverdue(vac.dueAt)
                   return (
-                    <Link href={`/patients/${vac.petId}`} key={vac.id}>
+                    <Link href={`/patients/${vac.pet.id}`} key={vac.id}>
                       <div className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors">
                         <div className={`mt-0.5 p-1 rounded-full ${overdue ? 'bg-destructive/10' : 'bg-amber-500/10'}`}>
                           {overdue
@@ -143,11 +131,11 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium text-foreground truncate">
-                            {pet ? `${speciesEmoji((pet.species ?? 'other') as any)} ${pet.name}` : 'Hasta bilgisi yok'}
+                            {speciesEmoji((vac.pet.species?.toLowerCase() ?? 'other') as any)} {vac.pet.name}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{vac.name}</div>
                           <div className={`text-[10px] mt-0.5 font-medium ${overdue ? 'text-destructive' : 'text-amber-600'}`}>
-                            {overdue ? 'Gecikmiş! ' : ''}{formatDate(dueAt)}
+                            {overdue ? 'Gecikmiş! ' : ''}{formatDate(vac.dueAt)}
                           </div>
                         </div>
                       </div>
@@ -155,10 +143,10 @@ export default function DashboardPage() {
                   )
                 })
               )}
-              {upcomingVaccinations.length > 5 && (
+              {(data?.upcomingVaccinations.length ?? 0) > 5 && (
                 <Link href="/vaccinations?filter=upcoming">
                   <p className="text-xs text-center text-primary hover:underline pt-1">
-                    +{upcomingVaccinations.length - 5} daha göster
+                    Tümünü gör
                   </p>
                 </Link>
               )}
@@ -177,40 +165,38 @@ export default function DashboardPage() {
           <CardContent>
             {isLoading ? (
               <div className="space-y-2">
-                {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 rounded-lg" />
+                ))}
               </div>
-            ) : recentExams.length === 0 ? (
+            ) : (data?.recentExaminations.length ?? 0) === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">Henüz muayene kaydı yok</p>
             ) : (
               <div className="space-y-1">
-                {recentExams.map(exam => {
-                  const pet = pets.find((p: any) => p.id === exam.petId)
-                  return (
-                    <Link href={`/patients/${exam.petId}`} key={exam.id}>
-                      <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-lg flex-shrink-0">
-                          {speciesEmoji((pet?.species?.toLowerCase() ?? 'other') as any)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{pet?.name ?? 'Hasta bilgisi yok'}</span>
-                            <span className="text-xs text-muted-foreground">·</span>
-                            <span className="text-xs text-muted-foreground truncate">{pet?.owner?.fullName ?? '—'}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground truncate mt-0.5">{exam.complaint}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-xs text-muted-foreground">{exam.createdAt ? formatDate(exam.createdAt) : '—'}</div>
-                          {exam.followUpDate && (
-                            <Badge variant="outline" className="text-[10px] mt-1 border-amber-300 text-amber-600 bg-amber-50">
-                              Takip
-                            </Badge>
-                          )}
-                        </div>
+                {data!.recentExaminations.map(exam => (
+                  <Link href={`/patients/${exam.pet.id}`} key={exam.id}>
+                    <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-lg flex-shrink-0">
+                        {speciesEmoji((exam.pet.species?.toLowerCase() ?? 'other') as any)}
                       </div>
-                    </Link>
-                  )
-                })}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{exam.pet.name}</span>
+                          <span className="text-xs text-muted-foreground">·</span>
+                          <span className="text-xs text-muted-foreground truncate">
+                            Dr. {exam.veterinarian.fullName}
+                          </span>
+                        </div>
+                        {exam.complaint && (
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">{exam.complaint}</p>
+                        )}
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-xs text-muted-foreground">{formatDate(exam.createdAt)}</div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
           </CardContent>
