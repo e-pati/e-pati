@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string
   fullName: string
   role: string
+  clinicId?: string
 }
 
 export interface AuthResponse {
@@ -16,6 +17,13 @@ export interface AuthResponse {
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
+    localStorage.setItem('accessToken', data.accessToken)
+    document.cookie = 'epati-logged-in=1; path=/; max-age=604800'
+    return data
+  },
+
+  async loginClinic(email: string, password: string): Promise<AuthResponse> {
+    const { data } = await api.post<AuthResponse>('/auth/clinic/login', { email, password })
     localStorage.setItem('accessToken', data.accessToken)
     document.cookie = 'epati-logged-in=1; path=/; max-age=604800'
     return data

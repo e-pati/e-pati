@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -48,7 +49,7 @@ export default function LoginPage() {
     setIsLoading(true)
     setApiError('')
     try {
-      const res = await authService.login(data.email, data.password)
+      const res = await authService.loginClinic(data.email, data.password)
       setUser(res.user)
       router.push('/dashboard')
     } catch (err: any) {
@@ -188,9 +189,9 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Klinik hesabınız yok mu?{' '}
-            <a href="#" className="text-primary hover:underline font-medium">
+            <Link href="/clinic-onboarding" className="text-primary hover:underline font-medium">
               Klinik kaydı için iletişime geçin
-            </a>
+            </Link>
           </p>
         </div>
       </div>
