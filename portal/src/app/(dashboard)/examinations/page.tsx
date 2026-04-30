@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useExaminations } from '@/hooks/use-examinations'
-import { usePets } from '@/hooks/use-pets'
-import { mockExaminations, mockPets } from '@/lib/mock-data'
+import { useAllClinicPatients } from '@/hooks/use-clinic'
+import { mockExaminations } from '@/lib/mock-data'
 import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, Stethoscope, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -30,7 +30,7 @@ function ExaminationsContent() {
   useEffect(() => { setPage(1) }, [debouncedQuery]) // eslint-disable-line
 
   const examinationsQuery = useExaminations({ limit: 200 })
-  const petsQuery = usePets()
+  const petsQuery = useAllClinicPatients()
 
   const examinations = examinationsQuery.data ?? (
     examinationsQuery.isError
@@ -42,11 +42,7 @@ function ExaminationsContent() {
       : []
   )
 
-  const pets = petsQuery.data ?? mockPets.map(p => ({
-    id: p.id, ownerId: p.ownerId, name: p.name, species: p.species,
-    breed: p.breed ?? '', sex: p.gender, createdAt: p.createdAt,
-    owner: { id: p.ownerId, fullName: `${p.owner.firstName} ${p.owner.lastName}`, email: p.owner.email },
-  }) as any)
+  const pets = petsQuery.data?.items ?? []
 
   const enriched = useMemo(() => examinations.map(e => ({
     ...e,
@@ -66,7 +62,7 @@ function ExaminationsContent() {
     )
   }, [enriched, debouncedQuery])
 
-  const isLoading = examinationsQuery.isLoading || petsQuery.isLoading
+  const isLoading = examinationsQuery.isLoading
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
@@ -120,7 +116,7 @@ function ExaminationsContent() {
                   <CardContent className="p-4 flex items-start gap-4">
                     {/* Pet avatar */}
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl flex-shrink-0">
-                      {speciesEmoji((exam.pet?.species?.toLowerCase() ?? 'other') as any)}
+                      {speciesEmoji((exam.pet?.species?.toLowerCase() ?? 'other') as import('@/types').PetSpecies)}
                     </div>
 
                     {/* Bilgi */}

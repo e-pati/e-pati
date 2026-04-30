@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useLabResults } from '@/hooks/use-lab-results'
-import { usePets } from '@/hooks/use-pets'
-import { mockLabResults, mockPets } from '@/lib/mock-data'
+import { useAllClinicPatients } from '@/hooks/use-clinic'
+import { mockLabResults } from '@/lib/mock-data'
 import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, FlaskConical, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
@@ -31,7 +31,7 @@ function LabResultsContent() {
   useEffect(() => { setPage(1) }, [debouncedQuery]) // eslint-disable-line
 
   const labQuery = useLabResults()
-  const petsQuery = usePets()
+  const petsQuery = useAllClinicPatients()
 
   const labResults = labQuery.data ?? (
     labQuery.isError
@@ -42,11 +42,7 @@ function LabResultsContent() {
       : []
   )
 
-  const pets = petsQuery.data ?? mockPets.map(p => ({
-    id: p.id, ownerId: p.ownerId, name: p.name, species: p.species,
-    breed: p.breed ?? '', sex: p.gender, createdAt: p.createdAt,
-    owner: { id: p.ownerId, fullName: `${p.owner.firstName} ${p.owner.lastName}`, email: p.owner.email },
-  }) as any)
+  const pets = petsQuery.data?.items ?? []
 
   const enriched = useMemo(() => labResults.map(l => ({
     ...l,
@@ -125,7 +121,7 @@ function LabResultsContent() {
                   <div className="w-36 flex-shrink-0">
                     {lab.pet ? (
                       <Link href={`/patients/${lab.pet.id}`} className="flex items-center gap-1.5 group">
-                        <span>{speciesEmoji((lab.pet.species?.toLowerCase() ?? 'other') as any)}</span>
+                        <span>{speciesEmoji((lab.pet.species?.toLowerCase() ?? 'other') as import('@/types').PetSpecies)}</span>
                         <div>
                           <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
                             {lab.pet.name}
