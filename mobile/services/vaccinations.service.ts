@@ -35,4 +35,9 @@ export const vaccinationsService = {
     const { data } = await api.get<ListResponse<ApiVaccination>>('/vaccinations/upcoming')
     return unwrapList(data)
   },
+
+  async create(payload: { petId: string; name: string; appliedAt: string; dueAt?: string; lotNumber?: string; notes?: string }): Promise<ApiVaccination> {
+    const { data } = await api.post<ApiVaccination>('/vaccinations', payload)
+    return data
+  },
 }

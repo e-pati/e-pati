@@ -23,6 +23,7 @@ type FormData = z.infer<typeof schema>
 
 export default function RegisterScreen() {
   const [loading, setLoading] = useState(false)
+  const [kvkkAccepted, setKvkkAccepted] = useState(false)
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
@@ -97,20 +98,28 @@ export default function RegisterScreen() {
             </View>
           ))}
 
-          <View style={styles.kvkkBox}>
-            <Text style={styles.kvkkText}>
-              Kayıt olarak{' '}
-              <Text style={styles.kvkkLink}>Gizlilik Politikası</Text>
-              {' '}ve{' '}
-              <Text style={styles.kvkkLink}>KVKK Aydınlatma Metni</Text>
-              'ni okuduğunuzu kabul ediyorsunuz.
-            </Text>
-          </View>
+          <TouchableOpacity
+            style={styles.kvkkBox}
+            onPress={() => setKvkkAccepted(v => !v)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.kvkkCheckRow}>
+              <View style={[styles.checkbox, kvkkAccepted && styles.checkboxChecked]}>
+                {kvkkAccepted && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.kvkkText}>
+                <Text style={styles.kvkkLink}>Gizlilik Politikası</Text>
+                {' '}ve{' '}
+                <Text style={styles.kvkkLink}>KVKK Aydınlatma Metni</Text>
+                {`'ni okudum ve kabul ediyorum.`}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, (loading || !kvkkAccepted) && styles.buttonDisabled]}
             onPress={handleSubmit(onSubmit)}
-            disabled={loading}
+            disabled={loading || !kvkkAccepted}
             activeOpacity={0.85}
           >
             {loading
@@ -154,7 +163,15 @@ const styles = StyleSheet.create({
   inputError: { borderColor: Colors.danger },
   errorText: { fontSize: FontSize.xs, color: Colors.danger, marginTop: 4 },
   kvkkBox: { backgroundColor: Colors.surface, borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg },
-  kvkkText: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 18 },
+  kvkkCheckRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
+  checkbox: {
+    width: 20, height: 20, borderRadius: 4, borderWidth: 2,
+    borderColor: Colors.border, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.background, flexShrink: 0, marginTop: 1,
+  },
+  checkboxChecked: { borderColor: Colors.primary, backgroundColor: Colors.primary },
+  checkmark: { fontSize: 12, color: '#fff', fontWeight: FontWeight.bold },
+  kvkkText: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 18, flex: 1 },
   kvkkLink: { color: Colors.primary, fontWeight: FontWeight.medium },
   button: {
     height: 52, borderRadius: Radius.md, backgroundColor: Colors.primary,

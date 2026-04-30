@@ -39,4 +39,9 @@ export const examinationsService = {
     const { data } = await api.get<ListResponse<ApiExamination>>('/examinations', { params })
     return unwrapList(data)
   },
+
+  async create(payload: { petId: string; complaint: string; findings: string; assessment: string; plan: string }): Promise<ApiExamination> {
+    const { data } = await api.post<ApiExamination>('/examinations', payload)
+    return data
+  },
 }

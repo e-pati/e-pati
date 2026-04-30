@@ -29,6 +29,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [apiError, setApiError] = useState('')
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const [pawPositions] = useState(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      top: `${(i * 37 + 13) % 100}%`,
+      left: `${(i * 53 + 7) % 100}%`,
+      width: `${20 + (i * 7) % 40}px`,
+      transform: `rotate(${(i * 73) % 360}deg)`,
+      opacity: 0.3 + (i % 5) * 0.08,
+    }))
+  )
+
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   })
@@ -52,17 +63,11 @@ export default function LoginPage() {
       {/* Sol panel — marka */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary flex-col items-center justify-center p-12 text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          {Array.from({ length: 20 }).map((_, i) => (
+          {pawPositions.map((pos, i) => (
             <PawPrint
               key={i}
               className="absolute text-white"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${20 + Math.random() * 40}px`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-                opacity: 0.3 + Math.random() * 0.4,
-              }}
+              style={pos}
             />
           ))}
         </div>

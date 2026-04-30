@@ -23,4 +23,9 @@ export const labResultsService = {
     const { data } = await api.get<ListResponse<ApiLabResult>>('/lab-results', { params })
     return unwrapList(data)
   },
+
+  async create(payload: { petId: string; testType: string; fileUrl?: string; comment?: string }): Promise<ApiLabResult> {
+    const { data } = await api.post<ApiLabResult>('/lab-results', payload)
+    return data
+  },
 }
