@@ -1,26 +1,49 @@
-import { useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native'
+import { useState, useMemo } from 'react'
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  SafeAreaView, ActivityIndicator,
+} from 'react-native'
+import { Calendar, LocaleConfig } from 'react-native-calendars'
 import { useQuery } from '@tanstack/react-query'
 import { mockVaccinations, mockPets, mockExaminations } from '@/lib/mock-data'
 import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
-import { examinationsService, type ApiExamination } from '@/services/examinations.service'
+import { examinationsService } from '@/services/examinations.service'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import type { PetSpecies } from '@/types'
-import { formatDateShort, speciesEmoji, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
+import { formatDateShort, speciesEmoji, isVaccinationOverdue } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
-type FilterType = 'all' | 'upcoming' | 'overdue' | 'followup'
+// Takvimi Türkçe'ye ayarla
+LocaleConfig.locales['tr'] = {
+  monthNames: ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
+  monthNamesShort: ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'],
+  dayNames: ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'],
+  dayNamesShort: ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'],
+  today: 'Bugün',
+}
+LocaleConfig.defaultLocale = 'tr'
+
+function normalizeSpecies(species: string): PetSpecies {
+  const n = species.toLowerCase()
+  if (n === 'dog' || n === 'cat' || n === 'bird' || n === 'rabbit') return n
+  return 'other'
+}
+
+function toDateStr(date: string) {
+  return date.split('T')[0]
+}
 
 export default function CalendarScreen() {
-  const [filter, setFilter] = useState<FilterType>('all')
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+
   const vaccinationsQuery = useQuery({
-    queryKey: ['vaccinations', 'upcoming'],
-    queryFn: vaccinationsService.getUpcoming,
+    queryKey: ['vaccinations', 'all'],
+    queryFn: () => vaccinationsService.getAll({ limit: 500 }),
     retry: 1,
   })
   const examinationsQuery = useQuery({
     queryKey: ['examinations'],
-    queryFn: () => examinationsService.getAll({ limit: 200 }),
+    queryFn: () => examinationsService.getAll({ limit: 500 }),
     retry: 1,
   })
   const petsQuery = useQuery({
@@ -29,159 +52,169 @@ export default function CalendarScreen() {
     retry: 1,
   })
 
-  const pets = petsQuery.data ?? (petsQuery.isError ? mockPets.map(mapMockPet) : [])
-  const vaccines = vaccinationsQuery.data ?? (
-    vaccinationsQuery.isError ? mockVaccinations.map(mapMockVaccination) : []
-  )
+  const pets = petsQuery.data ?? []
 
-  // Takip tarihi olan muayeneler
-  const followUps = (examinationsQuery.data ?? (
-    examinationsQuery.isError
-      ? mockExaminations.filter(e => e.followUpDate).map(e => ({
-          id: e.id, petId: e.petId, followUpDate: e.followUpDate!,
-          complaint: e.complaint,
-        }))
-      : []
-  )).filter((e: any) => e.followUpDate && new Date(e.followUpDate) >= new Date())
-    .map((e: any) => ({
-      ...e,
-      pet: pets.find(p => p.id === e.petId),
-      dueDate: e.followUpDate,
-    }))
-    .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+  const vaccines = vaccinationsQuery.data ?? mockVaccinations.map(v => ({
+    id: v.id, petId: v.petId, name: v.vaccineName,
+    appliedAt: v.appliedDate, dueAt: v.nextDate,
+  } as ApiVaccination))
 
-  const allVaccines = vaccines.map(v => {
-    const dueAt = v.dueAt ?? v.appliedAt
-    return {
-      ...v,
-      pet: pets.find(p => p.id === v.petId),
-      dueAt,
-      overdue: isVaccinationOverdue(dueAt),
-      soon: isVaccinationDueSoon(dueAt, 30),
+  const examinations = examinationsQuery.data ?? mockExaminations.map(e => ({
+    id: e.id, petId: e.petId, complaint: e.complaint,
+    findings: e.findings, assessment: e.assessment, plan: e.plan,
+    createdAt: e.date, followUpDate: e.followUpDate,
+  }))
+
+  // Takvim işaret objesini oluştur
+  const markedDates = useMemo(() => {
+    const marks: Record<string, any> = {}
+
+    // Aşı tarihleri — kırmızı/turuncu nokta
+    vaccines.forEach(v => {
+      if (v.dueAt) {
+        const d = toDateStr(v.dueAt)
+        const overdue = isVaccinationOverdue(v.dueAt)
+        marks[d] = {
+          ...(marks[d] ?? {}),
+          marked: true,
+          dotColor: overdue ? Colors.danger : Colors.warning,
+        }
+      }
+    })
+
+    // Takip tarihleri — mavi nokta
+    examinations.forEach(e => {
+      if (e.followUpDate) {
+        const d = toDateStr(e.followUpDate)
+        marks[d] = {
+          ...(marks[d] ?? {}),
+          marked: true,
+          dotColor: Colors.info,
+        }
+      }
+    })
+
+    // Seçilen gün
+    if (selectedDate) {
+      marks[selectedDate] = {
+        ...(marks[selectedDate] ?? {}),
+        selected: true,
+        selectedColor: Colors.primary,
+      }
     }
-  }).sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())
 
-  const filtered = allVaccines.filter(v => {
-    if (filter === 'upcoming') return v.soon && !v.overdue
-    if (filter === 'overdue') return v.overdue
-    return true
-  })
+    return marks
+  }, [vaccines, examinations, selectedDate])
 
-  const overdueCount = allVaccines.filter(v => v.overdue).length
-  const upcomingCount = allVaccines.filter(v => v.soon && !v.overdue).length
+  // Seçilen günün olayları
+  const selectedEvents = useMemo(() => {
+    const events: Array<{ type: 'vaccine' | 'followup'; label: string; pet?: ApiPet; overdue?: boolean }> = []
+
+    vaccines.forEach(v => {
+      if (v.dueAt && toDateStr(v.dueAt) === selectedDate) {
+        const pet = pets.find(p => p.id === v.petId)
+        events.push({ type: 'vaccine', label: v.name, pet, overdue: isVaccinationOverdue(v.dueAt) })
+      }
+    })
+
+    examinations.forEach(e => {
+      if (e.followUpDate && toDateStr(e.followUpDate) === selectedDate) {
+        const pet = pets.find(p => p.id === e.petId)
+        events.push({ type: 'followup', label: 'Takip Muayenesi', pet })
+      }
+    })
+
+    return events
+  }, [selectedDate, vaccines, examinations, pets])
+
+  const isLoading = vaccinationsQuery.isLoading || examinationsQuery.isLoading || petsQuery.isLoading
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Takvim</Text>
-        <Text style={styles.subtitle}>Aşı ve kontrol takibi</Text>
+        <Text style={styles.subtitle}>Aşı ve takip randevuları</Text>
       </View>
 
-      {(vaccinationsQuery.isLoading || petsQuery.isLoading) && (
+      {isLoading && (
         <View style={styles.loadingRow}>
           <ActivityIndicator color={Colors.primary} size="small" />
-          <Text style={styles.loadingText}>Aşı takvimi yükleniyor...</Text>
+          <Text style={styles.loadingText}>Yükleniyor...</Text>
         </View>
       )}
 
-      {(vaccinationsQuery.isError || petsQuery.isError) && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>⚠️ API bağlantısı kurulamadı — örnek aşı takvimi gösteriliyor</Text>
-        </View>
-      )}
+      {/* Takvim widget */}
+      <Calendar
+        current={selectedDate}
+        onDayPress={day => setSelectedDate(day.dateString)}
+        markedDates={markedDates}
+        theme={{
+          backgroundColor: Colors.background,
+          calendarBackground: Colors.background,
+          selectedDayBackgroundColor: Colors.primary,
+          selectedDayTextColor: '#fff',
+          todayTextColor: Colors.primary,
+          dayTextColor: Colors.text,
+          textDisabledColor: Colors.textMuted,
+          dotColor: Colors.primary,
+          selectedDotColor: '#fff',
+          arrowColor: Colors.primary,
+          monthTextColor: Colors.text,
+          textDayFontSize: 14,
+          textMonthFontSize: 15,
+          textDayHeaderFontSize: 12,
+          textDayFontWeight: '400',
+          textMonthFontWeight: '700',
+        }}
+        style={styles.calendar}
+      />
 
-      {/* Özet kartları */}
-      <View style={styles.summaryRow}>
-        <View style={[styles.summaryCard, { borderColor: Colors.danger + '40', backgroundColor: Colors.danger + '10' }]}>
-          <Text style={[styles.summaryValue, { color: Colors.danger }]}>{overdueCount}</Text>
-          <Text style={styles.summaryLabel}>Gecikmiş Aşı</Text>
+      {/* Legend */}
+      <View style={styles.legend}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: Colors.warning }]} />
+          <Text style={styles.legendText}>Yaklaşan aşı</Text>
         </View>
-        <View style={[styles.summaryCard, { borderColor: Colors.warning + '40', backgroundColor: Colors.warning + '10' }]}>
-          <Text style={[styles.summaryValue, { color: Colors.warning }]}>{upcomingCount}</Text>
-          <Text style={styles.summaryLabel}>Yaklaşan (30 gün)</Text>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: Colors.danger }]} />
+          <Text style={styles.legendText}>Gecikmiş aşı</Text>
         </View>
-        <View style={[styles.summaryCard, { borderColor: Colors.primaryBorder, backgroundColor: Colors.primaryBg }]}>
-          <Text style={[styles.summaryValue, { color: Colors.primary }]}>{allVaccines.length}</Text>
-          <Text style={styles.summaryLabel}>Toplam Aşı</Text>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: Colors.info }]} />
+          <Text style={styles.legendText}>Takip muayenesi</Text>
         </View>
       </View>
 
-      {/* Filtreler */}
-      <View style={styles.filters}>
-        {([
-          { key: 'all', label: 'Tümü' },
-          { key: 'overdue', label: `Gecikmiş (${overdueCount})` },
-          { key: 'upcoming', label: `Yaklaşan (${upcomingCount})` },
-          { key: 'followup', label: `Takip (${followUps.length})` },
-        ] as const).map(f => (
-          <TouchableOpacity
-            key={f.key}
-            style={[styles.filterBtn, filter === f.key && styles.filterBtnActive]}
-            onPress={() => setFilter(f.key)}
-          >
-            <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* Seçilen günün olayları */}
+      <ScrollView style={styles.events} showsVerticalScrollIndicator={false}>
+        <Text style={styles.eventsTitle}>
+          {selectedDate === new Date().toISOString().split('T')[0] ? 'Bugün' : formatDateShort(selectedDate)}
+        </Text>
 
-      <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
-        {/* Takip tarihleri */}
-        {filter === 'followup' ? (
-          followUps.length === 0 ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyEmoji}>📅</Text>
-              <Text style={styles.emptyText}>Yaklaşan takip randevusu yok</Text>
-            </View>
-          ) : (
-            followUps.map((item: any) => (
-              <View key={item.id} style={[styles.item, { borderColor: Colors.info + '40', backgroundColor: Colors.info + '05' }]}>
-                <View style={styles.itemLeft}>
-                  <Text style={styles.itemEmoji}>{speciesEmoji(normalizeSpecies(item.pet?.species ?? 'other'))}</Text>
-                </View>
-                <View style={styles.itemCenter}>
-                  <Text style={styles.itemPet}>{item.pet?.name ?? 'Hasta bilgisi yok'}</Text>
-                  <Text style={styles.itemVaccine}>🩺 Takip Muayenesi</Text>
-                  <Text style={styles.itemManufacturer} numberOfLines={1}>{item.complaint}</Text>
-                </View>
-                <View style={styles.itemRight}>
-                  <Text style={[styles.itemDate, { color: Colors.info }]}>
-                    {formatDateShort(item.dueDate)}
-                  </Text>
-                  <View style={[styles.statusDot, { backgroundColor: Colors.info }]} />
-                </View>
-              </View>
-            ))
-          )
-        ) : filtered.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyEmoji}>✅</Text>
-            <Text style={styles.emptyText}>Tüm aşılar güncel!</Text>
+        {selectedEvents.length === 0 ? (
+          <View style={styles.emptyDay}>
+            <Text style={styles.emptyDayText}>Bu güne ait etkinlik yok</Text>
           </View>
         ) : (
-          filtered.map(item => (
-            <View key={item.id} style={[styles.item, item.overdue && styles.itemOverdue, item.soon && !item.overdue && styles.itemSoon]}>
-              <View style={styles.itemLeft}>
-                <Text style={styles.itemEmoji}>{speciesEmoji(normalizeSpecies(item.pet?.species ?? 'other'))}</Text>
-              </View>
-              <View style={styles.itemCenter}>
-                <Text style={styles.itemPet}>{item.pet?.name ?? 'Hasta bilgisi yok'}</Text>
-                <Text style={styles.itemVaccine}>{item.name}</Text>
-                {item.notes && <Text style={styles.itemManufacturer}>{item.notes}</Text>}
-              </View>
-              <View style={styles.itemRight}>
-                <Text style={[
-                  styles.itemDate,
-                  item.overdue && { color: Colors.danger },
-                  item.soon && !item.overdue && { color: Colors.warning },
-                ]}>
-                  {formatDateShort(item.dueAt)}
-                </Text>
-                <View style={[
-                  styles.statusDot,
-                  { backgroundColor: item.overdue ? Colors.danger : item.soon ? Colors.warning : Colors.primary },
-                ]} />
+          selectedEvents.map((event, i) => (
+            <View key={i} style={[
+              styles.eventItem,
+              event.type === 'vaccine' && event.overdue && styles.eventOverdue,
+              event.type === 'followup' && styles.eventFollowup,
+            ]}>
+              <Text style={styles.eventEmoji}>
+                {event.type === 'vaccine' ? '💉' : '🩺'}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.eventLabel}>{event.label}</Text>
+                {event.pet && (
+                  <Text style={styles.eventPet}>
+                    {speciesEmoji(normalizeSpecies(event.pet.species))} {event.pet.name}
+                  </Text>
+                )}
+                {event.overdue && (
+                  <Text style={styles.overdueTag}>⚠️ Gecikmiş</Text>
+                )}
               </View>
             </View>
           ))
@@ -191,86 +224,45 @@ export default function CalendarScreen() {
   )
 }
 
-function normalizeSpecies(species: string): PetSpecies {
-  const normalized = species.toLowerCase()
-  if (normalized === 'dog' || normalized === 'cat' || normalized === 'bird' || normalized === 'rabbit') {
-    return normalized
-  }
-  return 'other'
-}
-
-function mapMockPet(pet: (typeof mockPets)[number]): ApiPet {
-  return {
-    id: pet.id,
-    ownerId: pet.ownerId,
-    name: pet.name,
-    species: normalizeSpecies(pet.species),
-    breed: pet.breed,
-    sex: pet.gender,
-    birthDate: pet.birthDate,
-    microchipNo: pet.microchipNo,
-    createdAt: new Date().toISOString(),
-  }
-}
-
-function mapMockVaccination(vaccination: (typeof mockVaccinations)[number]): ApiVaccination {
-  return {
-    id: vaccination.id,
-    petId: vaccination.petId,
-    name: vaccination.vaccineName,
-    appliedAt: vaccination.appliedDate,
-    dueAt: vaccination.nextDate,
-    notes: vaccination.manufacturer,
-  }
-}
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface },
-  header: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: Spacing.md },
+  header: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: Spacing.sm },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
   subtitle: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: 2 },
-  summaryRow: { flexDirection: 'row', paddingHorizontal: Spacing.xl, gap: 10, marginBottom: Spacing.lg },
-  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: Spacing.xl, marginBottom: Spacing.md },
+  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: Spacing.xl, marginBottom: Spacing.sm },
   loadingText: { fontSize: FontSize.xs, color: Colors.textMuted },
-  errorBanner: {
-    marginHorizontal: Spacing.xl, marginBottom: Spacing.md,
-    backgroundColor: '#fef3cd', borderRadius: Radius.md,
-    padding: Spacing.sm, borderWidth: 1, borderColor: '#fde68a',
+  calendar: {
+    borderRadius: Radius.xl,
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.sm,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
+    overflow: 'hidden',
   },
-  errorText: { fontSize: FontSize.xs, color: '#92400e' },
-  summaryCard: {
-    flex: 1, borderRadius: Radius.lg, padding: Spacing.md,
-    alignItems: 'center', borderWidth: 1,
+  legend: {
+    flexDirection: 'row', gap: Spacing.lg,
+    paddingHorizontal: Spacing.xl, paddingVertical: Spacing.sm,
   },
-  summaryValue: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold },
-  summaryLabel: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2, textAlign: 'center' },
-  filters: { flexDirection: 'row', paddingHorizontal: Spacing.xl, gap: 8, marginBottom: Spacing.lg },
-  filterBtn: {
-    paddingHorizontal: Spacing.md, paddingVertical: 7,
-    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border,
-    backgroundColor: Colors.background,
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendText: { fontSize: FontSize.xs, color: Colors.textSecondary },
+  events: { flex: 1, paddingHorizontal: Spacing.xl },
+  eventsTitle: {
+    fontSize: FontSize.base, fontWeight: FontWeight.semibold,
+    color: Colors.text, marginBottom: Spacing.md,
   },
-  filterBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  filterText: { fontSize: FontSize.xs, color: Colors.textSecondary, fontWeight: FontWeight.medium },
-  filterTextActive: { color: '#fff' },
-  list: { paddingHorizontal: Spacing.xl, paddingBottom: 24, gap: 10 },
-  item: {
+  emptyDay: { paddingVertical: Spacing.xl, alignItems: 'center' },
+  emptyDayText: { fontSize: FontSize.sm, color: Colors.textMuted },
+  eventItem: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
-    backgroundColor: Colors.background, borderRadius: Radius.xl,
-    padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border,
+    backgroundColor: Colors.background, borderRadius: Radius.lg,
+    padding: Spacing.md, marginBottom: Spacing.sm,
+    borderWidth: 1, borderColor: Colors.border,
   },
-  itemOverdue: { borderColor: Colors.danger + '40', backgroundColor: Colors.danger + '05' },
-  itemSoon: { borderColor: Colors.warning + '40', backgroundColor: Colors.warning + '05' },
-  itemLeft: {},
-  itemEmoji: { fontSize: 28 },
-  itemCenter: { flex: 1 },
-  itemPet: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
-  itemVaccine: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
-  itemManufacturer: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 1 },
-  itemRight: { alignItems: 'flex-end', gap: 6 },
-  itemDate: { fontSize: FontSize.sm, fontWeight: FontWeight.medium, color: Colors.textSecondary },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  empty: { alignItems: 'center', paddingTop: 60 },
-  emptyEmoji: { fontSize: 48, marginBottom: Spacing.lg },
-  emptyText: { fontSize: FontSize.base, color: Colors.textMuted },
+  eventOverdue: { borderColor: Colors.danger + '50', backgroundColor: Colors.danger + '05' },
+  eventFollowup: { borderColor: Colors.info + '50', backgroundColor: Colors.info + '05' },
+  eventEmoji: { fontSize: 22 },
+  eventLabel: { fontSize: FontSize.base, fontWeight: FontWeight.medium, color: Colors.text },
+  eventPet: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
+  overdueTag: { fontSize: FontSize.xs, color: Colors.danger, marginTop: 3, fontWeight: FontWeight.medium },
 })
