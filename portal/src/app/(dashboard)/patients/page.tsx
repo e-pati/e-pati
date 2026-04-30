@@ -1,7 +1,7 @@
 'use client'
 
 import { useDebounce } from '@/hooks/use-debounce'
-import { useState, useMemo, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Input } from '@/components/ui/input'
@@ -12,12 +12,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { usePets } from '@/hooks/use-pets'
-import { mockPets } from '@/lib/mock-data'
+import { useClinicPatients } from '@/hooks/use-clinic'
 import { formatDate, calculateAge, speciesEmoji, speciesLabel } from '@/lib/utils'
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import type { PetSpecies } from '@/types'
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import type { ApiPet } from '@/services/pets.service'
 
 const PAGE_SIZE = 12
 
@@ -36,50 +35,32 @@ function PatientsContent() {
   const [speciesFilter, setSpeciesFilter] = useState('all')
   const [page, setPage] = useState(1)
 
-  const { data: apiPets, isLoading, isError } = usePets()
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value)
+    setPage(1)
+  }
 
-  // API'den veri gelmezse mock data göster
-  const pets = apiPets ?? mockPets.map(p => ({
-    id: p.id,
-    ownerId: p.ownerId,
-    name: p.name,
-    species: p.species,
-    breed: p.breed ?? '',
-    sex: p.gender,
-    birthDate: p.birthDate,
-    microchipNo: p.microchipNo,
-    createdAt: p.createdAt,
-    updatedAt: p.createdAt,
-    owner: {
-      id: p.ownerId,
-      fullName: `${p.owner.firstName} ${p.owner.lastName}`,
-      email: p.owner.email,
-      phone: p.owner.phone,
-    },
-  } as ApiPet))
+  const handleSpeciesChange = (v: string | null) => {
+    setSpeciesFilter(v ?? 'all')
+    setPage(1)
+  }
 
-  const filtered = useMemo(() => {
-    return pets.filter(pet => {
-      const q = debouncedQuery.toLowerCase()
-      const ownerName = pet.owner?.fullName?.toLowerCase() ?? ''
-      const matchQuery = !q ||
-        pet.name.toLowerCase().includes(q) ||
-        ownerName.includes(q) ||
-        pet.microchipNo?.includes(q) ||
-        (pet.breed?.toLowerCase() ?? '').includes(q)
-      const matchSpecies = speciesFilter === 'all' || pet.species.toLowerCase() === speciesFilter
-      return matchQuery && matchSpecies
-    })
-  }, [pets, debouncedQuery, speciesFilter])
+  const { data, isLoading, isFetching } = useClinicPatients({
+    page,
+    limit: PAGE_SIZE,
+    search: debouncedQuery || undefined,
+    species: speciesFilter === 'all' ? undefined : speciesFilter,
+  })
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const pets = data?.items ?? []
+  const total = data?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
     <div>
       <Header
         title="Hastalar"
-        subtitle={isLoading ? 'Yükleniyor...' : `${pets.length} kayıtlı hasta`}
+        subtitle={isLoading ? 'Yükleniyor...' : `${total} kayıtlı hasta`}
         action={{ label: 'Yeni Hasta', href: '/patients/new' }}
       />
 
@@ -89,37 +70,31 @@ function PatientsContent() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={handleQueryChange}
               placeholder="Ad, sahip, mikro çip no..."
               className="pl-9"
             />
           </div>
-          <Select value={speciesFilter} onValueChange={v => setSpeciesFilter(v ?? 'all')}>
+          <Select value={speciesFilter} onValueChange={handleSpeciesChange}>
             <SelectTrigger className="w-40 gap-2">
               <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
               <SelectValue placeholder="Tür" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tüm Türler</SelectItem>
-              <SelectItem value="dog">🐕 Köpek</SelectItem>
-              <SelectItem value="cat">🐈 Kedi</SelectItem>
-              <SelectItem value="bird">🐦 Kuş</SelectItem>
-              <SelectItem value="rabbit">🐇 Tavşan</SelectItem>
-              <SelectItem value="other">🐾 Diğer</SelectItem>
+              <SelectItem value="Dog">🐕 Köpek</SelectItem>
+              <SelectItem value="Cat">🐈 Kedi</SelectItem>
+              <SelectItem value="Bird">🐦 Kuş</SelectItem>
+              <SelectItem value="Rabbit">🐇 Tavşan</SelectItem>
+              <SelectItem value="Other">🐾 Diğer</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {debouncedQuery && !isLoading && (
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">{filtered.length}</span> sonuç bulundu
+            <span className="font-medium text-foreground">{total}</span> sonuç bulundu
           </p>
-        )}
-
-        {isError && (
-          <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            API bağlantısı kurulamadı — örnek veriler gösteriliyor.
-          </div>
         )}
 
         {isLoading ? (
@@ -139,21 +114,15 @@ function PatientsContent() {
               </Card>
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : pets.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            {pets.length === 0 && !debouncedQuery ? (
+            {total === 0 && !debouncedQuery ? (
               <>
                 <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-5xl mb-6">🐾</div>
                 <p className="text-xl font-semibold text-foreground mb-2">Henüz hasta kaydı yok</p>
                 <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-                  İlk evcil hayvanı ekleyerek başlayın. Kayıtlar buraya gelecek.
+                  Hayvan sahipleri e-Pati mobil uygulamasından kayıt olduğunda hastalar burada görünür.
                 </p>
-                <Link href="/patients/new">
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    İlk Hastayı Ekle
-                  </Button>
-                </Link>
               </>
             ) : (
               <>
@@ -164,9 +133,9 @@ function PatientsContent() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {paginated.map(pet => {
-              const species = pet.species.toLowerCase()
+          <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
+            {pets.map(pet => {
+              const species = pet.species.toLowerCase() as PetSpecies
               const ownerName = pet.owner?.fullName ?? '—'
               return (
                 <Link href={`/patients/${pet.id}`} key={pet.id}>
@@ -176,7 +145,7 @@ function PatientsContent() {
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
                           {pet.photoUrl
                             ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
-                            : speciesEmoji(species as any)
+                            : speciesEmoji(species)
                           }
                         </div>
                         <div className="flex-1 min-w-0">
@@ -186,7 +155,7 @@ function PatientsContent() {
                               <p className="text-xs text-muted-foreground mt-0.5">{pet.breed ?? '—'}</p>
                             </div>
                             <Badge variant="secondary" className="text-[10px] flex-shrink-0 bg-primary/10 text-primary border-0">
-                              {speciesLabel(species as any)}
+                              {speciesLabel(species)}
                             </Badge>
                           </div>
                           <div className="mt-3 space-y-1.5">
@@ -220,31 +189,28 @@ function PatientsContent() {
           </div>
         )}
 
-        {/* Pagination */}
         {!isLoading && totalPages > 1 && (
           <div className="flex items-center justify-between pt-2">
             <p className="text-sm text-muted-foreground">
-              {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} / {filtered.length} hasta
+              {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} / {total} hasta
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
+                disabled={page === 1 || isFetching}
                 className="gap-1"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Önceki
               </Button>
-              <span className="text-sm text-muted-foreground px-2">
-                {page} / {totalPages}
-              </span>
+              <span className="text-sm text-muted-foreground px-2">{page} / {totalPages}</span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
+                disabled={page === totalPages || isFetching}
                 className="gap-1"
               >
                 Sonraki

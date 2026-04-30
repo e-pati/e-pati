@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreatePet } from '@/hooks/use-pets'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Info } from 'lucide-react'
 
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
@@ -61,7 +61,15 @@ export default function NewPatientPage() {
       toast.success(`${pet.name} başarıyla eklendi!`)
       setTimeout(() => router.push(`/patients/${pet.id}`), 1200)
     } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Hasta eklenemedi.')
+      const status = err?.response?.status
+      if (status === 403) {
+        toast.error('Yetki hatası', {
+          description: 'Klinik hesabıyla hasta kaydı şu an desteklenmiyor. Hayvan sahipleri mobil uygulama üzerinden kayıt olabilir.',
+          duration: 6000,
+        })
+      } else {
+        toast.error(err?.response?.data?.message ?? 'Hasta eklenemedi.')
+      }
     }
   }
 
@@ -83,6 +91,13 @@ export default function NewPatientPage() {
     <div>
       <Header title="Yeni Hasta" subtitle="Yeni evcil hayvan kaydı oluşturun" />
       <div className="p-6 max-w-2xl">
+        <div className="flex items-start gap-3 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700 mb-5">
+          <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <span>
+            Klinik hesabıyla hasta kaydı özelliği yakında etkinleştirilecek. Şu an hayvan sahipleri
+            e-Pati mobil uygulamasından kendi hayvanlarını kaydedebilir ve kliniğinize bağlayabilir.
+          </span>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Card className="border-border/50">
             <CardHeader className="pb-4">
