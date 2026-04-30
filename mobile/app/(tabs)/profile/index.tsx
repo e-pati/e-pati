@@ -6,7 +6,6 @@ import {
 import { router } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
-import { usePets } from '@/services/pets.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
 function useMobilePets() {
@@ -111,7 +110,7 @@ export default function ProfileScreen() {
           <View key={section.title} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
             <View style={styles.sectionCard}>
-              {section.rows.map((row, i) => (
+              {section.rows.map((row: any, i: number) => (
                 <TouchableOpacity
                   key={row.label}
                   style={[styles.row, i < section.rows.length - 1 && styles.rowBorder]}

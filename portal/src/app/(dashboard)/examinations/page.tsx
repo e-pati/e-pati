@@ -27,7 +27,7 @@ function ExaminationsContent() {
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const debouncedQuery = useDebounce(query)
   const [page, setPage] = useState(1)
-  useEffect(() => { setPage(1) }, [debouncedQuery])
+  useEffect(() => { setPage(1) }, [debouncedQuery]) // eslint-disable-line
 
   const examinationsQuery = useExaminations({ limit: 200 })
   const petsQuery = usePets()

@@ -20,7 +20,6 @@ import { AddLabResultModal } from '@/components/AddLabResultModal'
 import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
 import { AddExaminationModal } from '@/components/AddExaminationModal'
 import { Linking } from 'react-native'
-import { prescriptionsService } from '@/services/prescriptions.service'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 

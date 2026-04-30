@@ -1,4 +1,3 @@
-import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
@@ -64,13 +63,12 @@ export function AddExaminationModal({ petId, visible, onClose }: Props) {
       plan: form.plan,
     }),
     onSuccess: () => {
-      haptic.success()
       qc.invalidateQueries({ queryKey: ['examinations', { petId }] })
       Alert.alert('Başarılı', 'Muayene kaydedildi.')
       setForm({ complaint: '', findings: '', assessment: '', plan: '', followUpDate: '' })
       onClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Muayene kaydedilemedi.') },
+    onError: () => Alert.alert('Hata', 'Muayene kaydedilemedi.'),
   })
 
   const isValid = form.complaint.trim().length >= 5 &&
