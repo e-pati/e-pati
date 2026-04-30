@@ -21,25 +21,40 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (digits.startsWith('90')) return `+${digits}`
+  if (digits.startsWith('0')) return `+90${digits.slice(1)}`
+  return `+90${digits}`
+}
+
 export default function RegisterScreen() {
   const [loading, setLoading] = useState(false)
   const [kvkkAccepted, setKvkkAccepted] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
   const onSubmit = async (data: FormData) => {
     setLoading(true)
+    setErrorMsg('')
     try {
       await authService.register({
         fullName: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        phone: data.phone,
+        phone: normalizePhone(data.phone),
         password: data.password,
       })
       router.replace('/(tabs)/pets')
-    } catch {
-      Alert.alert('Kayıt başarısız', 'Bilgileri kontrol edip tekrar deneyin.')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      const text = Array.isArray(msg) ? msg[0] : (msg ?? 'Bilgileri kontrol edip tekrar deneyin.')
+      if (Platform.OS === 'web') {
+        setErrorMsg(text)
+      } else {
+        Alert.alert('Kayıt başarısız', text)
+      }
     } finally {
       setLoading(false)
     }
@@ -72,6 +87,12 @@ export default function RegisterScreen() {
         <Text style={styles.subtitle}>Evcil dostunuzun sağlık kaydına başlayın</Text>
 
         <View style={styles.card}>
+          {errorMsg ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorBoxText}>{errorMsg}</Text>
+            </View>
+          ) : null}
+
           {fields.map(field => (
             <View key={field.name} style={styles.field}>
               <Text style={styles.label}>{field.label}</Text>
@@ -173,6 +194,11 @@ const styles = StyleSheet.create({
   checkmark: { fontSize: 12, color: '#fff', fontWeight: FontWeight.bold },
   kvkkText: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 18, flex: 1 },
   kvkkLink: { color: Colors.primary, fontWeight: FontWeight.medium },
+  errorBox: {
+    backgroundColor: '#FEF2F2', borderRadius: Radius.md, padding: Spacing.md,
+    borderWidth: 1, borderColor: '#FECACA', marginBottom: Spacing.lg,
+  },
+  errorBoxText: { color: '#DC2626', fontSize: FontSize.sm },
   button: {
     height: 52, borderRadius: Radius.md, backgroundColor: Colors.primary,
     alignItems: 'center', justifyContent: 'center',
