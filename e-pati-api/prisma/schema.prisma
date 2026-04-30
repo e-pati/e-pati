@@ -33,59 +33,59 @@ enum NotificationStatus {
 }
 
 model Owner {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  phone        String?        @unique
-  passwordHash String
-  fullName     String
-  role         Role           @default(OWNER)
-  pets         Pet[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  phone         String?        @unique
+  passwordHash  String
+  fullName      String
+  role          Role           @default(OWNER)
+  pets          Pet[]
   refreshTokens RefreshToken[]
   notifications Notification[]
-  auditLogs    AuditLog[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  deletedAt    DateTime?
+  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
 }
 
 model Clinic {
-  id             String         @id @default(cuid())
-  name           String
-  email          String?        @unique
-  phone          String?
-  address        String?
-  isApproved     Boolean        @default(false)
-  veterinarians  Veterinarian[]
-  pets           Pet[]
-  examinations   Examination[]
-  vaccinations   Vaccination[]
-  prescriptions  Prescription[]
-  labResults     LabResult[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime?
+  id            String         @id @default(cuid())
+  name          String
+  email         String?        @unique
+  phone         String?
+  address       String?
+  isApproved    Boolean        @default(false)
+  veterinarians Veterinarian[]
+  pets          Pet[]
+  examinations  Examination[]
+  vaccinations  Vaccination[]
+  prescriptions Prescription[]
+  labResults    LabResult[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
 }
 
 model Veterinarian {
-  id             String         @id @default(cuid())
-  clinicId       String
-  clinic         Clinic         @relation(fields: [clinicId], references: [id])
-  email          String         @unique
-  phone          String?        @unique
-  passwordHash   String
-  fullName       String
-  licenseNumber  String?        @unique
-  role           Role           @default(VETERINARIAN)
-  totpSecret     String?
-  examinations   Examination[]
-  vaccinations   Vaccination[]
-  prescriptions  Prescription[]
-  labResults     LabResult[]
-  auditLogs      AuditLog[]
-  refreshTokens  RefreshToken[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime?
+  id            String         @id @default(cuid())
+  clinicId      String
+  clinic        Clinic         @relation(fields: [clinicId], references: [id])
+  email         String         @unique
+  phone         String?        @unique
+  passwordHash  String
+  fullName      String
+  licenseNumber String?        @unique
+  role          Role           @default(VETERINARIAN)
+  totpSecret    String?
+  examinations  Examination[]
+  vaccinations  Vaccination[]
+  prescriptions Prescription[]
+  labResults    LabResult[]
+  auditLogs     AuditLog[]
+  refreshTokens RefreshToken[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
 }
 
 model RefreshToken {
@@ -106,25 +106,25 @@ model RefreshToken {
 }
 
 model Pet {
-  id             String         @id @default(cuid())
-  ownerId        String
-  owner          Owner          @relation(fields: [ownerId], references: [id])
-  clinicId       String?
-  clinic         Clinic?        @relation(fields: [clinicId], references: [id])
-  name           String
-  species        String
-  breed          String?
-  sex            PetSex         @default(UNKNOWN)
-  birthDate      DateTime?
-  microchipNo    String?        @unique
-  photoUrl       String?
-  examinations   Examination[]
-  vaccinations   Vaccination[]
-  prescriptions  Prescription[]
-  labResults     LabResult[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime?
+  id            String         @id @default(cuid())
+  ownerId       String
+  owner         Owner          @relation(fields: [ownerId], references: [id])
+  clinicId      String?
+  clinic        Clinic?        @relation(fields: [clinicId], references: [id])
+  name          String
+  species       String
+  breed         String?
+  sex           PetSex         @default(UNKNOWN)
+  birthDate     DateTime?
+  microchipNo   String?        @unique
+  photoUrl      String?
+  examinations  Examination[]
+  vaccinations  Vaccination[]
+  prescriptions Prescription[]
+  labResults    LabResult[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
 
   @@index([ownerId])
   @@index([clinicId])
@@ -204,11 +204,11 @@ model Medication {
 }
 
 model LabResult {
-  id             String       @id @default(cuid())
+  id             String        @id @default(cuid())
   petId          String
-  pet            Pet          @relation(fields: [petId], references: [id])
+  pet            Pet           @relation(fields: [petId], references: [id])
   clinicId       String?
-  clinic         Clinic?      @relation(fields: [clinicId], references: [id])
+  clinic         Clinic?       @relation(fields: [clinicId], references: [id])
   veterinarianId String?
   veterinarian   Veterinarian? @relation(fields: [veterinarianId], references: [id])
   title          String
@@ -216,8 +216,8 @@ model LabResult {
   mimeType       String
   notes          String?
   collectedAt    DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   deletedAt      DateTime?
 
   @@index([petId])
