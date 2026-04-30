@@ -22,7 +22,10 @@ export function useCreatePet() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreatePetPayload) => petsService.create(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['pets'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pets'] })
+      qc.invalidateQueries({ queryKey: ['clinic-patients'] })
+    },
   })
 }
 
@@ -30,6 +33,9 @@ export function useDeletePet() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => petsService.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['pets'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pets'] })
+      qc.invalidateQueries({ queryKey: ['clinic-patients'] })
+    },
   })
 }

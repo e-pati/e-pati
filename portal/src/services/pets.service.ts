@@ -30,6 +30,10 @@ export interface CreatePetPayload {
   birthDate?: string
   microchipNo?: string
   photoUrl?: string
+  ownerId?: string
+  ownerFullName?: string
+  ownerEmail?: string
+  ownerPhone?: string
 }
 
 export const petsService = {
