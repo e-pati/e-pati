@@ -1,7 +1,7 @@
 'use client'
 
 import { useDebounce } from '@/hooks/use-debounce'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Input } from '@/components/ui/input'
@@ -35,9 +35,15 @@ function PatientsContent() {
   const [speciesFilter, setSpeciesFilter] = useState('all')
   const [page, setPage] = useState(1)
 
-  useEffect(() => {
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value)
     setPage(1)
-  }, [debouncedQuery, speciesFilter])
+  }
+
+  const handleSpeciesChange = (v: string | null) => {
+    setSpeciesFilter(v ?? 'all')
+    setPage(1)
+  }
 
   const { data, isLoading, isFetching } = useClinicPatients({
     page,
@@ -64,12 +70,12 @@ function PatientsContent() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={handleQueryChange}
               placeholder="Ad, sahip, mikro çip no..."
               className="pl-9"
             />
           </div>
-          <Select value={speciesFilter} onValueChange={v => setSpeciesFilter(v ?? 'all')}>
+          <Select value={speciesFilter} onValueChange={handleSpeciesChange}>
             <SelectTrigger className="w-40 gap-2">
               <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
               <SelectValue placeholder="Tür" />
