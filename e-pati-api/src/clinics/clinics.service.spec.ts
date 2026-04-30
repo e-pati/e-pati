@@ -21,7 +21,7 @@ describe('ClinicsService', () => {
     await expect(
       service.findPatients(
         'clinic-1',
-        {},
+        { page: 1, limit: 20 },
         {
           sub: 'vet-1',
           email: 'vet@example.com',
@@ -39,7 +39,7 @@ describe('ClinicsService', () => {
     await expect(
       service.findPatients(
         'clinic-1',
-        {},
+        { page: 1, limit: 20 },
         {
           sub: 'vet-2',
           email: 'other@example.com',
