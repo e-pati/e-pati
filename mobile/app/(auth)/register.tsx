@@ -9,7 +9,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { authService } from '@/services/auth.service'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 const schema = z.object({
   firstName: z.string().min(2, 'Ad en az 2 karakter olmalı'),
@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
   back: { marginBottom: Spacing.xxl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
-  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 6 },
-  subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, marginBottom: Spacing.xxl },
+  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 6 },
+  subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, fontFamily: Fonts.regular, marginBottom: Spacing.xxl },
   card: {
     backgroundColor: Colors.background, borderRadius: Radius.xl,
     padding: Spacing.xxl,

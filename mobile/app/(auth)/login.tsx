@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import { authService } from '@/services/auth.service'
 import { haptic } from '@/lib/haptics'
 
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   logoEmoji: { fontSize: 40 },
-  logoText: { fontSize: 28, fontWeight: FontWeight.bold, color: Colors.primary },
-  logoSub: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: 4 },
+  logoText: { fontSize: 28, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.primary },
+  logoSub: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: 4, fontFamily: Fonts.regular },
   card: {
     backgroundColor: Colors.background,
     borderRadius: Radius.xl,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 3,
   },
-  cardTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: Spacing.xl },
+  cardTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: Spacing.xl },
   field: { marginBottom: Spacing.lg },
   label: { fontSize: FontSize.sm, fontWeight: FontWeight.medium, color: Colors.textSecondary, marginBottom: 6 },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
