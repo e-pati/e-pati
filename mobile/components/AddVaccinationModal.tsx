@@ -36,12 +36,13 @@ export function AddVaccinationModal({ petId, visible, onClose }: Props) {
       lotNumber: lotNumber || undefined,
       notes: notes || undefined,
     }),
-    onSuccess: () => { haptic.success()
+    onSuccess: () => {
+      haptic.success()
       qc.invalidateQueries({ queryKey: ['vaccinations', { petId }] })
       Alert.alert('Başarılı', 'Aşı kaydedildi.')
       resetAndClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Aşı kaydedilemedi.'),
+    onError: () => { haptic.error(); Alert.alert('Hata', 'Aşı kaydedilemedi.') },
   })
 
   const resetAndClose = () => {

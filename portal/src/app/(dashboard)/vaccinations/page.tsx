@@ -22,7 +22,7 @@ type FilterMode = 'all' | 'overdue' | 'upcoming'
 export default function VaccinationsPage() {
   const [filter, setFilter] = useState<FilterMode>('all')
   const [page, setPage] = useState(1)
-  useEffect(() => { setPage(1) }, [filter])
+  useEffect(() => { setPage(1) }, [filter]) // eslint-disable-line
 
   const vaccinationsQuery = useVaccinations()
   const petsQuery = usePets()

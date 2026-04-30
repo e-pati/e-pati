@@ -38,4 +38,13 @@ export const prescriptionsService = {
     const { data } = await api.get<ListResponse<ApiPrescription>>('/prescriptions', { params })
     return unwrapList(data)
   },
+
+  async create(payload: { petId: string; medications: ApiMedication[]; notes?: string }): Promise<ApiPrescription> {
+    const { data } = await api.post<ApiPrescription>('/prescriptions', payload)
+    return data
+  },
+
+  getPdfUrl(id: string): string {
+    return `${api.defaults.baseURL}/prescriptions/${id}/pdf`
+  },
 }

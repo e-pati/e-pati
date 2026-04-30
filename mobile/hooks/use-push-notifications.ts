@@ -15,7 +15,7 @@ Notifications.setNotificationHandler({
 })
 
 export function usePushNotifications() {
-  const responseListener = useRef<Notifications.EventSubscription>()
+  const responseListener = useRef<Notifications.EventSubscription | null>(null)
 
   useEffect(() => {
     registerToken()

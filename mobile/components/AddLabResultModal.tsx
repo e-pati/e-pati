@@ -26,13 +26,14 @@ export function AddLabResultModal({ petId, visible, onClose }: Props) {
 
   const mutation = useMutation({
     mutationFn: () => labResultsService.create({ petId, testType, comment: comment || undefined }),
-    onSuccess: () => { haptic.success()
+    onSuccess: () => {
+      haptic.success()
       qc.invalidateQueries({ queryKey: ['lab-results', { petId }] })
       Alert.alert('Başarılı', 'Lab sonucu kaydedildi.')
       setTestType(''); setComment('')
       onClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Lab sonucu kaydedilemedi.'),
+    onError: () => { haptic.error(); Alert.alert('Hata', 'Lab sonucu kaydedilemedi.') },
   })
 
   return (

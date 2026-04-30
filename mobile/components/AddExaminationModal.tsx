@@ -63,13 +63,14 @@ export function AddExaminationModal({ petId, visible, onClose }: Props) {
       assessment: form.assessment,
       plan: form.plan,
     }),
-    onSuccess: () => { haptic.success()
+    onSuccess: () => {
+      haptic.success()
       qc.invalidateQueries({ queryKey: ['examinations', { petId }] })
       Alert.alert('Başarılı', 'Muayene kaydedildi.')
       setForm({ complaint: '', findings: '', assessment: '', plan: '', followUpDate: '' })
       onClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Muayene kaydedilemedi.'),
+    onError: () => { haptic.error(); Alert.alert('Hata', 'Muayene kaydedilemedi.') },
   })
 
   const isValid = form.complaint.trim().length >= 5 &&

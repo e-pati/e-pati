@@ -29,6 +29,15 @@ export const petsService = {
     return data
   },
 
+  async update(id: string, payload: Partial<ApiPet>): Promise<ApiPet> {
+    const { data } = await api.patch<ApiPet>(`/pets/${id}`, payload)
+    return data
+  },
+
+  async remove(id: string): Promise<void> {
+    await api.delete(`/pets/${id}`)
+  },
+
   async getQr(id: string): Promise<{ token: string }> {
     const { data } = await api.get<{ token: string }>(`/pets/${id}/qr`)
     return data
