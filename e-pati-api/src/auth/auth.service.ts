@@ -6,7 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { JwtSignOptions } from '@nestjs/jwt';
-import { Owner, Role } from '@prisma/client';
+import { Owner, Role, Veterinarian } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -22,6 +22,15 @@ type AuthResponse = {
     email: string;
     fullName: string;
     role: Role;
+    clinicId?: string;
+  };
+};
+
+type StaffWithClinic = Veterinarian & {
+  clinic: {
+    id: string;
+    deletedAt: Date | null;
+    isApproved: boolean;
   };
 };
 
@@ -85,6 +94,41 @@ export class AuthService {
     return this.issueTokenPair(owner);
   }
 
+  async loginClinic(dto: LoginDto): Promise<AuthResponse> {
+    const veterinarian = await this.prisma.veterinarian.findUnique({
+      where: { email: dto.email.toLowerCase() },
+      include: {
+        clinic: {
+          select: {
+            id: true,
+            deletedAt: true,
+            isApproved: true,
+          },
+        },
+      },
+    });
+
+    if (
+      !veterinarian?.passwordHash ||
+      veterinarian.deletedAt ||
+      veterinarian.clinic.deletedAt ||
+      !veterinarian.clinic.isApproved
+    ) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      dto.password,
+      veterinarian.passwordHash,
+    );
+
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    return this.issueStaffTokenPair(veterinarian);
+  }
+
   async refresh(refreshToken: string | undefined): Promise<AuthResponse> {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token is required.');
@@ -93,14 +137,26 @@ export class AuthService {
     const tokenHash = this.hashRefreshToken(refreshToken);
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { tokenHash },
-      include: { owner: true },
+      include: {
+        owner: true,
+        veterinarian: {
+          include: {
+            clinic: {
+              select: {
+                id: true,
+                deletedAt: true,
+                isApproved: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (
-      !storedToken?.owner ||
+      !storedToken ||
       storedToken.revokedAt ||
-      storedToken.expiresAt <= new Date() ||
-      storedToken.owner.deletedAt
+      storedToken.expiresAt <= new Date()
     ) {
       throw new UnauthorizedException('Invalid refresh token.');
     }
@@ -110,7 +166,20 @@ export class AuthService {
       data: { revokedAt: new Date() },
     });
 
-    return this.issueTokenPair(storedToken.owner);
+    if (storedToken.owner && !storedToken.owner.deletedAt) {
+      return this.issueTokenPair(storedToken.owner);
+    }
+
+    if (
+      storedToken.veterinarian &&
+      !storedToken.veterinarian.deletedAt &&
+      !storedToken.veterinarian.clinic.deletedAt &&
+      storedToken.veterinarian.clinic.isApproved
+    ) {
+      return this.issueStaffTokenPair(storedToken.veterinarian);
+    }
+
+    throw new UnauthorizedException('Invalid refresh token.');
   }
 
   async logout(refreshToken: string | undefined): Promise<void> {
@@ -156,6 +225,43 @@ export class AuthService {
         email: owner.email,
         fullName: owner.fullName,
         role: owner.role,
+      },
+    };
+  }
+
+  private async issueStaffTokenPair(
+    veterinarian: StaffWithClinic,
+  ): Promise<AuthResponse> {
+    const payload: TokenPayload = {
+      sub: veterinarian.id,
+      email: veterinarian.email,
+      role: veterinarian.role,
+      type: 'veterinarian',
+      clinicId: veterinarian.clinicId,
+    };
+    const refreshToken = randomBytes(48).toString('base64url');
+    const expiresAt = this.getRefreshExpiry();
+
+    await this.prisma.refreshToken.create({
+      data: {
+        veterinarianId: veterinarian.id,
+        tokenHash: this.hashRefreshToken(refreshToken),
+        expiresAt,
+      },
+    });
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload, {
+        secret: this.getAccessSecret(),
+        expiresIn: this.getAccessTokenTtl(),
+      }),
+      refreshToken,
+      user: {
+        id: veterinarian.id,
+        email: veterinarian.email,
+        fullName: veterinarian.fullName,
+        role: veterinarian.role,
+        clinicId: veterinarian.clinicId,
       },
     };
   }

@@ -60,6 +60,18 @@ export class AuthController {
     return this.withoutRefreshToken(auth);
   }
 
+  @Post('clinic/login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Clinic staff logged in.' })
+  async loginClinic(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const auth = await this.authService.loginClinic(dto);
+    this.setRefreshCookie(response, auth.refreshToken);
+    return this.withoutRefreshToken(auth);
+  }
+
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Access token refreshed.' })
