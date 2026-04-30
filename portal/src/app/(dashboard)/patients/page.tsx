@@ -14,7 +14,8 @@ import {
 } from '@/components/ui/select'
 import { useClinicPatients } from '@/hooks/use-clinic'
 import { formatDate, calculateAge, speciesEmoji, speciesLabel } from '@/lib/utils'
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import type { PetSpecies } from '@/types'
+import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 const PAGE_SIZE = 12
@@ -34,7 +35,9 @@ function PatientsContent() {
   const [speciesFilter, setSpeciesFilter] = useState('all')
   const [page, setPage] = useState(1)
 
-  useEffect(() => { setPage(1) }, [debouncedQuery, speciesFilter])
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedQuery, speciesFilter])
 
   const { data, isLoading, isFetching } = useClinicPatients({
     page,
@@ -126,7 +129,7 @@ function PatientsContent() {
         ) : (
           <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
             {pets.map(pet => {
-              const species = pet.species.toLowerCase()
+              const species = pet.species.toLowerCase() as PetSpecies
               const ownerName = pet.owner?.fullName ?? '—'
               return (
                 <Link href={`/patients/${pet.id}`} key={pet.id}>
@@ -136,7 +139,7 @@ function PatientsContent() {
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
                           {pet.photoUrl
                             ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
-                            : speciesEmoji(species as any)
+                            : speciesEmoji(species)
                           }
                         </div>
                         <div className="flex-1 min-w-0">
@@ -146,7 +149,7 @@ function PatientsContent() {
                               <p className="text-xs text-muted-foreground mt-0.5">{pet.breed ?? '—'}</p>
                             </div>
                             <Badge variant="secondary" className="text-[10px] flex-shrink-0 bg-primary/10 text-primary border-0">
-                              {speciesLabel(species as any)}
+                              {speciesLabel(species)}
                             </Badge>
                           </div>
                           <div className="mt-3 space-y-1.5">
