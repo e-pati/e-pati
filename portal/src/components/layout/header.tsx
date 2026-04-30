@@ -73,7 +73,7 @@ export function Header({ title, subtitle, action }: HeaderProps) {
         </div>
       </header>
 
-      <QRScannerModal open={qrOpen} onClose={() => setQrOpen(false)} />
+      <QRScannerModal key={qrOpen ? 'open' : 'closed'} open={qrOpen} onClose={() => setQrOpen(false)} />
     </>
   )
 }

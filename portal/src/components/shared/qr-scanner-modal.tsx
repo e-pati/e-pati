@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Camera, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useZxing } from 'react-zxing'
@@ -52,14 +52,6 @@ export function QRScannerModal({ open, onClose }: Props) {
     },
     onError() {},
   })
-
-  useEffect(() => {
-    if (!open) {
-      processed.current = false
-      setStatus('scanning')
-      setErrorMsg('')
-    }
-  }, [open])
 
   if (!open) return null
 
