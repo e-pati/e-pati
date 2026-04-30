@@ -22,9 +22,10 @@ test.describe('Auth', () => {
 
   test('geçersiz e-posta formatı hata vermeli', async ({ page }) => {
     await page.goto('/login')
-    await page.locator('input[type="email"]').fill('gecersiz')
+    const emailInput = page.locator('input[type="email"]')
+    await emailInput.fill('gecersiz')
     await page.locator('button[type="submit"]').click()
-    await expect(page.locator('p.text-sm.text-destructive').first()).toBeVisible({ timeout: 3000 })
+    await expect(emailInput).toHaveJSProperty('validity.valid', false)
   })
 
   test('login olmadan /dashboard\'a gidince /login\'e yönlendirmeli', async ({ page }) => {

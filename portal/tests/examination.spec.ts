@@ -18,7 +18,7 @@ test.describe('Muayene Formu', () => {
     await setLoggedIn(page)
     await page.goto('/examinations/new')
     await expect(page).toHaveURL(/\/examinations\/new/)
-    await expect(page.locator('form, [role="form"]').or(page.locator('button[type="submit"]'))).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('form').filter({ hasText: 'Hasta Seçimi' })).toBeVisible({ timeout: 10000 })
   })
 
   test('submit butonu var olmalı', async ({ page }) => {
