@@ -110,7 +110,7 @@ export default function PetsScreen() {
 }
 
 function PetCard({ pet }: { pet: ApiPet }) {
-  const species = pet.species.toLowerCase() as any
+  const species = pet.species.toLowerCase() as import('@/types').PetSpecies
   return (
     <TouchableOpacity
       style={styles.card}

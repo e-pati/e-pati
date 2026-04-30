@@ -5,7 +5,7 @@ import {
 } from 'react-native'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 const { width } = Dimensions.get('window')
 
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   emoji: { fontSize: 56 },
   title: {
     fontSize: FontSize.xxxl,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.bold, fontFamily: Fonts.bold,
     textAlign: 'center',
     lineHeight: 36,
     marginBottom: Spacing.lg,

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useClinicDashboard } from '@/hooks/use-clinic'
 import { formatDate, speciesEmoji, isVaccinationOverdue } from '@/lib/utils'
+import type { PetSpecies } from '@/types'
 import {
   Stethoscope, Syringe, Users, TrendingUp, AlertTriangle, CheckCircle2, Clock,
 } from 'lucide-react'
@@ -131,7 +132,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium text-foreground truncate">
-                            {speciesEmoji((vac.pet.species?.toLowerCase() ?? 'other') as any)} {vac.pet.name}
+                            {speciesEmoji((vac.pet.species?.toLowerCase() ?? 'other') as PetSpecies)} {vac.pet.name}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{vac.name}</div>
                           <div className={`text-[10px] mt-0.5 font-medium ${overdue ? 'text-destructive' : 'text-amber-600'}`}>
@@ -177,7 +178,7 @@ export default function DashboardPage() {
                   <Link href={`/patients/${exam.pet.id}`} key={exam.id}>
                     <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
                       <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-lg flex-shrink-0">
-                        {speciesEmoji((exam.pet.species?.toLowerCase() ?? 'other') as any)}
+                        {speciesEmoji((exam.pet.species?.toLowerCase() ?? 'other') as PetSpecies)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">

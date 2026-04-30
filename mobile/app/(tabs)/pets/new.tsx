@@ -96,7 +96,7 @@ export default function NewPetScreen() {
         {createPet.error && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>
-              {(createPet.error as any)?.response?.data?.message ?? 'Bir hata oluştu.'}
+              {(createPet.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Bir hata oluştu.'}
             </Text>
           </View>
         )}

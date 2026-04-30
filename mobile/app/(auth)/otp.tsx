@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 export default function OtpScreen() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxl,
   },
   icon: { fontSize: 40 },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 8 },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 8 },
   subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xxxl },
   otpRow: { flexDirection: 'row', gap: 10, marginBottom: Spacing.xxxl },
   otpInput: {
