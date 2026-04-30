@@ -38,7 +38,7 @@ function formatRelative(dateStr?: string): string {
 function mapMockNotification(n: (typeof mockNotifications)[number]): ApiNotification {
   return {
     id: n.id,
-    type: n.type as any,
+    type: n.type as 'examination' | 'vaccination' | 'prescription' | 'lab' | 'reminder',
     title: n.title,
     message: n.message,
     sentAt: n.sentAt,

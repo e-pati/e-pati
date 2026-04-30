@@ -11,6 +11,7 @@ import { useAllClinicPatients } from '@/hooks/use-clinic'
 import { mockVaccinations } from '@/lib/mock-data'
 import { formatDateShort, isVaccinationOverdue, isVaccinationDueSoon, speciesEmoji } from '@/lib/utils'
 import { AlertTriangle, Clock, CheckCircle2, Syringe, Filter } from 'lucide-react'
+import type { PetSpecies } from '@/types'
 import Link from 'next/link'
 import type { ApiVaccination } from '@/services/vaccinations.service'
 import { Pagination } from '@/components/shared/pagination'
@@ -146,7 +147,7 @@ export default function VaccinationsPage() {
 
                   {/* Hasta */}
                   <div className="flex items-center gap-2 w-36 flex-shrink-0">
-                    <span className="text-xl">{speciesEmoji((v.pet?.species?.toLowerCase() ?? 'other') as any)}</span>
+                    <span className="text-xl">{speciesEmoji((v.pet?.species?.toLowerCase() ?? 'other') as PetSpecies)}</span>
                     <div className="min-w-0">
                       {v.pet ? (
                         <Link href={`/patients/${v.pet.id}`} className="text-sm font-medium text-foreground hover:text-primary truncate block">
