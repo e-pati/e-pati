@@ -1,6 +1,6 @@
 # e-Pati Projesi — AI Devir Teslim Promptu
 
-> **Son güncelleme:** 29 Nisan 2026 — tüm core özellikler tamamlandı
+> **Son güncelleme:** 30 Nisan 2026 — klinik API endpoint'leri bağlandı, artık dosyalar temizlendi
 
 ## Sen Kimsin, Ne Yapacaksın?
 
@@ -106,11 +106,17 @@ GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferenc
 ## Yapılabilecek Sonraki İşler
 
 1. **SMS/OTP gerçek entegrasyon** — OTP ekranı mock, backend'de SMS servisi (Netgsm) gerekli
-2. **Portal pagination** — examinations, vaccinations, lab-results sayfalarına da pagination ekle
-3. **Mobile — hayvan düzenleme** — pet detail'de edit butonu yok mobilde
-4. **Portal — klinik onboarding** — yeni klinik kayıt akışı
-5. **Vercel env variable** — `NEXT_PUBLIC_API_URL` production backend URL ile güncellenmeli
+2. **Yeni hasta kaydı (klinik)** — `POST /pets` sadece OWNER rolüne açık, Erol'dan VETERINARIAN/CLINIC_ADMIN için izin gerekiyor
+3. **Hasta düzenleme (portal)** — `PATCH /pets/:id` de sadece OWNER, Erol'dan izin gerekiyor
+4. **Vercel env variable** — `NEXT_PUBLIC_API_URL` production backend URL ile güncellenmeli
+5. **Erol'dan beklenenler** — Redis (Upstash), Resend API key, Firebase, R2 (dosya upload için)
 6. **Erol'un ileride ekleyebilecekleri** — randevu sistemi, AI semptom yönlendirme
+
+## Tamamlanan (30 Nisan 2026)
+
+- Dashboard → `GET /clinics/:id/dashboard` (tek call, gerçek klinik statsları)
+- Patients → `GET /clinics/:id/patients` (server-side pagination, owner bilgisi dahil)
+- Mobile artık dosyaları temizlendi (9 dosya)
 
 ---
 

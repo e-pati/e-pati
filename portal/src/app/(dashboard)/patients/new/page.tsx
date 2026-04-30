@@ -24,6 +24,9 @@ const schema = z.object({
   birthDate: z.string().optional(),
   microchipNo: z.string().optional(),
   photoUrl: z.string().url('Geçerli URL giriniz').optional().or(z.literal('')),
+  ownerFullName: z.string().optional(),
+  ownerEmail: z.string().email('Geçerli e-posta giriniz').optional().or(z.literal('')),
+  ownerPhone: z.string().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -41,7 +44,7 @@ export default function NewPatientPage() {
   const createPet = useCreatePet()
   const [done, setDone] = useState(false)
 
-  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { sex: 'UNKNOWN' },
   })
@@ -56,12 +59,16 @@ export default function NewPatientPage() {
         birthDate: data.birthDate || undefined,
         microchipNo: data.microchipNo || undefined,
         photoUrl: data.photoUrl || undefined,
+        ownerFullName: data.ownerFullName || undefined,
+        ownerEmail: data.ownerEmail || undefined,
+        ownerPhone: data.ownerPhone || undefined,
       })
       setDone(true)
       toast.success(`${pet.name} başarıyla eklendi!`)
       setTimeout(() => router.push(`/patients/${pet.id}`), 1200)
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Hasta eklenemedi.')
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(message ?? 'Hasta eklenemedi.')
     }
   }
 
@@ -88,21 +95,19 @@ export default function NewPatientPage() {
             <CardHeader className="pb-4">
               <CardTitle className="text-base flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">1</span>
-                Temel Bilgiler
+                Hayvan Bilgileri
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Ad */}
               <div className="space-y-2">
                 <Label>Hayvan Adı <span className="text-destructive">*</span></Label>
                 <Input placeholder="örn. Pamuk" {...register('name')} className={cn(errors.name && 'border-destructive')} />
                 {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
               </div>
 
-              {/* Tür */}
               <div className="space-y-2">
                 <Label>Tür <span className="text-destructive">*</span></Label>
-                <Select onValueChange={v => setValue('species', String(v))}>
+                <Select onValueChange={(v: string | null) => { if (v) setValue('species', v) }}>
                   <SelectTrigger className={cn(errors.species && 'border-destructive')}>
                     <SelectValue placeholder="Tür seçin" />
                   </SelectTrigger>
@@ -115,19 +120,15 @@ export default function NewPatientPage() {
                 {errors.species && <p className="text-xs text-destructive">{errors.species.message}</p>}
               </div>
 
-              {/* Cins */}
               <div className="space-y-2">
                 <Label>Cins / Irk</Label>
                 <Input placeholder="örn. Van Kedisi" {...register('breed')} />
               </div>
 
-              {/* Cinsiyet */}
               <div className="space-y-2">
                 <Label>Cinsiyet</Label>
-                <Select defaultValue="UNKNOWN" onValueChange={v => setValue('sex', v as any)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select defaultValue="UNKNOWN" onValueChange={(v: string | null) => { if (v) setValue('sex', v as 'MALE' | 'FEMALE' | 'UNKNOWN') }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="FEMALE">Dişi</SelectItem>
                     <SelectItem value="MALE">Erkek</SelectItem>
@@ -136,13 +137,11 @@ export default function NewPatientPage() {
                 </Select>
               </div>
 
-              {/* Doğum tarihi */}
               <div className="space-y-2">
                 <Label>Doğum Tarihi</Label>
                 <Input type="date" {...register('birthDate')} />
               </div>
 
-              {/* Mikro çip */}
               <div className="space-y-2">
                 <Label>Mikro Çip No</Label>
                 <Input placeholder="15 haneli numara" {...register('microchipNo')} className="font-mono" />
@@ -154,7 +153,44 @@ export default function NewPatientPage() {
             <CardHeader className="pb-4">
               <CardTitle className="text-base flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">2</span>
-                Fotoğraf (Opsiyonel)
+                Sahip Bilgileri
+                <span className="text-xs font-normal text-muted-foreground ml-1">(opsiyonel)</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Ad Soyad</Label>
+                <Input placeholder="örn. Ahmet Yılmaz" {...register('ownerFullName')} />
+              </div>
+
+              <div className="space-y-2">
+                <Label>E-posta</Label>
+                <Input
+                  type="email"
+                  placeholder="sahip@example.com"
+                  {...register('ownerEmail')}
+                  className={cn(errors.ownerEmail && 'border-destructive')}
+                />
+                {errors.ownerEmail && <p className="text-xs text-destructive">{errors.ownerEmail.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Telefon</Label>
+                <Input placeholder="+90 555 000 0000" {...register('ownerPhone')} />
+              </div>
+
+              <p className="text-xs text-muted-foreground sm:col-span-2">
+                E-posta girilirse sahip mobil uygulamada hesabını bağlayabilir. Girilmezse anonim kayıt oluşturulur.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">3</span>
+                Fotoğraf
+                <span className="text-xs font-normal text-muted-foreground ml-1">(opsiyonel)</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -166,7 +202,6 @@ export default function NewPatientPage() {
                   className={cn(errors.photoUrl && 'border-destructive')}
                 />
                 {errors.photoUrl && <p className="text-xs text-destructive">{errors.photoUrl.message}</p>}
-                <p className="text-xs text-muted-foreground">Dosya yükleme özelliği yakında eklenecek.</p>
               </div>
             </CardContent>
           </Card>

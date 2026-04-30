@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePrescriptions } from '@/hooks/use-prescriptions'
-import { usePets } from '@/hooks/use-pets'
+import { useAllClinicPatients } from '@/hooks/use-clinic'
 import { prescriptionsService } from '@/services/prescriptions.service'
-import { mockPrescriptions, mockPets } from '@/lib/mock-data'
+import { mockPrescriptions } from '@/lib/mock-data'
 import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, Pill, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
@@ -31,7 +31,7 @@ function PrescriptionsContent() {
   useEffect(() => { setPage(1) }, [debouncedQuery]) // eslint-disable-line
 
   const prescriptionsQuery = usePrescriptions()
-  const petsQuery = usePets()
+  const petsQuery = useAllClinicPatients()
 
   const prescriptions = prescriptionsQuery.data ?? (
     prescriptionsQuery.isError
@@ -42,11 +42,7 @@ function PrescriptionsContent() {
       : []
   )
 
-  const pets = petsQuery.data ?? mockPets.map(p => ({
-    id: p.id, ownerId: p.ownerId, name: p.name, species: p.species,
-    breed: p.breed ?? '', sex: p.gender, createdAt: p.createdAt,
-    owner: { id: p.ownerId, fullName: `${p.owner.firstName} ${p.owner.lastName}`, email: p.owner.email },
-  }) as any)
+  const pets = petsQuery.data?.items ?? []
 
   const enriched = useMemo(() => prescriptions.map(rx => ({
     ...rx,
@@ -119,7 +115,7 @@ function PrescriptionsContent() {
                     {rx.pet ? (
                       <Link href={`/patients/${rx.pet.id}`} className="group">
                         <div className="flex items-center gap-1.5">
-                          <span>{speciesEmoji((rx.pet.species?.toLowerCase() ?? 'other') as any)}</span>
+                          <span>{speciesEmoji((rx.pet.species?.toLowerCase() ?? 'other') as import('@/types').PetSpecies)}</span>
                           <div>
                             <div className="text-sm font-medium group-hover:text-primary transition-colors truncate">
                               {rx.pet.name}

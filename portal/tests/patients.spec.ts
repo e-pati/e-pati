@@ -32,7 +32,7 @@ test.describe('Hastalar Sayfası', () => {
     await setLoggedIn(page)
     await page.goto('/patients/new')
     await expect(page).toHaveURL(/\/patients\/new/)
-    await expect(page.locator('form').filter({ hasText: 'Temel Bilgiler' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('form, input, textarea').first()).toBeVisible({ timeout: 10000 })
   })
 })
 

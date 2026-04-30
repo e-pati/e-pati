@@ -13,6 +13,8 @@ import { toast } from 'sonner'
 import { PawPrint, X } from 'lucide-react'
 import { useState } from 'react'
 
+type PetSex = 'MALE' | 'FEMALE' | 'UNKNOWN'
+
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
   species: z.string().min(1, 'Tür seçiniz'),
@@ -48,7 +50,7 @@ export function EditPatientDialog({ pet, open, onClose }: Props) {
       name: pet.name,
       species: pet.species,
       breed: pet.breed ?? '',
-      sex: (pet.sex as any) ?? 'UNKNOWN',
+      sex: (pet.sex as PetSex) ?? 'UNKNOWN',
       birthDate: pet.birthDate ? pet.birthDate.split('T')[0] : '',
       microchipNo: pet.microchipNo ?? '',
     },
@@ -68,6 +70,7 @@ export function EditPatientDialog({ pet, open, onClose }: Props) {
       toast.success('Hasta bilgileri güncellendi')
       qc.invalidateQueries({ queryKey: ['pets', pet.id] })
       qc.invalidateQueries({ queryKey: ['pets'] })
+      qc.invalidateQueries({ queryKey: ['clinic-patients'] })
       onClose()
     } catch {
       toast.error('Güncelleme başarısız')
@@ -122,7 +125,7 @@ export function EditPatientDialog({ pet, open, onClose }: Props) {
             </div>
             <div className="space-y-1.5">
               <Label>Cinsiyet</Label>
-              <Select defaultValue={pet.sex ?? 'UNKNOWN'} onValueChange={v => setValue('sex', v as any)}>
+              <Select defaultValue={pet.sex ?? 'UNKNOWN'} onValueChange={v => { if (v) setValue('sex', v as PetSex) }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="FEMALE">Dişi</SelectItem>
