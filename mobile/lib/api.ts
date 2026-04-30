@@ -1,5 +1,5 @@
 import axios from 'axios'
-import * as SecureStore from 'expo-secure-store'
+import { secureStorage } from './secure-storage'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
@@ -9,7 +9,7 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use(async config => {
-  const token = await SecureStore.getItemAsync('accessToken')
+  const token = await secureStorage.getItem('accessToken')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -21,14 +21,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
-        const refreshToken = await SecureStore.getItemAsync('refreshToken')
+        const refreshToken = await secureStorage.getItem('refreshToken')
         const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken })
-        await SecureStore.setItemAsync('accessToken', data.accessToken)
+        await secureStorage.setItem('accessToken', data.accessToken)
         original.headers.Authorization = `Bearer ${data.accessToken}`
         return api(original)
       } catch {
-        await SecureStore.deleteItemAsync('accessToken')
-        await SecureStore.deleteItemAsync('refreshToken')
+        await secureStorage.deleteItem('accessToken')
+        await secureStorage.deleteItem('refreshToken')
       }
     }
     return Promise.reject(error)

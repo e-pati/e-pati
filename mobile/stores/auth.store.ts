@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import * as SecureStore from 'expo-secure-store'
+import { secureStorage } from '@/lib/secure-storage'
 
 export interface AuthUser {
   id: string
@@ -20,17 +20,17 @@ export const useAuthStore = create<AuthStore>(set => ({
 
   setUser: (user) => {
     set({ user })
-    SecureStore.setItemAsync('auth-user', JSON.stringify(user)).catch(() => {})
+    secureStorage.setItem('auth-user', JSON.stringify(user)).catch(() => {})
   },
 
   clearUser: () => {
     set({ user: null })
-    SecureStore.deleteItemAsync('auth-user').catch(() => {})
+    secureStorage.deleteItem('auth-user').catch(() => {})
   },
 
   loadUser: async () => {
     try {
-      const raw = await SecureStore.getItemAsync('auth-user')
+      const raw = await secureStorage.getItem('auth-user')
       if (raw) set({ user: JSON.parse(raw) })
     } catch {}
   },
