@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
@@ -9,6 +9,26 @@ export default function OtpScreen() {
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(60)
   const inputs = useRef<(TextInput | null)[]>([])
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    startCountdown()
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [])
+
+  const startCountdown = () => {
+    setCountdown(60)
+    if (timerRef.current) clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => {
+      setCountdown(c => {
+        if (c <= 1) {
+          clearInterval(timerRef.current!)
+          return 0
+        }
+        return c - 1
+      })
+    }, 1000)
+  }
 
   const handleChange = (text: string, index: number) => {
     const digits = text.replace(/\D/g, '')
@@ -83,7 +103,7 @@ export default function OtpScreen() {
           {countdown > 0
             ? <Text style={styles.countdown}>{countdown} saniye</Text>
             : (
-              <TouchableOpacity onPress={() => setCountdown(60)}>
+              <TouchableOpacity onPress={startCountdown}>
                 <Text style={styles.resendLink}>Tekrar Gönder</Text>
               </TouchableOpacity>
             )

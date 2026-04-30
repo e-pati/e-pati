@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  TextInput, SafeAreaView, ActivityIndicator, RefreshControl,
+  TextInput, SafeAreaView, ActivityIndicator, RefreshControl, Image,
 } from 'react-native'
 import { router } from 'expo-router'
+import { haptic } from '@/lib/haptics'
 import { useQuery } from '@tanstack/react-query'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import { mockPets } from '@/lib/mock-data'
@@ -43,7 +44,7 @@ export default function PetsScreen() {
           <Text style={styles.greeting}>Merhaba 👋</Text>
           <Text style={styles.title}>Hayvanlarım</Text>
         </View>
-        <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/(tabs)/pets/new')}>
+        <TouchableOpacity style={styles.addBtn} onPress={() => { haptic.light(); router.push('/(tabs)/pets/new') }}>
           <Text style={styles.addBtnText}>+ Ekle</Text>
         </TouchableOpacity>
       </View>
@@ -83,9 +84,23 @@ export default function PetsScreen() {
           ListEmptyComponent={
             <View style={styles.empty}>
               <Text style={styles.emptyEmoji}>🐾</Text>
-              <Text style={styles.emptyText}>
-                {query ? 'Sonuç bulunamadı' : 'Henüz kayıtlı hayvan yok'}
+              <Text style={styles.emptyTitle}>
+                {query ? 'Sonuç bulunamadı' : 'Henüz hayvan eklenmedi'}
               </Text>
+              {!query && (
+                <>
+                  <Text style={styles.emptyText}>
+                    Evcil dostunuzun sağlık geçmişini takip etmek için ilk hayvanınızı ekleyin.
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.emptyBtn}
+                    onPress={() => router.push('/(tabs)/pets/new')}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.emptyBtnText}>+ İlk Hayvanımı Ekle</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           }
         />
@@ -99,12 +114,15 @@ function PetCard({ pet }: { pet: ApiPet }) {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/(tabs)/pets/${pet.id}`)}
+      onPress={() => { haptic.light(); router.push(`/(tabs)/pets/${pet.id}`) }}
       activeOpacity={0.85}
     >
       <View style={styles.cardLeft}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarEmoji}>{speciesEmoji(species)}</Text>
+          {pet.photoUrl
+            ? <Image source={{ uri: pet.photoUrl }} style={styles.avatarImage} />
+            : <Text style={styles.avatarEmoji}>{speciesEmoji(species)}</Text>
+          }
         </View>
         <View style={styles.cardInfo}>
           <Text style={styles.petName}>{pet.name}</Text>
@@ -156,8 +174,9 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
   },
   cardLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 },
-  avatar: { width: 56, height: 56, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 56, height: 56, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   avatarEmoji: { fontSize: 28 },
+  avatarImage: { width: 56, height: 56, borderRadius: Radius.lg },
   cardInfo: { flex: 1 },
   petName: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: Colors.text },
   petBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
@@ -166,7 +185,13 @@ const styles = StyleSheet.create({
   speciesBadge: { backgroundColor: Colors.primaryBg, borderRadius: Radius.full, paddingHorizontal: 8, paddingVertical: 3 },
   speciesBadgeText: { fontSize: FontSize.xs, color: Colors.primary, fontWeight: FontWeight.medium },
   arrow: { fontSize: 20, color: Colors.textMuted },
-  empty: { alignItems: 'center', paddingTop: 60 },
-  emptyEmoji: { fontSize: 48, marginBottom: Spacing.lg },
-  emptyText: { fontSize: FontSize.base, color: Colors.textMuted },
+  empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: Spacing.xxxl },
+  emptyEmoji: { fontSize: 56, marginBottom: Spacing.lg },
+  emptyTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: Colors.text, marginBottom: Spacing.sm },
+  emptyText: { fontSize: FontSize.sm, color: Colors.textMuted, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xl },
+  emptyBtn: {
+    backgroundColor: Colors.primary, borderRadius: Radius.full,
+    paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.md,
+  },
+  emptyBtnText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
 })

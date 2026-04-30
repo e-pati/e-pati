@@ -3,18 +3,17 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native'
-import { router } from 'expo-router'
+import { useLocalSearchParams, router } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as ImagePicker from 'expo-image-picker'
 import { petsService } from '@/services/pets.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
-  species: z.string().min(1, 'Tür seçiniz'),
   breed: z.string().optional(),
   birthDate: z.string().optional(),
   microchipNo: z.string().optional(),
@@ -30,8 +29,10 @@ const SPECIES = [
   { value: 'Other', label: '🐾 Diğer' },
 ]
 
-export default function NewPetScreen() {
+export default function EditPetScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>()
   const qc = useQueryClient()
+  const [selectedSpecies, setSelectedSpecies] = useState('')
   const [done, setDone] = useState(false)
   const [photoUri, setPhotoUri] = useState<string | null>(null)
 
@@ -39,10 +40,7 @@ export default function NewPetScreen() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (status !== 'granted') return
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
+      mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7,
     })
     if (!result.canceled) setPhotoUri(result.assets[0].uri)
   }
@@ -51,37 +49,64 @@ export default function NewPetScreen() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync()
     if (status !== 'granted') return
     const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
+      allowsEditing: true, aspect: [1, 1], quality: 0.7,
     })
     if (!result.canceled) setPhotoUri(result.assets[0].uri)
   }
 
-  const createPet = useMutation({
-    mutationFn: petsService.create,
+  const { data: pet, isLoading } = useQuery({
+    queryKey: ['pets', id],
+    queryFn: () => petsService.getOne(id),
+    enabled: !!id,
+  })
+
+  const update = useMutation({
+    mutationFn: (data: FormData) => petsService.update(id, {
+      name: data.name,
+      species: selectedSpecies || pet?.species,
+      breed: data.breed || undefined,
+      birthDate: data.birthDate || undefined,
+      microchipNo: data.microchipNo || undefined,
+      photoUrl: photoUri ?? pet?.photoUrl ?? undefined,
+    }),
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pets', id] })
       qc.invalidateQueries({ queryKey: ['pets'] })
       setDone(true)
-      setTimeout(() => router.back(), 1200)
+      setTimeout(() => router.back(), 1000)
     },
   })
 
-  const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      name: pet?.name ?? '',
+      breed: pet?.breed ?? '',
+      birthDate: pet?.birthDate ? pet.birthDate.split('T')[0] : '',
+      microchipNo: pet?.microchipNo ?? '',
+    },
+    values: pet ? {
+      name: pet.name,
+      breed: pet.breed ?? '',
+      birthDate: pet.birthDate ? pet.birthDate.split('T')[0] : '',
+      microchipNo: pet.microchipNo ?? '',
+    } : undefined,
   })
 
-  const selectedSpecies = watch('species')
+  if (isLoading) return (
+    <View style={styles.center}>
+      <ActivityIndicator color={Colors.primary} size="large" />
+    </View>
+  )
 
-  if (done) {
-    return (
-      <View style={styles.successContainer}>
-        <Text style={styles.successEmoji}>✅</Text>
-        <Text style={styles.successTitle}>Hayvan Eklendi!</Text>
-        <Text style={styles.successSub}>Listenize yönlendiriliyorsunuz...</Text>
-      </View>
-    )
-  }
+  if (done) return (
+    <View style={styles.center}>
+      <Text style={{ fontSize: 48, marginBottom: Spacing.lg }}>✅</Text>
+      <Text style={styles.doneText}>Güncellendi!</Text>
+    </View>
+  )
+
+  const currentSpecies = selectedSpecies || pet?.species || ''
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -90,26 +115,17 @@ export default function NewPetScreen() {
           <Text style={styles.backText}>← Geri</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Yeni Hayvan Ekle</Text>
-        <Text style={styles.subtitle}>Evcil dostunuzun bilgilerini girin</Text>
-
-        {createPet.error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>
-              {(createPet.error as any)?.response?.data?.message ?? 'Bir hata oluştu.'}
-            </Text>
-          </View>
-        )}
+        <Text style={styles.title}>Hayvan Bilgilerini Düzenle</Text>
 
         {/* Fotoğraf */}
         <View style={styles.photoSection}>
           <TouchableOpacity style={styles.photoBox} onPress={pickPhoto}>
-            {photoUri
-              ? <Image source={{ uri: photoUri }} style={styles.photoImage} />
+            {(photoUri || pet?.photoUrl)
+              ? <Image source={{ uri: photoUri ?? pet?.photoUrl }} style={styles.photoImage} />
               : (
                 <View style={styles.photoPlaceholder}>
                   <Text style={styles.photoEmoji}>📷</Text>
-                  <Text style={styles.photoText}>Fotoğraf Ekle</Text>
+                  <Text style={styles.photoText}>Fotoğraf</Text>
                 </View>
               )
             }
@@ -124,6 +140,12 @@ export default function NewPetScreen() {
           </View>
         </View>
 
+        {update.error && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>Güncelleme başarısız, tekrar deneyin.</Text>
+          </View>
+        )}
+
         <View style={styles.card}>
           {/* Ad */}
           <View style={styles.field}>
@@ -136,7 +158,6 @@ export default function NewPetScreen() {
                   style={[styles.input, errors.name && styles.inputError]}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="örn. Pamuk"
                   placeholderTextColor={Colors.textMuted}
                 />
               )}
@@ -144,24 +165,23 @@ export default function NewPetScreen() {
             {errors.name && <Text style={styles.fieldError}>{errors.name.message}</Text>}
           </View>
 
-          {/* Tür seçimi */}
+          {/* Tür */}
           <View style={styles.field}>
-            <Text style={styles.label}>Tür *</Text>
+            <Text style={styles.label}>Tür</Text>
             <View style={styles.speciesGrid}>
               {SPECIES.map(s => (
                 <TouchableOpacity
                   key={s.value}
-                  style={[styles.speciesBtn, selectedSpecies === s.value && styles.speciesBtnActive]}
-                  onPress={() => setValue('species', s.value)}
+                  style={[styles.speciesBtn, currentSpecies === s.value && styles.speciesBtnActive]}
+                  onPress={() => setSelectedSpecies(s.value)}
                 >
                   <Text style={styles.speciesEmoji}>{s.label.split(' ')[0]}</Text>
-                  <Text style={[styles.speciesLabel, selectedSpecies === s.value && styles.speciesLabelActive]}>
+                  <Text style={[styles.speciesLabel, currentSpecies === s.value && styles.speciesLabelActive]}>
                     {s.label.split(' ')[1]}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
-            {errors.species && <Text style={styles.fieldError}>{errors.species.message}</Text>}
           </View>
 
           {/* Cins */}
@@ -222,14 +242,14 @@ export default function NewPetScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.button, createPet.isPending && styles.buttonDisabled]}
-          onPress={handleSubmit(data => createPet.mutate({ ...data, photoUrl: photoUri ?? undefined }))}
-          disabled={createPet.isPending}
+          style={[styles.button, update.isPending && styles.buttonDisabled]}
+          onPress={handleSubmit(data => update.mutate(data))}
+          disabled={update.isPending}
           activeOpacity={0.85}
         >
-          {createPet.isPending
+          {update.isPending
             ? <ActivityIndicator color="#fff" size="small" />
-            : <Text style={styles.buttonText}>Hayvanı Kaydet</Text>
+            : <Text style={styles.buttonText}>Değişiklikleri Kaydet</Text>
           }
         </TouchableOpacity>
       </ScrollView>
@@ -239,11 +259,11 @@ export default function NewPetScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
   back: { marginBottom: Spacing.xxl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
-  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 6 },
-  subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, marginBottom: Spacing.xxl },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: Spacing.xl },
   errorBox: { backgroundColor: '#fef2f2', borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg, borderWidth: 1, borderColor: '#fecaca' },
   errorText: { fontSize: FontSize.sm, color: Colors.danger },
   card: {
@@ -275,25 +295,17 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.7 },
   buttonText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
+  doneText: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
   photoSection: { alignItems: 'center', marginBottom: Spacing.xl },
   photoBox: {
-    width: 100, height: 100, borderRadius: 50,
-    backgroundColor: Colors.primaryBg, borderWidth: 2, borderColor: Colors.primaryBorder,
-    overflow: 'hidden', marginBottom: Spacing.md,
+    width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.primaryBg,
+    borderWidth: 2, borderColor: Colors.primaryBorder, overflow: 'hidden', marginBottom: Spacing.md,
   },
   photoImage: { width: '100%', height: '100%' },
   photoPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  photoEmoji: { fontSize: 32 },
+  photoEmoji: { fontSize: 28 },
   photoText: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 4 },
   photoButtons: { flexDirection: 'row', gap: 10 },
-  photoBtn: {
-    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm,
-    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border,
-    backgroundColor: Colors.background,
-  },
+  photoBtn: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.background },
   photoBtnText: { fontSize: FontSize.xs, color: Colors.textSecondary },
-  successContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.lg },
-  successEmoji: { fontSize: 56 },
-  successTitle: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
-  successSub: { fontSize: FontSize.base, color: Colors.textMuted },
 })

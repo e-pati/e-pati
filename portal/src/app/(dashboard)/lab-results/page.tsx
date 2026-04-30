@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo, Suspense } from 'react'
+import { useDebounce } from '@/hooks/use-debounce'
+import { useState, useMemo, Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,6 +15,9 @@ import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, FlaskConical, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
 import { labResultsService } from '@/services/lab-results.service'
+import { Pagination } from '@/components/shared/pagination'
+
+const PAGE_SIZE = 15
 
 export default function LabResultsPage() {
   return <Suspense><LabResultsContent /></Suspense>
@@ -22,6 +26,9 @@ export default function LabResultsPage() {
 function LabResultsContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const debouncedQuery = useDebounce(query)
+  const [page, setPage] = useState(1)
+  useEffect(() => { setPage(1) }, [debouncedQuery])
 
   const labQuery = useLabResults()
   const petsQuery = usePets()
@@ -49,17 +56,19 @@ function LabResultsContent() {
   [labResults, pets])
 
   const filtered = useMemo(() => {
-    if (!query) return enriched
-    const q = query.toLowerCase()
+    if (!debouncedQuery) return enriched
+    const q = debouncedQuery.toLowerCase()
     return enriched.filter(l =>
       l.pet?.name?.toLowerCase().includes(q) ||
       l.pet?.owner?.fullName?.toLowerCase().includes(q) ||
       l.testType.toLowerCase().includes(q) ||
       l.comment?.toLowerCase().includes(q)
     )
-  }, [enriched, query])
+  }, [enriched, debouncedQuery])
 
   const isLoading = labQuery.isLoading || petsQuery.isLoading
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div>
@@ -85,7 +94,7 @@ function LabResultsContent() {
           </div>
         )}
 
-        {query && !isLoading && (
+        {debouncedQuery && !isLoading && (
           <p className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{filtered.length}</span> sonuç
           </p>
@@ -104,7 +113,7 @@ function LabResultsContent() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map(lab => (
+            {paginated.map(lab => (
               <Card key={lab.id} className="border-border/50 hover:shadow-sm transition-all">
                 <CardContent className="p-4 flex items-center gap-4">
                   {/* İkon */}
@@ -168,6 +177,7 @@ function LabResultsContent() {
             ))}
           </div>
         )}
+        <Pagination page={page} totalPages={totalPages} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
     </div>
   )

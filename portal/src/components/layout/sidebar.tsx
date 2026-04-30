@@ -4,18 +4,20 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, Stethoscope, Syringe, FlaskConical,
-  Bell, Settings, LogOut, PawPrint, ChevronRight,
+  Bell, Settings, LogOut, PawPrint, ChevronRight, Pill,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/auth.store'
+import { useNotifications } from '@/hooks/use-notifications'
 
 const navItems = [
   { href: '/dashboard', label: 'Pano', icon: LayoutDashboard },
   { href: '/patients', label: 'Hastalar', icon: Users },
   { href: '/examinations', label: 'Muayeneler', icon: Stethoscope },
   { href: '/vaccinations', label: 'Aşılar', icon: Syringe },
+  { href: '/prescriptions', label: 'Reçeteler', icon: Pill },
   { href: '/lab-results', label: 'Lab Sonuçları', icon: FlaskConical },
   { href: '/notifications', label: 'Bildirimler', icon: Bell },
 ]
@@ -24,10 +26,16 @@ const bottomItems = [
   { href: '/settings', label: 'Ayarlar', icon: Settings },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void
+}
+
+export function Sidebar({ onClose }: SidebarProps = {}) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, clearUser } = useAuthStore()
+  const notificationsQuery = useNotifications()
+  const unreadCount = notificationsQuery.data?.filter(n => !n.isRead && !n.readAt).length ?? 0
 
   const handleLogout = async () => {
     await authService.logout()
@@ -59,6 +67,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onClose}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
                   active
@@ -71,6 +80,11 @@ export function Sidebar() {
                   active ? 'text-primary' : 'text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80',
                 )} />
                 <span className="flex-1">{item.label}</span>
+                {item.href === '/notifications' && unreadCount > 0 && (
+                  <Badge className="text-[9px] h-4 px-1.5 bg-destructive text-destructive-foreground border-0 min-w-4">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
                 {active && <ChevronRight className="w-3.5 h-3.5 text-primary/60" />}
               </Link>
             )

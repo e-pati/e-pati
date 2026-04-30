@@ -1,20 +1,26 @@
 import { useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
-import { mockVaccinations, mockPets } from '@/lib/mock-data'
+import { mockVaccinations, mockPets, mockExaminations } from '@/lib/mock-data'
 import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
+import { examinationsService, type ApiExamination } from '@/services/examinations.service'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import type { PetSpecies } from '@/types'
 import { formatDateShort, speciesEmoji, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 
-type FilterType = 'all' | 'upcoming' | 'overdue'
+type FilterType = 'all' | 'upcoming' | 'overdue' | 'followup'
 
 export default function CalendarScreen() {
   const [filter, setFilter] = useState<FilterType>('all')
   const vaccinationsQuery = useQuery({
     queryKey: ['vaccinations', 'upcoming'],
     queryFn: vaccinationsService.getUpcoming,
+    retry: 1,
+  })
+  const examinationsQuery = useQuery({
+    queryKey: ['examinations'],
+    queryFn: () => examinationsService.getAll({ limit: 200 }),
     retry: 1,
   })
   const petsQuery = useQuery({
@@ -27,6 +33,22 @@ export default function CalendarScreen() {
   const vaccines = vaccinationsQuery.data ?? (
     vaccinationsQuery.isError ? mockVaccinations.map(mapMockVaccination) : []
   )
+
+  // Takip tarihi olan muayeneler
+  const followUps = (examinationsQuery.data ?? (
+    examinationsQuery.isError
+      ? mockExaminations.filter(e => e.followUpDate).map(e => ({
+          id: e.id, petId: e.petId, followUpDate: e.followUpDate!,
+          complaint: e.complaint,
+        }))
+      : []
+  )).filter((e: any) => e.followUpDate && new Date(e.followUpDate) >= new Date())
+    .map((e: any) => ({
+      ...e,
+      pet: pets.find(p => p.id === e.petId),
+      dueDate: e.followUpDate,
+    }))
+    .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 
   const allVaccines = vaccines.map(v => {
     const dueAt = v.dueAt ?? v.appliedAt
@@ -90,6 +112,7 @@ export default function CalendarScreen() {
           { key: 'all', label: 'Tümü' },
           { key: 'overdue', label: `Gecikmiş (${overdueCount})` },
           { key: 'upcoming', label: `Yaklaşan (${upcomingCount})` },
+          { key: 'followup', label: `Takip (${followUps.length})` },
         ] as const).map(f => (
           <TouchableOpacity
             key={f.key}
@@ -104,7 +127,34 @@ export default function CalendarScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
-        {filtered.length === 0 ? (
+        {/* Takip tarihleri */}
+        {filter === 'followup' ? (
+          followUps.length === 0 ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyEmoji}>📅</Text>
+              <Text style={styles.emptyText}>Yaklaşan takip randevusu yok</Text>
+            </View>
+          ) : (
+            followUps.map((item: any) => (
+              <View key={item.id} style={[styles.item, { borderColor: Colors.info + '40', backgroundColor: Colors.info + '05' }]}>
+                <View style={styles.itemLeft}>
+                  <Text style={styles.itemEmoji}>{speciesEmoji(normalizeSpecies(item.pet?.species ?? 'other'))}</Text>
+                </View>
+                <View style={styles.itemCenter}>
+                  <Text style={styles.itemPet}>{item.pet?.name ?? 'Hasta bilgisi yok'}</Text>
+                  <Text style={styles.itemVaccine}>🩺 Takip Muayenesi</Text>
+                  <Text style={styles.itemManufacturer} numberOfLines={1}>{item.complaint}</Text>
+                </View>
+                <View style={styles.itemRight}>
+                  <Text style={[styles.itemDate, { color: Colors.info }]}>
+                    {formatDateShort(item.dueDate)}
+                  </Text>
+                  <View style={[styles.statusDot, { backgroundColor: Colors.info }]} />
+                </View>
+              </View>
+            ))
+          )
+        ) : filtered.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyEmoji}>✅</Text>
             <Text style={styles.emptyText}>Tüm aşılar güncel!</Text>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, Modal,
+  SafeAreaView, ActivityIndicator, Modal, Share, Image,
 } from 'react-native'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
@@ -15,6 +15,12 @@ import { labResultsService, type ApiLabResult } from '@/services/lab-results.ser
 import { speciesEmoji, speciesLabel, calculateAge, formatDate, formatDateShort, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
+import { AddVaccinationModal } from '@/components/AddVaccinationModal'
+import { AddLabResultModal } from '@/components/AddLabResultModal'
+import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
+import { AddExaminationModal } from '@/components/AddExaminationModal'
+import { Linking } from 'react-native'
+import { prescriptionsService } from '@/services/prescriptions.service'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 
@@ -32,6 +38,10 @@ export default function PetDetailScreen() {
   const [qrVisible, setQrVisible] = useState(false)
   const [qrToken, setQrToken] = useState('')
   const [qrLoading, setQrLoading] = useState(false)
+  const [vaccinationModalVisible, setVaccinationModalVisible] = useState(false)
+  const [labModalVisible, setLabModalVisible] = useState(false)
+  const [prescriptionModalVisible, setPrescriptionModalVisible] = useState(false)
+  const [examinationModalVisible, setExaminationModalVisible] = useState(false)
 
   const petQuery = useQuery({
     queryKey: ['pets', id],
@@ -96,6 +106,8 @@ export default function PetDetailScreen() {
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
+  // Aktif ilaçlar: son reçetedeki ilaçlar
+  const activeMedications = prescriptions.length > 0 ? prescriptions[0].medications : []
   const hasFallbackData = petQuery.isError || examinationsQuery.isError || vaccinationsQuery.isError ||
     prescriptionsQuery.isError || labResultsQuery.isError
 
@@ -120,15 +132,26 @@ export default function PetDetailScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>← Geri</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={openQr} style={styles.qrBtn}>
-          <Text style={styles.qrBtnText}>QR</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity
+            onPress={() => router.push(`/(tabs)/pets/edit?id=${pet.id}`)}
+            style={styles.editBtn}
+          >
+            <Text style={styles.editBtnText}>Düzenle</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openQr} style={styles.qrBtn}>
+            <Text style={styles.qrBtnText}>QR</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Profil kartı */}
       <View style={styles.profileCard}>
         <View style={styles.profileAvatar}>
-          <Text style={styles.profileEmoji}>{speciesEmoji(pet.species)}</Text>
+          {pet.photoUrl
+            ? <Image source={{ uri: pet.photoUrl }} style={styles.profilePhoto} />
+            : <Text style={styles.profileEmoji}>{speciesEmoji(pet.species)}</Text>
+          }
         </View>
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>{pet.name}</Text>
@@ -199,6 +222,24 @@ export default function PetDetailScreen() {
               </View>
             )}
 
+            {/* Aktif ilaçlar */}
+            {activeMedications.length > 0 && (
+              <View style={[styles.infoCard, styles.medicationCard]}>
+                <Text style={styles.infoCardTitle}>💊 Aktif İlaçlar</Text>
+                {activeMedications.map((med, i) => (
+                  <View key={i} style={styles.medicationRow}>
+                    <View style={styles.medicationDot} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.medicationName}>{med.drugName}</Text>
+                      <Text style={styles.medicationDetail}>
+                        {med.dose} · {med.frequency} · {med.duration}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
             {/* Mikro çip */}
             {pet.microchipNo && (
               <View style={styles.infoCard}>
@@ -211,6 +252,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'exams' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setExaminationModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Muayene Ekle</Text>
+            </TouchableOpacity>
             {exams.length === 0
               ? <EmptyState emoji="🩺" text="Henüz muayene kaydı yok" />
               : exams.map(exam => (
@@ -243,6 +290,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'vaccines' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setVaccinationModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Aşı Ekle</Text>
+            </TouchableOpacity>
             {vaccines.length === 0
               ? <EmptyState emoji="💉" text="Henüz aşı kaydı yok" />
               : vaccines.map(vac => {
@@ -272,13 +325,27 @@ export default function PetDetailScreen() {
 
         {activeTab === 'prescriptions' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setPrescriptionModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Reçete Yaz</Text>
+            </TouchableOpacity>
             {prescriptions.length === 0
               ? <EmptyState emoji="💊" text="Henüz reçete yok" />
               : prescriptions.map(rx => (
                 <View key={rx.id} style={styles.recordCard}>
                   <View style={styles.recordHeader}>
-                    <Text style={styles.recordDate}>{formatDate(rx.date)}</Text>
-                    <Text style={styles.recordVet}>{rx.vetName}</Text>
+                    <View>
+                      <Text style={styles.recordDate}>{formatDate(rx.date)}</Text>
+                      <Text style={styles.recordVet}>{rx.vetName}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.pdfBtn}
+                      onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
+                    >
+                      <Text style={styles.pdfBtnText}>📄 PDF</Text>
+                    </TouchableOpacity>
                   </View>
                   {rx.medications.map(med => (
                     <View key={med.id} style={styles.medRow}>
@@ -295,6 +362,12 @@ export default function PetDetailScreen() {
 
         {activeTab === 'lab' && (
           <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => setLabModalVisible(true)}
+            >
+              <Text style={styles.addBtnText}>+ Sonuç Ekle</Text>
+            </TouchableOpacity>
             {labs.length === 0
               ? <EmptyState emoji="🔬" text="Henüz lab sonucu yok" />
               : labs.map(lab => (
@@ -319,12 +392,47 @@ export default function PetDetailScreen() {
                 : <QRCode value={qrToken || `e-pati-pet:${pet.id}`} size={190} />
               }
             </View>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => setQrVisible(false)}>
-              <Text style={styles.closeBtnText}>Kapat</Text>
-            </TouchableOpacity>
+            <Text style={styles.qrHint}>
+              Bu QR kodu veterinerinize gösterin veya paylaşın.
+            </Text>
+            <View style={styles.qrActions}>
+              <TouchableOpacity
+                style={[styles.qrBtn2, { backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder }]}
+                onPress={() => Share.share({
+                  message: `e-Pati: ${pet.name} hayvanının sağlık kaydı\nToken: ${qrToken || pet.id}`,
+                  title: `${pet.name} - e-Pati`,
+                })}
+              >
+                <Text style={[styles.qrBtnText2, { color: Colors.primary }]}>📤 Paylaş</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.qrBtn2, { backgroundColor: Colors.primary }]} onPress={() => setQrVisible(false)}>
+                <Text style={[styles.qrBtnText2, { color: '#fff' }]}>Kapat</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
+
+      <AddVaccinationModal
+        petId={pet.id}
+        visible={vaccinationModalVisible}
+        onClose={() => setVaccinationModalVisible(false)}
+      />
+      <AddLabResultModal
+        petId={pet.id}
+        visible={labModalVisible}
+        onClose={() => setLabModalVisible(false)}
+      />
+      <AddPrescriptionModal
+        petId={pet.id}
+        visible={prescriptionModalVisible}
+        onClose={() => setPrescriptionModalVisible(false)}
+      />
+      <AddExaminationModal
+        petId={pet.id}
+        visible={examinationModalVisible}
+        onClose={() => setExaminationModalVisible(false)}
+      />
     </SafeAreaView>
   )
 }
@@ -427,6 +535,12 @@ const styles = StyleSheet.create({
   },
   backBtn: {},
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
+  editBtn: {
+    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border,
+    backgroundColor: Colors.background,
+  },
+  editBtnText: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
   qrBtn: {
     minWidth: 44, height: 32, borderRadius: Radius.full,
     alignItems: 'center', justifyContent: 'center',
@@ -444,8 +558,10 @@ const styles = StyleSheet.create({
   profileAvatar: {
     width: 64, height: 64, borderRadius: Radius.xl,
     backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
   },
   profileEmoji: { fontSize: 32 },
+  profilePhoto: { width: '100%', height: '100%' },
   profileInfo: { flex: 1 },
   profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
   profileBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
@@ -495,6 +611,11 @@ const styles = StyleSheet.create({
   alertTitle: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.warning, marginBottom: 6 },
   alertText: { fontSize: FontSize.sm, color: Colors.text, marginTop: 3 },
   microchipNo: { fontSize: FontSize.base, fontFamily: 'monospace', color: Colors.text, marginTop: 4 },
+  medicationCard: { borderLeftWidth: 3, borderLeftColor: Colors.primary },
+  medicationRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm, marginTop: 8 },
+  medicationDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary, marginTop: 5 },
+  medicationName: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.text },
+  medicationDetail: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
   recordCard: {
     backgroundColor: Colors.background, borderRadius: Radius.xl,
     padding: Spacing.lg,
@@ -522,12 +643,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface, borderRadius: Radius.md,
     padding: Spacing.md, gap: 3,
   },
+  pdfBtn: { paddingHorizontal: Spacing.md, paddingVertical: 5, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surface },
+  pdfBtnText: { fontSize: FontSize.xs, color: Colors.textSecondary },
   medDrug: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   medDetail: { fontSize: FontSize.sm, color: Colors.textSecondary },
   medInstructions: { fontSize: FontSize.xs, color: Colors.textMuted, fontStyle: 'italic' },
   labType: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   labDate: { fontSize: FontSize.sm, color: Colors.textMuted },
   labComment: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 6, lineHeight: 20 },
+  addBtn: {
+    alignSelf: 'flex-end', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm,
+    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.primary,
+    backgroundColor: Colors.primaryBg, marginBottom: Spacing.md,
+  },
+  addBtnText: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.medium },
   emptyState: { alignItems: 'center', paddingTop: 48 },
   modalBackdrop: {
     flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.45)',
@@ -542,6 +671,10 @@ const styles = StyleSheet.create({
     width: 220, height: 220, borderRadius: Radius.lg, backgroundColor: '#fff',
     alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg,
   },
+  qrHint: { fontSize: FontSize.xs, color: Colors.textMuted, textAlign: 'center', marginTop: Spacing.md, marginBottom: Spacing.lg, paddingHorizontal: Spacing.lg },
+  qrActions: { flexDirection: 'row', gap: 10, width: '100%' },
+  qrBtn2: { flex: 1, height: 46, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+  qrBtnText2: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold },
   closeBtn: {
     height: 44, alignSelf: 'stretch', borderRadius: Radius.md,
     backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center',

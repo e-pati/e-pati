@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
 import { authService } from '@/services/auth.service'
+import { haptic } from '@/lib/haptics'
 
 const schema = z.object({
   email: z.string().email('Geçerli e-posta girin'),
@@ -30,10 +31,13 @@ export default function LoginScreen() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     setApiError('')
+    haptic.light()
     try {
       await authService.login(data.email, data.password)
+      haptic.success()
       router.replace('/(tabs)/pets')
     } catch (err: any) {
+      haptic.error()
       setApiError(err?.response?.data?.message ?? 'Giriş başarısız. Bilgilerinizi kontrol edin.')
     } finally {
       setLoading(false)
