@@ -7,7 +7,7 @@ import { router } from 'expo-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notificationsService, type ApiNotification } from '@/services/notifications.service'
 import { mockNotifications } from '@/lib/mock-data'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 const typeIcon: Record<string, string> = {
   examination: '🩺',
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
     paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: Spacing.lg,
   },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   subtitle: { fontSize: FontSize.sm, color: Colors.primary, marginTop: 2 },
   markAll: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.medium },
   errorBanner: {

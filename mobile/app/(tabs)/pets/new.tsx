@@ -10,7 +10,7 @@ import { z } from 'zod/v4'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import * as ImagePicker from 'expo-image-picker'
 import { petsService } from '@/services/pets.service'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
   back: { marginBottom: Spacing.xxl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
-  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 6 },
+  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 6 },
   subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, marginBottom: Spacing.xxl },
   errorBox: { backgroundColor: '#fef2f2', borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg, borderWidth: 1, borderColor: '#fecaca' },
   errorText: { fontSize: FontSize.sm, color: Colors.danger },
@@ -294,6 +294,6 @@ const styles = StyleSheet.create({
   photoBtnText: { fontSize: FontSize.xs, color: Colors.textSecondary },
   successContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.lg },
   successEmoji: { fontSize: 56 },
-  successTitle: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
+  successTitle: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   successSub: { fontSize: FontSize.base, color: Colors.textMuted },
 })
