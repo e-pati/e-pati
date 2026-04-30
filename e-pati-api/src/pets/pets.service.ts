@@ -7,12 +7,16 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Pet, Role } from '@prisma/client';
 import type { JwtSignOptions } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { TokenPayload } from '../auth/types/token-payload';
 
 const QR_TOKEN_FALLBACK_TTL = '24h';
+const GENERATED_OWNER_EMAIL_DOMAIN = 'no-email.e-pati.local';
+const GENERATED_PASSWORD_SALT_ROUNDS = 12;
 
 @Injectable()
 export class PetsService {
@@ -46,14 +50,13 @@ export class PetsService {
     return [];
   }
 
-  create(user: TokenPayload, dto: CreatePetDto) {
-    if (user.role !== Role.OWNER) {
-      throw new ForbiddenException('Only owners can create pets.');
-    }
+  async create(user: TokenPayload, dto: CreatePetDto) {
+    const ownerId = await this.resolveOwnerIdForCreate(user, dto);
 
     return this.prisma.pet.create({
       data: {
-        ownerId: user.sub,
+        ownerId,
+        clinicId: user.role === Role.OWNER ? undefined : user.clinicId,
         name: dto.name.trim(),
         species: dto.species.trim(),
         breed: dto.breed?.trim(),
@@ -87,7 +90,7 @@ export class PetsService {
     dto: UpdatePetDto,
   ): Promise<Pet> {
     const pet = await this.findOne(id, user);
-    this.ensureOwner(pet, user);
+    this.ensureCanMutate(pet, user);
 
     return this.prisma.pet.update({
       where: { id },
@@ -105,7 +108,7 @@ export class PetsService {
 
   async remove(id: string, user: TokenPayload): Promise<void> {
     const pet = await this.findOne(id, user);
-    this.ensureOwner(pet, user);
+    this.ensureCanMutate(pet, user);
 
     await this.prisma.pet.update({
       where: { id },
@@ -178,12 +181,89 @@ export class PetsService {
     throw new ForbiddenException('You cannot access this pet.');
   }
 
-  private ensureOwner(pet: Pet, user: TokenPayload): void {
+  private ensureCanMutate(pet: Pet, user: TokenPayload): void {
     if (user.role === Role.OWNER && pet.ownerId === user.sub) {
       return;
     }
 
-    throw new ForbiddenException('Only the owner can modify this pet.');
+    if (user.clinicId && pet.clinicId === user.clinicId) {
+      return;
+    }
+
+    throw new ForbiddenException('You cannot modify this pet.');
+  }
+
+  private async resolveOwnerIdForCreate(
+    user: TokenPayload,
+    dto: CreatePetDto,
+  ): Promise<string> {
+    if (user.role === Role.OWNER) {
+      return user.sub;
+    }
+
+    if (!user.clinicId) {
+      throw new ForbiddenException('Clinic staff must belong to a clinic.');
+    }
+
+    if (dto.ownerId) {
+      const owner = await this.prisma.owner.findFirst({
+        where: { id: dto.ownerId, deletedAt: null },
+        select: { id: true },
+      });
+
+      if (!owner) {
+        throw new NotFoundException('Owner not found.');
+      }
+
+      return owner.id;
+    }
+
+    if (dto.ownerEmail) {
+      const email = dto.ownerEmail.toLowerCase();
+      const existingOwner = await this.prisma.owner.findFirst({
+        where: { email, deletedAt: null },
+        select: { id: true },
+      });
+
+      if (existingOwner) {
+        return existingOwner.id;
+      }
+
+      const owner = await this.prisma.owner.create({
+        data: {
+          email,
+          phone: dto.ownerPhone,
+          fullName: dto.ownerFullName?.trim() ?? email,
+          passwordHash: await this.generatePlaceholderPasswordHash(),
+        },
+        select: { id: true },
+      });
+
+      return owner.id;
+    }
+
+    const owner = await this.prisma.owner.create({
+      data: {
+        email: this.generatePlaceholderOwnerEmail(user.clinicId),
+        fullName: dto.ownerFullName?.trim() ?? 'Sahip bilgisi yok',
+        passwordHash: await this.generatePlaceholderPasswordHash(),
+      },
+      select: { id: true },
+    });
+
+    return owner.id;
+  }
+
+  private generatePlaceholderOwnerEmail(clinicId: string): string {
+    const token = randomBytes(10).toString('hex');
+    return `clinic-${clinicId}-${token}@${GENERATED_OWNER_EMAIL_DOMAIN}`;
+  }
+
+  private generatePlaceholderPasswordHash(): Promise<string> {
+    return bcrypt.hash(
+      randomBytes(32).toString('base64url'),
+      GENERATED_PASSWORD_SALT_ROUNDS,
+    );
   }
 
   private getQrSecret(): string {

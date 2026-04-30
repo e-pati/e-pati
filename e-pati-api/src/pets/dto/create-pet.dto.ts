@@ -1,9 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PetSex } from '@prisma/client';
 import {
+  IsEmail,
   IsEnum,
   IsISO8601,
   IsOptional,
+  IsPhoneNumber,
   IsString,
   IsUrl,
   MinLength,
@@ -44,4 +46,28 @@ export class CreatePetDto {
   @IsOptional()
   @IsUrl()
   photoUrl?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Existing owner id. Clinic staff can use this to link the pet to an owner.',
+  })
+  @IsOptional()
+  @IsString()
+  ownerId?: string;
+
+  @ApiPropertyOptional({ example: 'Burak Yilmaz' })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  ownerFullName?: string;
+
+  @ApiPropertyOptional({ example: 'sahip@example.com' })
+  @IsOptional()
+  @IsEmail()
+  ownerEmail?: string;
+
+  @ApiPropertyOptional({ example: '+905551112233' })
+  @IsOptional()
+  @IsPhoneNumber()
+  ownerPhone?: string;
 }
