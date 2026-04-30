@@ -1,6 +1,6 @@
 # e-Pati Projesi — AI Devir Teslim Promptu
 
-> **Son güncelleme:** 30 Nisan 2026 — klinik API endpoint'leri bağlandı, artık dosyalar temizlendi
+> **Son güncelleme:** 1 Mayıs 2026 — Render backend bağlandı, web uyumluluğu tamamlandı
 
 ## Sen Kimsin, Ne Yapacaksın?
 
@@ -106,16 +106,22 @@ GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferenc
 ## Yapılabilecek Sonraki İşler
 
 1. **SMS/OTP gerçek entegrasyon** — OTP ekranı mock, backend'de SMS servisi (Netgsm) gerekli
-2. **Yeni hasta kaydı (klinik)** — `POST /pets` sadece OWNER rolüne açık, Erol'dan VETERINARIAN/CLINIC_ADMIN için izin gerekiyor
-3. **Hasta düzenleme (portal)** — `PATCH /pets/:id` de sadece OWNER, Erol'dan izin gerekiyor
-4. **Vercel env variable** — `NEXT_PUBLIC_API_URL` production backend URL ile güncellenmeli
-5. **Erol'dan beklenenler** — Redis (Upstash), Resend API key, Firebase, R2 (dosya upload için)
-6. **Erol'un ileride ekleyebilecekleri** — randevu sistemi, AI semptom yönlendirme
+2. **Erol'dan beklenenler** — Resend API key, Firebase (push notif), R2 (dosya upload)
+3. **Erol'un ileride ekleyebilecekleri** — randevu sistemi, AI semptom yönlendirme
+
+## Tamamlanan (1 Mayıs 2026)
+
+- Render backend bağlandı (`https://e-pati.onrender.com`), Redis + CORS düzeltildi
+- Vercel portal deploy güncellendi (NEXT_PUBLIC_API_URL=Render URL)
+- Mobile web uyumluluğu: Alert.alert → inline hata mesajları (4 modal + logout + register)
+- Telefon numarası otomatik +90 formatına normalize ediliyor
+- Vaccinations + examinations/new sayfaları useAllClinicPatients() ile owner bilgisi gösteriyor
 
 ## Tamamlanan (30 Nisan 2026)
 
 - Dashboard → `GET /clinics/:id/dashboard` (tek call, gerçek klinik statsları)
 - Patients → `GET /clinics/:id/patients` (server-side pagination, owner bilgisi dahil)
+- Klinik staff artık hasta ekleyip düzenleyebiliyor (Erol backend'i güncelledi)
 - Mobile artık dosyaları temizlendi (9 dosya)
 
 ---
