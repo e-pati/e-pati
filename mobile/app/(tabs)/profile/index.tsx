@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, Switch, Alert,
+  SafeAreaView, Switch, Alert, Platform,
 } from 'react-native'
 import { router } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
@@ -30,23 +30,19 @@ export default function ProfileScreen() {
     if (!user) loadUser()
   }, [])
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Çıkış Yap',
-      'Hesabınızdan çıkmak istediğinize emin misiniz?',
-      [
-        { text: 'İptal', style: 'cancel' },
-        {
-          text: 'Çıkış Yap',
-          style: 'destructive',
-          onPress: async () => {
-            await authService.logout()
-            useAuthStore.getState().clearUser()
-            router.replace('/(auth)/login')
-          },
-        },
-      ]
-    )
+  const handleLogout = async () => {
+    const confirmed = Platform.OS === 'web'
+      ? window.confirm('Hesabınızdan çıkmak istediğinize emin misiniz?')
+      : await new Promise<boolean>(resolve =>
+          Alert.alert('Çıkış Yap', 'Hesabınızdan çıkmak istediğinize emin misiniz?', [
+            { text: 'İptal', style: 'cancel', onPress: () => resolve(false) },
+            { text: 'Çıkış Yap', style: 'destructive', onPress: () => resolve(true) },
+          ])
+        )
+    if (!confirmed) return
+    await authService.logout()
+    useAuthStore.getState().clearUser()
+    router.replace('/(auth)/login')
   }
 
   const initials = user?.fullName

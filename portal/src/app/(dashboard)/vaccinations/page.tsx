@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { useVaccinations, useUpcomingVaccinations } from '@/hooks/use-vaccinations'
-import { usePets } from '@/hooks/use-pets'
-import { mockVaccinations, mockPets } from '@/lib/mock-data'
+import { useAllClinicPatients } from '@/hooks/use-clinic'
+import { mockVaccinations } from '@/lib/mock-data'
 import { formatDateShort, isVaccinationOverdue, isVaccinationDueSoon, speciesEmoji } from '@/lib/utils'
 import { AlertTriangle, Clock, CheckCircle2, Syringe, Filter } from 'lucide-react'
 import Link from 'next/link'
@@ -25,7 +25,7 @@ export default function VaccinationsPage() {
   useEffect(() => { setPage(1) }, [filter]) // eslint-disable-line
 
   const vaccinationsQuery = useVaccinations()
-  const petsQuery = usePets()
+  const petsQuery = useAllClinicPatients()
 
   const vaccinations: ApiVaccination[] = vaccinationsQuery.data ?? (
     vaccinationsQuery.isError
@@ -37,7 +37,7 @@ export default function VaccinationsPage() {
       : []
   )
 
-  const pets = petsQuery.data ?? []
+  const pets = petsQuery.data?.items ?? []
 
   const enriched = useMemo(() => vaccinations.map(v => {
     const dueAt = v.dueAt ?? v.appliedAt
@@ -61,7 +61,7 @@ export default function VaccinationsPage() {
   const overdueCount = enriched.filter(v => v.overdue).length
   const upcomingCount = enriched.filter(v => v.soon && !v.overdue).length
 
-  const isLoading = vaccinationsQuery.isLoading || petsQuery.isLoading
+  const isLoading = vaccinationsQuery.isLoading
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 

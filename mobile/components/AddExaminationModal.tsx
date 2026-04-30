@@ -2,7 +2,7 @@ import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Modal, ScrollView, ActivityIndicator, Alert,
+  Modal, ScrollView, ActivityIndicator,
 } from 'react-native'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { examinationsService } from '@/services/examinations.service'
@@ -54,6 +54,7 @@ export function AddExaminationModal({ petId, visible, onClose }: Props) {
   const [form, setForm] = useState<SoapData>({
     complaint: '', findings: '', assessment: '', plan: '', followUpDate: '',
   })
+  const [errorMsg, setErrorMsg] = useState('')
 
   const mutation = useMutation({
     mutationFn: () => examinationsService.create({
@@ -66,11 +67,11 @@ export function AddExaminationModal({ petId, visible, onClose }: Props) {
     onSuccess: () => {
       haptic.success()
       qc.invalidateQueries({ queryKey: ['examinations', { petId }] })
-      Alert.alert('Başarılı', 'Muayene kaydedildi.')
       setForm({ complaint: '', findings: '', assessment: '', plan: '', followUpDate: '' })
+      setErrorMsg('')
       onClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Muayene kaydedilemedi.') },
+    onError: () => { haptic.error(); setErrorMsg('Muayene kaydedilemedi. Tekrar deneyin.') },
   })
 
   const isValid = form.complaint.trim().length >= 5 &&
@@ -128,6 +129,9 @@ export function AddExaminationModal({ petId, visible, onClose }: Props) {
             </View>
           </ScrollView>
 
+          {errorMsg ? (
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          ) : null}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
               <Text style={styles.cancelText}>İptal</Text>
@@ -186,4 +190,5 @@ const styles = StyleSheet.create({
   saveBtn: { flex: 1, height: 48, borderRadius: Radius.md, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   saveBtnDisabled: { opacity: 0.5 },
   saveText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
+  errorText: { color: '#DC2626', fontSize: FontSize.sm, textAlign: 'center', paddingHorizontal: Spacing.xl, paddingTop: Spacing.md },
 })

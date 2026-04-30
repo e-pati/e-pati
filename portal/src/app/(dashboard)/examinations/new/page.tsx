@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { usePets } from '@/hooks/use-pets'
+import { useAllClinicPatients } from '@/hooks/use-clinic'
 import { useCreateExamination } from '@/hooks/use-examinations'
 import type { ApiPet } from '@/services/pets.service'
 import type { PetSpecies } from '@/types'
@@ -48,7 +48,7 @@ function NewExaminationForm() {
   const [petSearch, setPetSearch] = useState('')
   const [selectedPetId, setSelectedPetId] = useState(preselectedPetId)
   const [submitted, setSubmitted] = useState(false)
-  const petsQuery = usePets()
+  const petsQuery = useAllClinicPatients()
   const createExamination = useCreateExamination()
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<ExaminationForm>({
@@ -56,7 +56,7 @@ function NewExaminationForm() {
     defaultValues: { petId: preselectedPetId },
   })
 
-  const pets = petsQuery.data ?? (petsQuery.isError ? mockPets.map(mapMockPet) : [])
+  const pets = petsQuery.data?.items ?? (petsQuery.isError ? mockPets.map(mapMockPet) : [])
   const selectedPet = pets.find(p => p.id === selectedPetId)
 
   const filteredPets = pets.filter(pet => {

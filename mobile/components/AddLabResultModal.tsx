@@ -2,7 +2,7 @@ import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Modal, ScrollView, ActivityIndicator, Alert,
+  Modal, ScrollView, ActivityIndicator,
 } from 'react-native'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { labResultsService } from '@/services/lab-results.service'
@@ -23,17 +23,17 @@ export function AddLabResultModal({ petId, visible, onClose }: Props) {
   const qc = useQueryClient()
   const [testType, setTestType] = useState('')
   const [comment, setComment] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   const mutation = useMutation({
     mutationFn: () => labResultsService.create({ petId, testType, comment: comment || undefined }),
     onSuccess: () => {
       haptic.success()
       qc.invalidateQueries({ queryKey: ['lab-results', { petId }] })
-      Alert.alert('Başarılı', 'Lab sonucu kaydedildi.')
-      setTestType(''); setComment('')
+      setTestType(''); setComment(''); setErrorMsg('')
       onClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Lab sonucu kaydedilemedi.') },
+    onError: () => { haptic.error(); setErrorMsg('Lab sonucu kaydedilemedi. Tekrar deneyin.') },
   })
 
   return (
@@ -81,6 +81,9 @@ export function AddLabResultModal({ petId, visible, onClose }: Props) {
             />
           </ScrollView>
 
+          {errorMsg ? (
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          ) : null}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
               <Text style={styles.cancelText}>İptal</Text>
@@ -140,4 +143,5 @@ const styles = StyleSheet.create({
   saveBtn: { flex: 1, height: 48, borderRadius: Radius.md, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   saveBtnDisabled: { opacity: 0.5 },
   saveText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
+  errorText: { color: '#DC2626', fontSize: FontSize.sm, textAlign: 'center', paddingHorizontal: Spacing.xl, paddingTop: Spacing.md },
 })
