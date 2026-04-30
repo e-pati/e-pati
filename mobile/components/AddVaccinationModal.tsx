@@ -2,7 +2,7 @@ import { haptic } from '@/lib/haptics'
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Modal, ScrollView, ActivityIndicator, Alert,
+  Modal, ScrollView, ActivityIndicator,
 } from 'react-native'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { vaccinationsService } from '@/services/vaccinations.service'
@@ -26,6 +26,7 @@ export function AddVaccinationModal({ petId, visible, onClose }: Props) {
   const [dueAt, setDueAt] = useState('')
   const [lotNumber, setLotNumber] = useState('')
   const [notes, setNotes] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
 
   const mutation = useMutation({
     mutationFn: () => vaccinationsService.create({
@@ -39,15 +40,14 @@ export function AddVaccinationModal({ petId, visible, onClose }: Props) {
     onSuccess: () => {
       haptic.success()
       qc.invalidateQueries({ queryKey: ['vaccinations', { petId }] })
-      Alert.alert('Başarılı', 'Aşı kaydedildi.')
       resetAndClose()
     },
-    onError: () => { haptic.error(); Alert.alert('Hata', 'Aşı kaydedilemedi.') },
+    onError: () => { haptic.error(); setErrorMsg('Aşı kaydedilemedi. Tekrar deneyin.') },
   })
 
   const resetAndClose = () => {
     setName(''); setAppliedAt(new Date().toISOString().split('T')[0])
-    setDueAt(''); setLotNumber(''); setNotes('')
+    setDueAt(''); setLotNumber(''); setNotes(''); setErrorMsg('')
     onClose()
   }
 
@@ -133,6 +133,9 @@ export function AddVaccinationModal({ petId, visible, onClose }: Props) {
             />
           </ScrollView>
 
+          {errorMsg ? (
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          ) : null}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.cancelBtn} onPress={resetAndClose}>
               <Text style={styles.cancelText}>İptal</Text>
@@ -198,4 +201,5 @@ const styles = StyleSheet.create({
   saveBtn: { flex: 1, height: 48, borderRadius: Radius.md, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   saveBtnDisabled: { opacity: 0.5 },
   saveText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
+  errorText: { color: '#DC2626', fontSize: FontSize.sm, textAlign: 'center', paddingHorizontal: Spacing.xl, paddingTop: Spacing.md },
 })
