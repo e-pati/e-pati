@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { secureStorage } from './secure-storage'
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://e-pati.onrender.com'
 
 export const api = axios.create({
   baseURL: API_URL,
