@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, Alert } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth.store'
 
 export default function OtpScreen() {
-  const { email } = useLocalSearchParams<{ email: string }>()
+  const email = useAuthStore(s => s.pendingEmail) ?? ''
+  const clearPendingEmail = useAuthStore(s => s.clearPendingEmail)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
@@ -53,6 +55,7 @@ export default function OtpScreen() {
     setErrorMsg('')
     try {
       await authService.verifyOtp(email, code)
+      clearPendingEmail()
       router.replace('/(tabs)/pets')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message

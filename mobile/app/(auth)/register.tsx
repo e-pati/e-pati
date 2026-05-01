@@ -9,7 +9,9 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth.store'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
 const schema = z.object({
   firstName: z.string().min(2, 'Ad en az 2 karakter olmalı'),
@@ -24,6 +26,7 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false)
   const [kvkkAccepted, setKvkkAccepted] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const setPendingEmail = useAuthStore(s => s.setPendingEmail)
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
@@ -37,7 +40,8 @@ export default function RegisterScreen() {
         email: data.email,
         password: data.password,
       })
-      router.replace({ pathname: '/(auth)/otp', params: { email: data.email } })
+      setPendingEmail(data.email)
+      router.replace('/(auth)/otp')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       const text = Array.isArray(msg) ? msg[0] : (msg ?? 'Bilgileri kontrol edip tekrar deneyin.')
@@ -70,7 +74,8 @@ export default function RegisterScreen() {
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Geri</Text>
+          <Ionicons name="chevron-back" size={20} color={Colors.primary} />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Hesap Oluştur</Text>
@@ -152,9 +157,9 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
-  back: { marginBottom: Spacing.xxl },
+  container: { flex: 1, backgroundColor: '#F0FDF4' },
+  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: 40 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: Spacing.xxl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
   title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 6 },
   subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, fontFamily: Fonts.regular, marginBottom: Spacing.xxl },

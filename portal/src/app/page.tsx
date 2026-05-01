@@ -43,10 +43,10 @@ const steps = [
 ]
 
 const stats = [
-  { value: '500+', label: 'Kayıtlı Hasta' },
-  { value: '12+', label: 'Klinik Ortağı' },
-  { value: '98%', label: 'Müşteri Memnuniyeti' },
+  { value: 'Beta', label: 'Aktif Süreç' },
   { value: '7/24', label: 'Teknik Destek' },
+  { value: '100%', label: 'Bulut Tabanlı' },
+  { value: 'Ücretsiz', label: 'Demo Dönemi' },
 ]
 
 export default function LandingPage() {

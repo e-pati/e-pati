@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image, Modal,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native'
-import DateTimePicker from '@react-native-community/datetimepicker'
+import { DatePickerField } from '@/components/DatePickerField'
 import { router } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import * as ImagePicker from 'expo-image-picker'
 import { petsService } from '@/services/pets.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
@@ -35,7 +36,6 @@ export default function NewPetScreen() {
   const qc = useQueryClient()
   const [done, setDone] = useState(false)
   const [photoUri, setPhotoUri] = useState<string | null>(null)
-  const [showDatePicker, setShowDatePicker] = useState(false)
 
   const pickPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -104,7 +104,8 @@ export default function NewPetScreen() {
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Geri</Text>
+          <Ionicons name="chevron-back" size={20} color={Colors.primary} />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Yeni Hayvan Ekle</Text>
@@ -206,50 +207,11 @@ export default function NewPetScreen() {
               control={control}
               name="birthDate"
               render={({ field: { onChange, value } }) => (
-                <>
-                  {Platform.OS === 'web' ? (
-                    <input
-                      type="date"
-                      value={value ?? ''}
-                      onChange={e => onChange(e.target.value || undefined)}
-                      max={new Date().toISOString().split('T')[0]}
-                      style={{
-                        height: 48, borderRadius: Radius.md, borderWidth: 1,
-                        borderColor: Colors.border, paddingHorizontal: Spacing.md,
-                        fontSize: FontSize.base, color: value ? Colors.text : Colors.textMuted,
-                        backgroundColor: Colors.background, width: '100%',
-                        borderStyle: 'solid', fontFamily: 'inherit',
-                      } as any}
-                    />
-                  ) : (
-                    <>
-                      <TouchableOpacity
-                        style={[styles.input, styles.dateBtn]}
-                        onPress={() => setShowDatePicker(true)}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={value ? styles.dateText : styles.datePlaceholder}>
-                          {value
-                            ? new Date(value).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
-                            : 'Tarih seçin'
-                          }
-                        </Text>
-                      </TouchableOpacity>
-                      {showDatePicker && (
-                        <DateTimePicker
-                          value={value ? new Date(value) : new Date()}
-                          mode="date"
-                          display="spinner"
-                          maximumDate={new Date()}
-                          onChange={(_, date) => {
-                            setShowDatePicker(false)
-                            if (date) onChange(date.toISOString().split('T')[0])
-                          }}
-                        />
-                      )}
-                    </>
-                  )}
-                </>
+                <DatePickerField
+                  value={value || undefined}
+                  onChange={onChange}
+                  placeholder="Doğum tarihi seçin"
+                />
               )}
             />
           </View>
@@ -298,9 +260,9 @@ export default function NewPetScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
-  back: { marginBottom: Spacing.xxl },
+  container: { flex: 1, backgroundColor: '#F0FDF4' },
+  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: 40 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: Spacing.xl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
   title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 6 },
   subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, marginBottom: Spacing.xxl },
