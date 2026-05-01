@@ -28,6 +28,7 @@ export class LabResultsService {
         notes: dto.notes,
         collectedAt: dto.collectedAt ? new Date(dto.collectedAt) : undefined,
       },
+      include: { clinic: { select: { id: true, name: true } } },
     });
 
     await this.prisma.notification.create({
@@ -59,6 +60,7 @@ export class LabResultsService {
     const [items, total] = await Promise.all([
       this.prisma.labResult.findMany({
         where,
+        include: { clinic: { select: { id: true, name: true } } },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
@@ -84,7 +86,7 @@ export class LabResultsService {
   private async findOne(id: string, user: TokenPayload): Promise<LabResult> {
     const labResult = await this.prisma.labResult.findFirst({
       where: { id, deletedAt: null },
-      include: { pet: true },
+      include: { pet: true, clinic: { select: { id: true, name: true } } },
     });
 
     if (!labResult) {

@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -10,6 +12,7 @@ import type { JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { ClaimPetDto } from './dto/claim-pet.dto';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { TokenPayload } from '../auth/types/token-payload';
@@ -51,6 +54,34 @@ export class PetsService {
   }
 
   async create(user: TokenPayload, dto: CreatePetDto) {
+    const microchipNo = this.normalizeMicrochipNo(dto.microchipNo);
+
+    if (microchipNo && user.role !== Role.OWNER) {
+      const existingPet = await this.prisma.pet.findFirst({
+        where: { microchipNo, deletedAt: null },
+      });
+
+      if (existingPet) {
+        if (!user.clinicId) {
+          throw new ForbiddenException('Clinic staff must belong to a clinic.');
+        }
+
+        return this.prisma.pet.update({
+          where: { id: existingPet.id },
+          data: {
+            clinicId: user.clinicId,
+            name: dto.name.trim(),
+            species: dto.species.trim(),
+            breed: dto.breed?.trim(),
+            sex: dto.sex,
+            birthDate: dto.birthDate ? new Date(dto.birthDate) : undefined,
+            photoUrl: dto.photoUrl,
+            deletedAt: null,
+          },
+        });
+      }
+    }
+
     const ownerId = await this.resolveOwnerIdForCreate(user, dto);
 
     return this.prisma.pet.create({
@@ -62,8 +93,48 @@ export class PetsService {
         breed: dto.breed?.trim(),
         sex: dto.sex,
         birthDate: dto.birthDate ? new Date(dto.birthDate) : undefined,
-        microchipNo: dto.microchipNo,
+        microchipNo,
         photoUrl: dto.photoUrl,
+      },
+    });
+  }
+
+  async claim(user: TokenPayload, dto: ClaimPetDto): Promise<Pet> {
+    if (user.role !== Role.OWNER) {
+      throw new ForbiddenException('Only owners can claim pets.');
+    }
+
+    const microchipNo = this.normalizeMicrochipNo(dto.microchipNo);
+
+    if (!microchipNo) {
+      throw new BadRequestException('Microchip number is required.');
+    }
+
+    const existingPet = await this.prisma.pet.findFirst({
+      where: { microchipNo, deletedAt: null },
+    });
+
+    if (existingPet) {
+      if (existingPet.ownerId && existingPet.ownerId !== user.sub) {
+        throw new ConflictException('Pet is already claimed by another owner.');
+      }
+
+      if (existingPet.ownerId === user.sub) {
+        return existingPet;
+      }
+
+      return this.prisma.pet.update({
+        where: { id: existingPet.id },
+        data: { ownerId: user.sub },
+      });
+    }
+
+    return this.prisma.pet.create({
+      data: {
+        ownerId: user.sub,
+        microchipNo,
+        name: 'Microchip pet',
+        species: 'Unknown',
       },
     });
   }
@@ -264,6 +335,11 @@ export class PetsService {
       randomBytes(32).toString('base64url'),
       GENERATED_PASSWORD_SALT_ROUNDS,
     );
+  }
+
+  private normalizeMicrochipNo(microchipNo?: string): string | undefined {
+    const normalized = microchipNo?.trim();
+    return normalized ? normalized : undefined;
   }
 
   private getQrSecret(): string {

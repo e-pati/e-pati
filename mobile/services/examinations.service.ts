@@ -18,6 +18,7 @@ export interface ApiExamination {
     fullName?: string
     title?: string
   }
+  clinic?: { id: string; name: string }
 }
 
 export interface ExaminationListParams {

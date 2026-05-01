@@ -59,7 +59,22 @@ export default function NewPetScreen() {
   }
 
   const createPet = useMutation({
-    mutationFn: petsService.create,
+    mutationFn: async (data: FormData & { photoUrl?: string }) => {
+      if (data.microchipNo?.trim()) {
+        const claimed = await petsService.claim(data.microchipNo.trim())
+        if (data.name || data.species || data.photoUrl) {
+          return petsService.update(claimed.id, {
+            name: data.name,
+            species: data.species,
+            breed: data.breed,
+            birthDate: data.birthDate,
+            photoUrl: data.photoUrl,
+          })
+        }
+        return claimed
+      }
+      return petsService.create(data)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['pets'] })
       setDone(true)

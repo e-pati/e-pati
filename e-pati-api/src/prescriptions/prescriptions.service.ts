@@ -28,7 +28,10 @@ export class PrescriptionsService {
             create: dto.medications,
           },
         },
-        include: { medications: true },
+        include: {
+          medications: true,
+          clinic: { select: { id: true, name: true } },
+        },
       });
 
       await tx.notification.create({
@@ -48,7 +51,11 @@ export class PrescriptionsService {
   async findOne(id: string, user: TokenPayload) {
     const prescription = await this.prisma.prescription.findFirst({
       where: { id, deletedAt: null },
-      include: { medications: true, pet: true },
+      include: {
+        medications: true,
+        pet: true,
+        clinic: { select: { id: true, name: true } },
+      },
     });
 
     if (!prescription) {
