@@ -12,6 +12,7 @@ import { petsService, type ApiPet } from '@/services/pets.service'
 import type { PetSpecies } from '@/types'
 import { formatDateShort, speciesEmoji, isVaccinationOverdue } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
 LocaleConfig.locales['tr'] = {
   monthNames: ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
@@ -93,11 +94,11 @@ export default function CalendarScreen() {
         </View>
         <View style={styles.statRow}>
           <View style={styles.statPill}>
-            <Text style={styles.statEmoji}>⏰</Text>
+            <Ionicons name="time-outline" size={14} color="rgba(255,255,255,0.9)" />
             <Text style={styles.statText}>{upcomingCount} yaklaşan</Text>
           </View>
           <View style={[styles.statPill, overdueCount > 0 && styles.statPillDanger]}>
-            <Text style={styles.statEmoji}>⚠️</Text>
+            <Ionicons name="warning-outline" size={14} color={overdueCount > 0 ? '#fca5a5' : 'rgba(255,255,255,0.9)'} />
             <Text style={[styles.statText, overdueCount > 0 && styles.statTextDanger]}>{overdueCount} gecikmiş</Text>
           </View>
         </View>
@@ -149,18 +150,20 @@ export default function CalendarScreen() {
         {/* Seçilen günün olayları */}
         <View style={styles.eventsSection}>
           <Text style={styles.eventsTitle}>
-            {selectedDate === today ? '📅 Bugün' : `📅 ${formatDateShort(selectedDate)}`}
+            {selectedDate === today ? 'Bugün' : formatDateShort(selectedDate)}
           </Text>
           {selectedEvents.length === 0 ? (
             <View style={styles.emptyDay}>
-              <Text style={styles.emptyDayEmoji}>✨</Text>
+              <Ionicons name="sparkles-outline" size={36} color={Colors.textMuted} style={{ marginBottom: Spacing.sm }} />
               <Text style={styles.emptyDayText}>Bu güne ait etkinlik yok</Text>
             </View>
           ) : (
             selectedEvents.map((event, i) => (
               <View key={i} style={[styles.eventCard, event.overdue && styles.eventCardDanger, event.type === 'followup' && styles.eventCardInfo]}>
                 <View style={[styles.eventAccent, { backgroundColor: event.overdue ? Colors.danger : event.type === 'followup' ? Colors.info : Colors.warning }]} />
-                <Text style={styles.eventEmoji}>{event.type === 'vaccine' ? '💉' : '🩺'}</Text>
+                <View style={[styles.eventIconCircle, { backgroundColor: (event.overdue ? Colors.danger : event.type === 'followup' ? Colors.info : Colors.warning) + '18' }]}>
+                  <Ionicons name={event.type === 'vaccine' ? 'medical-outline' : 'fitness-outline'} size={20} color={event.overdue ? Colors.danger : event.type === 'followup' ? Colors.info : Colors.warning} />
+                </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.eventLabel}>{event.label}</Text>
                   {event.pet && <Text style={styles.eventPet}>{speciesEmoji(normalizeSpecies(event.pet.species))} {event.pet.name}</Text>}
@@ -210,8 +213,13 @@ const styles = StyleSheet.create({
   eventsSection: { paddingHorizontal: Spacing.xl, paddingBottom: 32 },
   eventsTitle: { fontSize: FontSize.base, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: Spacing.md },
   emptyDay: { alignItems: 'center', paddingVertical: Spacing.xxl, backgroundColor: '#fff', borderRadius: Radius.xl },
-  emptyDayEmoji: { fontSize: 36, marginBottom: Spacing.sm },
+  emptyDayEmoji: { fontSize: 36 },
   emptyDayText: { fontSize: FontSize.sm, color: Colors.textMuted },
+  eventIconCircle: {
+    width: 40, height: 40, borderRadius: 12,
+    alignItems: 'center', justifyContent: 'center',
+    marginVertical: Spacing.md,
+  },
   eventCard: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
     backgroundColor: '#fff', borderRadius: Radius.xl, overflow: 'hidden',
@@ -221,7 +229,7 @@ const styles = StyleSheet.create({
   eventCardDanger: { shadowColor: Colors.danger },
   eventCardInfo: { shadowColor: Colors.info },
   eventAccent: { width: 5, alignSelf: 'stretch', minHeight: 56 },
-  eventEmoji: { fontSize: 24, paddingVertical: Spacing.md },
+  eventEmoji: { fontSize: 24 },
   eventLabel: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   eventPet: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
   overdueTag: { fontSize: FontSize.xs, color: Colors.danger, marginTop: 3, fontWeight: FontWeight.medium },

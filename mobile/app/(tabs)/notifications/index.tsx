@@ -8,9 +8,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notificationsService, type ApiNotification } from '@/services/notifications.service'
 import { mockNotifications } from '@/lib/mock-data'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
-const typeIcon: Record<string, string> = {
-  examination: '🩺', vaccination: '💉', prescription: '💊', lab: '🔬', reminder: '⏰',
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name']
+
+const typeIcon: Record<string, IoniconsName> = {
+  examination: 'fitness-outline',
+  vaccination: 'medical-outline',
+  prescription: 'document-text-outline',
+  lab: 'flask-outline',
+  reminder: 'alarm-outline',
 }
 const typeColor: Record<string, string> = {
   examination: Colors.primary, vaccination: '#3b82f6', prescription: '#8b5cf6', lab: '#ef4444', reminder: Colors.warning,
@@ -110,7 +117,7 @@ export default function NotificationsScreen() {
               >
                 {!isRead && <View style={[styles.itemAccent, { backgroundColor: color }]} />}
                 <View style={[styles.iconCircle, { backgroundColor: color + '18' }]}>
-                  <Text style={styles.icon}>{typeIcon[item.type] ?? '🔔'}</Text>
+                  <Ionicons name={typeIcon[item.type] ?? 'notifications-outline'} size={22} color={color} />
                 </View>
                 <View style={styles.itemContent}>
                   <View style={styles.itemTop}>
@@ -130,7 +137,7 @@ export default function NotificationsScreen() {
           }}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <Text style={styles.emptyEmoji}>🔔</Text>
+              <Ionicons name="notifications-off-outline" size={52} color={Colors.textMuted} style={{ marginBottom: Spacing.lg }} />
               <Text style={styles.emptyTitle}>Henüz bildirim yok</Text>
               <Text style={styles.emptyText}>Aşı hatırlatmaları ve sağlık güncellemeleri burada görünecek</Text>
             </View>
@@ -195,7 +202,7 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4 },
   chevron: { fontSize: 18, color: Colors.textMuted },
   empty: { alignItems: 'center', paddingTop: 80, paddingHorizontal: Spacing.xxxl },
-  emptyEmoji: { fontSize: 52, marginBottom: Spacing.lg },
+  emptyEmoji: { fontSize: 52 },
   emptyTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: Colors.text, marginBottom: Spacing.sm },
   emptyText: { fontSize: FontSize.sm, color: Colors.textMuted, textAlign: 'center', lineHeight: 22 },
 })
