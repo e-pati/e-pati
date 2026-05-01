@@ -9,6 +9,7 @@ export interface ApiVaccination {
   dueAt?: string
   notes?: string
   createdAt?: string
+  clinic?: { id: string; name: string }
 }
 
 export interface VaccinationListParams {
