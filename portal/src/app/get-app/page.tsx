@@ -76,7 +76,7 @@ export default function GetAppPage() {
             <path d="M3.18 23.76c.35.19.74.24 1.14.14l.1-.06 11.34-6.55-2.49-2.49-10.09 8.96zM.77 1.5C.44 1.87.25 2.43.25 3.15v17.7c0 .72.19 1.28.53 1.65l.09.08 9.9-9.9v-.23L.77 1.5zM20.94 10.4l-2.74-1.58-2.76 2.76 2.76 2.76 2.76-1.6c.79-.45.79-1.89-.02-2.34zM4.32.1L15.66 6.65l-2.49 2.49L3.08.18l.1-.06C3.57-.02 3.97.03 4.32.1z" />
           </svg>
           <div className="text-left">
-            <div className="text-xs opacity-70">Google Play'den Al</div>
+            <div className="text-xs opacity-70">Google Play&apos;den Al</div>
             <div className="text-base font-semibold leading-tight">Google Play</div>
           </div>
         </a>
