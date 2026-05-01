@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { router } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 export default function OtpScreen() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
@@ -63,11 +63,11 @@ export default function OtpScreen() {
 
       <View style={styles.content}>
         <View style={styles.iconBox}>
-          <Text style={styles.icon}>📱</Text>
+          <Text style={styles.icon}>✉️</Text>
         </View>
-        <Text style={styles.title}>Doğrulama Kodu</Text>
+        <Text style={styles.title}>E-posta Doğrulama</Text>
         <Text style={styles.subtitle}>
-          Telefonunuza gönderilen 6 haneli kodu girin
+          E-posta adresinize gönderilen 6 haneli kodu girin
         </Text>
 
         <View style={styles.otpRow}>
@@ -99,7 +99,7 @@ export default function OtpScreen() {
         </TouchableOpacity>
 
         <View style={styles.resendRow}>
-          <Text style={styles.resendText}>Kod gelmedi mi? </Text>
+          <Text style={styles.resendText}>Mail gelmediyse spam'i kontrol edin veya </Text>
           {countdown > 0
             ? <Text style={styles.countdown}>{countdown} saniye</Text>
             : (
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxl,
   },
   icon: { fontSize: 40 },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 8 },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 8 },
   subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xxxl },
   otpRow: { flexDirection: 'row', gap: 10, marginBottom: Spacing.xxxl },
   otpInput: {

@@ -13,7 +13,7 @@ import { vaccinationsService, type ApiVaccination } from '@/services/vaccination
 import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
 import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
 import { speciesEmoji, speciesLabel, calculateAge, formatDate, formatDateShort, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
 import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 import { AddLabResultModal } from '@/components/AddLabResultModal'
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
   profileEmoji: { fontSize: 32 },
   profilePhoto: { width: '100%', height: '100%' },
   profileInfo: { flex: 1 },
-  profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },
+  profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   profileBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
   profileAge: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
   tabsScroll: { maxHeight: 60 },

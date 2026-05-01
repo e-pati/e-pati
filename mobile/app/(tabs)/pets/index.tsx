@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import { mockPets } from '@/lib/mock-data'
 import { speciesEmoji, speciesLabel, calculateAge } from '@/lib/utils'
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '@/constants/theme'
+import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 
 export default function PetsScreen() {
   const [query, setQuery] = useState('')
@@ -110,7 +110,7 @@ export default function PetsScreen() {
 }
 
 function PetCard({ pet }: { pet: ApiPet }) {
-  const species = pet.species.toLowerCase() as any
+  const species = pet.species.toLowerCase() as import('@/types').PetSpecies
   return (
     <TouchableOpacity
       style={styles.card}
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: Spacing.lg,
   },
   greeting: { fontSize: FontSize.sm, color: Colors.textMuted },
-  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text },
+  title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radius.full, paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm },
   addBtnText: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: '#fff' },
   errorBanner: {
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   avatarEmoji: { fontSize: 28 },
   avatarImage: { width: 56, height: 56, borderRadius: Radius.lg },
   cardInfo: { flex: 1 },
-  petName: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: Colors.text },
+  petName: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, fontFamily: Fonts.semibold, color: Colors.text },
   petBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
   petAge: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
   cardRight: { alignItems: 'flex-end', gap: 4 },
