@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import * as ImagePicker from 'expo-image-picker'
 import { petsService } from '@/services/pets.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
@@ -103,7 +104,8 @@ export default function NewPetScreen() {
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Geri</Text>
+          <Ionicons name="chevron-back" size={20} color={Colors.primary} />
+          <Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Yeni Hayvan Ekle</Text>
@@ -258,9 +260,9 @@ export default function NewPetScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
-  back: { marginBottom: Spacing.xxl },
+  container: { flex: 1, backgroundColor: '#F0FDF4' },
+  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: 40 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: Spacing.xl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
   title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 6 },
   subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, marginBottom: Spacing.xxl },

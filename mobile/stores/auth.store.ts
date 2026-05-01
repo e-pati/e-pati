@@ -10,13 +10,17 @@ export interface AuthUser {
 
 interface AuthStore {
   user: AuthUser | null
+  pendingEmail: string | null
   setUser: (user: AuthUser) => void
   clearUser: () => void
   loadUser: () => Promise<void>
+  setPendingEmail: (email: string) => void
+  clearPendingEmail: () => void
 }
 
 export const useAuthStore = create<AuthStore>(set => ({
   user: null,
+  pendingEmail: null,
 
   setUser: (user) => {
     set({ user })
@@ -34,4 +38,7 @@ export const useAuthStore = create<AuthStore>(set => ({
       if (raw) set({ user: JSON.parse(raw) })
     } catch {}
   },
+
+  setPendingEmail: (email) => set({ pendingEmail: email }),
+  clearPendingEmail: () => set({ pendingEmail: null }),
 }))
