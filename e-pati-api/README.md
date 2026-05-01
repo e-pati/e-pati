@@ -66,6 +66,18 @@ Swagger runs at:
 http://localhost:3000/docs
 ```
 
+## Owner Auth Flow
+
+Mobile registration now uses email OTP:
+
+```text
+POST /auth/register    { fullName, email, password, phone? } -> creates/updates a pending owner and sends OTP
+POST /auth/send-otp    { email } -> resends a 6-digit email OTP
+POST /auth/verify-otp  { email, code } -> verifies the owner and returns tokens
+```
+
+OTP codes are stored in Redis for 5 minutes and sent with Resend.
+
 ## Verification
 
 ```bash
