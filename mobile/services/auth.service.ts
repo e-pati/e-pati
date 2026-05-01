@@ -14,6 +14,11 @@ export interface AuthResponse {
   user: AuthUser
 }
 
+export interface RegisterResponse {
+  email: string
+  otpExpiresIn: number
+}
+
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
@@ -26,10 +31,19 @@ export const authService = {
   async register(payload: {
     fullName: string
     email: string
-    phone?: string
     password: string
-  }): Promise<AuthResponse> {
-    const { data } = await api.post<AuthResponse>('/auth/register', payload)
+  }): Promise<RegisterResponse> {
+    const { data } = await api.post<RegisterResponse>('/auth/register', payload)
+    return data
+  },
+
+  async sendOtp(email: string): Promise<{ email: string; otpExpiresIn: number }> {
+    const { data } = await api.post('/auth/send-otp', { email })
+    return data
+  },
+
+  async verifyOtp(email: string, code: string): Promise<AuthResponse> {
+    const { data } = await api.post<AuthResponse>('/auth/verify-otp', { email, code })
     await secureStorage.setItem('accessToken', data.accessToken)
     await secureStorage.setItem('refreshToken', data.refreshToken)
     await secureStorage.setItem('auth-user', JSON.stringify(data.user))

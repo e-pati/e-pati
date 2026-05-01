@@ -37,7 +37,7 @@ export default function RegisterScreen() {
         email: data.email,
         password: data.password,
       })
-      router.replace('/(auth)/otp')
+      router.replace({ pathname: '/(auth)/otp', params: { email: data.email } })
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       const text = Array.isArray(msg) ? msg[0] : (msg ?? 'Bilgileri kontrol edip tekrar deneyin.')
