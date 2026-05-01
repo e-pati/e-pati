@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native'
+import { DatePickerField } from '@/components/DatePickerField'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -209,13 +210,10 @@ export default function EditPetScreen() {
               control={control}
               name="birthDate"
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={styles.input}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={Colors.textMuted}
-                  keyboardType="numbers-and-punctuation"
+                <DatePickerField
+                  value={value || undefined}
+                  onChange={onChange}
+                  placeholder="Doğum tarihi seçin"
                 />
               )}
             />

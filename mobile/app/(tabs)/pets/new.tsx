@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image, Modal,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native'
-import DateTimePicker from '@react-native-community/datetimepicker'
+import { DatePickerField } from '@/components/DatePickerField'
 import { router } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,7 +35,6 @@ export default function NewPetScreen() {
   const qc = useQueryClient()
   const [done, setDone] = useState(false)
   const [photoUri, setPhotoUri] = useState<string | null>(null)
-  const [showDatePicker, setShowDatePicker] = useState(false)
 
   const pickPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -206,50 +205,11 @@ export default function NewPetScreen() {
               control={control}
               name="birthDate"
               render={({ field: { onChange, value } }) => (
-                <>
-                  {Platform.OS === 'web' ? (
-                    <input
-                      type="date"
-                      value={value ?? ''}
-                      onChange={e => onChange(e.target.value || undefined)}
-                      max={new Date().toISOString().split('T')[0]}
-                      style={{
-                        height: 48, borderRadius: Radius.md, borderWidth: 1,
-                        borderColor: Colors.border, paddingHorizontal: Spacing.md,
-                        fontSize: FontSize.base, color: value ? Colors.text : Colors.textMuted,
-                        backgroundColor: Colors.background, width: '100%',
-                        borderStyle: 'solid', fontFamily: 'inherit',
-                      } as any}
-                    />
-                  ) : (
-                    <>
-                      <TouchableOpacity
-                        style={[styles.input, styles.dateBtn]}
-                        onPress={() => setShowDatePicker(true)}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={value ? styles.dateText : styles.datePlaceholder}>
-                          {value
-                            ? new Date(value).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
-                            : 'Tarih seçin'
-                          }
-                        </Text>
-                      </TouchableOpacity>
-                      {showDatePicker && (
-                        <DateTimePicker
-                          value={value ? new Date(value) : new Date()}
-                          mode="date"
-                          display="spinner"
-                          maximumDate={new Date()}
-                          onChange={(_, date) => {
-                            setShowDatePicker(false)
-                            if (date) onChange(date.toISOString().split('T')[0])
-                          }}
-                        />
-                      )}
-                    </>
-                  )}
-                </>
+                <DatePickerField
+                  value={value || undefined}
+                  onChange={onChange}
+                  placeholder="Doğum tarihi seçin"
+                />
               )}
             />
           </View>
