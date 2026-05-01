@@ -238,7 +238,14 @@ export default function NewPetScreen() {
 
         <TouchableOpacity
           style={[styles.button, createPet.isPending && styles.buttonDisabled]}
-          onPress={handleSubmit(data => createPet.mutate({ ...data, photoUrl: photoUri ?? undefined }))}
+          onPress={handleSubmit(data => {
+            const isRealUrl = photoUri?.startsWith('http')
+            createPet.mutate({
+              ...data,
+              birthDate: data.birthDate || undefined,
+              photoUrl: isRealUrl ? (photoUri ?? undefined) : undefined,
+            })
+          })}
           disabled={createPet.isPending}
           activeOpacity={0.85}
         >
