@@ -20,6 +20,7 @@ import {
 import type { TokenPayload } from '../auth/types/token-payload';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ClaimPetDto } from './dto/claim-pet.dto';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { PetsService } from './pets.service';
@@ -41,6 +42,12 @@ export class PetsController {
   @ApiCreatedResponse({ description: 'Pet created for the current owner.' })
   create(@CurrentUser() user: TokenPayload, @Body() dto: CreatePetDto) {
     return this.petsService.create(user, dto);
+  }
+
+  @Post('claim')
+  @ApiOkResponse({ description: 'Pet claimed by microchip number.' })
+  claim(@CurrentUser() user: TokenPayload, @Body() dto: ClaimPetDto) {
+    return this.petsService.claim(user, dto);
   }
 
   @Get(':id/summary')
