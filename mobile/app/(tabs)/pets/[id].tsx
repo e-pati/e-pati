@@ -15,6 +15,7 @@ import { labResultsService, type ApiLabResult } from '@/services/lab-results.ser
 import { speciesEmoji, speciesLabel, calculateAge, formatDate, formatDateShort, isVaccinationOverdue, isVaccinationDueSoon } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import type { Examination, LabResult, Pet, PetSpecies, Prescription, Vaccination } from '@/types'
+import { Ionicons } from '@expo/vector-icons'
 import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 import { AddLabResultModal } from '@/components/AddLabResultModal'
 import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
@@ -22,13 +23,14 @@ import { AddExaminationModal } from '@/components/AddExaminationModal'
 import { Linking } from 'react-native'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
+type IconName = React.ComponentProps<typeof Ionicons>['name']
 
-const TABS: { key: Tab; label: string; emoji: string }[] = [
-  { key: 'summary', label: 'Özet', emoji: '📊' },
-  { key: 'exams', label: 'Muayene', emoji: '🩺' },
-  { key: 'vaccines', label: 'Aşı', emoji: '💉' },
-  { key: 'prescriptions', label: 'Reçete', emoji: '💊' },
-  { key: 'lab', label: 'Lab', emoji: '🔬' },
+const TABS: { key: Tab; label: string; icon: IconName; color: string }[] = [
+  { key: 'summary', label: 'Özet', icon: 'grid-outline', color: Colors.primary },
+  { key: 'exams', label: 'Muayene', icon: 'fitness-outline', color: Colors.primary },
+  { key: 'vaccines', label: 'Aşı', icon: 'medical-outline', color: '#3b82f6' },
+  { key: 'prescriptions', label: 'Reçete', icon: 'document-text-outline', color: '#8b5cf6' },
+  { key: 'lab', label: 'Lab', icon: 'flask-outline', color: '#ef4444' },
 ]
 
 export default function PetDetailScreen() {
@@ -126,52 +128,69 @@ export default function PetDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Üst bar */}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backText}>← Geri</Text>
-        </TouchableOpacity>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
-            onPress={() => router.push(`/(tabs)/pets/edit?id=${pet.id}`)}
-            style={styles.editBtn}
-          >
-            <Text style={styles.editBtnText}>Düzenle</Text>
+      {/* Hero Header */}
+      <View style={styles.hero}>
+        <View style={styles.heroTopBar}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.heroBack}>
+            <Ionicons name="chevron-back" size={20} color="#fff" />
+            <Text style={styles.heroBackText}>Geri</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={openQr} style={styles.qrBtn}>
-            <Text style={styles.qrBtnText}>QR</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              onPress={() => router.push(`/(tabs)/pets/edit?id=${pet.id}`)}
+              style={styles.heroActionBtn}
+            >
+              <Ionicons name="create-outline" size={16} color="#fff" />
+              <Text style={styles.heroActionText}>Düzenle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={openQr} style={[styles.heroActionBtn, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
+              <Ionicons name="qr-code-outline" size={16} color="#fff" />
+              <Text style={styles.heroActionText}>QR</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      {/* Profil kartı */}
-      <View style={styles.profileCard}>
-        <View style={styles.profileAvatar}>
-          {pet.photoUrl
-            ? <Image source={{ uri: pet.photoUrl }} style={styles.profilePhoto} />
-            : <Text style={styles.profileEmoji}>{speciesEmoji(pet.species)}</Text>
-          }
-        </View>
-        <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>{pet.name}</Text>
-          <Text style={styles.profileBreed}>{pet.breed} · {speciesLabel(pet.species)}</Text>
-          <Text style={styles.profileAge}>{calculateAge(pet.birthDate)}{pet.weight ? ` · ${pet.weight} kg` : ''}</Text>
+        <View style={styles.heroContent}>
+          <View style={styles.heroAvatar}>
+            {pet.photoUrl
+              ? <Image source={{ uri: pet.photoUrl }} style={styles.heroPhoto} />
+              : <Text style={styles.heroEmoji}>{speciesEmoji(pet.species)}</Text>
+            }
+          </View>
+          <View style={styles.heroInfo}>
+            <Text style={styles.heroName}>{pet.name}</Text>
+            <Text style={styles.heroBreed}>{pet.breed} · {speciesLabel(pet.species)}</Text>
+            <View style={styles.heroTags}>
+              <View style={styles.heroTag}>
+                <Ionicons name="time-outline" size={11} color="rgba(255,255,255,0.8)" />
+                <Text style={styles.heroTagText}>{calculateAge(pet.birthDate)}</Text>
+              </View>
+              {pet.microchipNo && (
+                <View style={styles.heroTag}>
+                  <Ionicons name="hardware-chip-outline" size={11} color="rgba(255,255,255,0.8)" />
+                  <Text style={styles.heroTagText} numberOfLines={1}>{pet.microchipNo.slice(0, 8)}…</Text>
+                </View>
+              )}
+            </View>
+          </View>
         </View>
       </View>
 
       {/* Sekmeler */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll} contentContainerStyle={styles.tabsRow}>
-        {TABS.map(tab => (
-          <TouchableOpacity
-            key={tab.key}
-            style={[styles.tabItem, activeTab === tab.key && styles.tabItemActive]}
-            onPress={() => setActiveTab(tab.key)}
-          >
-            <Text style={styles.tabEmoji}>{tab.emoji}</Text>
-            <Text style={[styles.tabLabel, activeTab === tab.key && styles.tabLabelActive]}>{tab.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <View style={styles.tabsWrapper}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsRow}>
+          {TABS.map(tab => (
+            <TouchableOpacity
+              key={tab.key}
+              style={[styles.tabItem, activeTab === tab.key && { ...styles.tabItemActive, borderColor: tab.color }]}
+              onPress={() => setActiveTab(tab.key)}
+            >
+              <Ionicons name={tab.icon} size={14} color={activeTab === tab.key ? tab.color : Colors.textMuted} />
+              <Text style={[styles.tabLabel, activeTab === tab.key && { color: tab.color }]}>{tab.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       {/* İçerik */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
@@ -185,14 +204,16 @@ export default function PetDetailScreen() {
           <View style={styles.section}>
             {/* İstatistikler */}
             <View style={styles.statsRow}>
-              {[
-                { label: 'Muayene', value: exams.length, emoji: '🩺', color: Colors.primary },
-                { label: 'Aşı', value: vaccines.length, emoji: '💉', color: '#3b82f6' },
-                { label: 'Reçete', value: prescriptions.length, emoji: '💊', color: '#8b5cf6' },
-                { label: 'Lab', value: labs.length, emoji: '🔬', color: '#ef4444' },
-              ].map(s => (
-                <View key={s.label} style={[styles.statCard, { borderColor: s.color + '30', backgroundColor: s.color + '10' }]}>
-                  <Text style={styles.statEmoji}>{s.emoji}</Text>
+              {([
+                { label: 'Muayene', value: exams.length, icon: 'fitness-outline' as IconName, color: Colors.primary },
+                { label: 'Aşı', value: vaccines.length, icon: 'medical-outline' as IconName, color: '#3b82f6' },
+                { label: 'Reçete', value: prescriptions.length, icon: 'document-text-outline' as IconName, color: '#8b5cf6' },
+                { label: 'Lab', value: labs.length, icon: 'flask-outline' as IconName, color: '#ef4444' },
+              ]).map(s => (
+                <View key={s.label} style={[styles.statCard, { borderColor: s.color + '25', backgroundColor: s.color + '0D' }]}>
+                  <View style={[styles.statIconBox, { backgroundColor: s.color + '18' }]}>
+                    <Ionicons name={s.icon} size={18} color={s.color} />
+                  </View>
                   <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
                   <Text style={styles.statLabel}>{s.label}</Text>
                 </View>
@@ -212,7 +233,7 @@ export default function PetDetailScreen() {
             {/* Aşı uyarısı */}
             {upcomingVaccines.length > 0 && (
               <View style={styles.alertCard}>
-                <Text style={styles.alertTitle}>⚠️ Aşı Uyarısı</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}><Ionicons name="warning-outline" size={16} color={Colors.warning} /><Text style={styles.alertTitleText}>Aşı Uyarısı</Text></View>
                 {upcomingVaccines.map(v => (
                   <Text key={v.id} style={styles.alertText}>
                     {v.vaccineName} — {isVaccinationOverdue(v.nextDate) ? 'Gecikmiş!' : 'Yakında'} ({formatDateShort(v.nextDate)})
@@ -224,7 +245,7 @@ export default function PetDetailScreen() {
             {/* Aktif ilaçlar */}
             {activeMedications.length > 0 && (
               <View style={[styles.infoCard, styles.medicationCard]}>
-                <Text style={styles.infoCardTitle}>💊 Aktif İlaçlar</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}><Ionicons name="medical-outline" size={16} color={Colors.primary} /><Text style={styles.infoCardTitle}>Aktif İlaçlar</Text></View>
                 {activeMedications.map((med, i) => (
                   <View key={i} style={styles.medicationRow}>
                     <View style={styles.medicationDot} />
@@ -242,7 +263,10 @@ export default function PetDetailScreen() {
             {/* Mikro çip */}
             {pet.microchipNo && (
               <View style={styles.infoCard}>
-                <Text style={styles.infoCardTitle}>🔢 Mikro Çip</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <Ionicons name="hardware-chip-outline" size={16} color={Colors.primary} />
+                    <Text style={styles.infoCardTitle}>Mikro Çip</Text>
+                  </View>
                 <Text style={styles.microchipNo}>{pet.microchipNo}</Text>
               </View>
             )}
@@ -308,8 +332,12 @@ export default function PetDetailScreen() {
                 return (
                   <View key={vac.id} style={styles.recordCard}>
                     <View style={styles.vaccineRow}>
-                      <View style={[styles.vaccineStatus, { backgroundColor: overdue ? Colors.danger + '20' : soon ? Colors.warning + '20' : Colors.primaryBg }]}>
-                        <Text style={{ fontSize: 18 }}>{overdue ? '⚠️' : soon ? '⏰' : '✅'}</Text>
+                      <View style={[styles.vaccineStatus, { backgroundColor: overdue ? Colors.danger + '18' : soon ? Colors.warning + '18' : Colors.primaryBg }]}>
+                        <Ionicons
+                          name={overdue ? 'warning-outline' : soon ? 'time-outline' : 'checkmark-circle-outline'}
+                          size={22}
+                          color={overdue ? Colors.danger : soon ? Colors.warning : Colors.primary}
+                        />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.vaccineName}>{vac.vaccineName}</Text>
@@ -527,68 +555,81 @@ function formatVetName(vet: ApiExamination['vet'] | ApiPrescription['vet']): str
   return `${vet.title ?? ''} ${vet.firstName ?? ''} ${vet.lastName ?? ''}`.trim() || 'Veteriner bilgisi yok'
 }
 
+const EMPTY_ICONS: Record<string, IconName> = {
+  '🩺': 'fitness-outline', '💉': 'medical-outline',
+  '💊': 'document-text-outline', '🔬': 'flask-outline',
+}
+
 function EmptyState({ emoji, text }: { emoji: string; text: string }) {
+  const iconName = EMPTY_ICONS[emoji] ?? 'help-circle-outline'
   return (
     <View style={styles.emptyState}>
-      <Text style={{ fontSize: 40, marginBottom: Spacing.md }}>{emoji}</Text>
+      <View style={styles.emptyIconBox}>
+        <Ionicons name={iconName} size={32} color={Colors.textMuted} />
+      </View>
       <Text style={{ fontSize: FontSize.base, color: Colors.textMuted }}>{text}</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
+  container: { flex: 1, backgroundColor: '#F0FDF4' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   loadingText: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: Spacing.md },
-  topBar: {
+
+  // Hero
+  hero: {
+    backgroundColor: Colors.primaryDark,
+    paddingBottom: Spacing.xl,
+    borderBottomLeftRadius: 28, borderBottomRightRadius: 28,
+  },
+  heroTopBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl, paddingTop: Spacing.md, paddingBottom: Spacing.sm,
+    paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing.sm,
   },
-  backBtn: {},
-  backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
-  editBtn: {
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border,
-    backgroundColor: Colors.background,
+  heroBack: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  heroBackText: { fontSize: FontSize.base, color: '#fff', fontWeight: FontWeight.medium },
+  heroActionBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.full,
+    paddingHorizontal: Spacing.md, paddingVertical: 6,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
   },
-  editBtnText: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
-  qrBtn: {
-    minWidth: 44, height: 32, borderRadius: Radius.full,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder,
-  },
-  qrBtnText: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.semibold },
-  profileCard: {
+  heroActionText: { fontSize: FontSize.xs, color: '#fff', fontWeight: FontWeight.semibold },
+  heroContent: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.lg,
-    marginHorizontal: Spacing.xl, marginBottom: Spacing.lg,
-    backgroundColor: Colors.background, borderRadius: Radius.xl,
-    padding: Spacing.lg,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
+    paddingHorizontal: Spacing.xl, paddingTop: Spacing.sm,
   },
-  profileAvatar: {
-    width: 64, height: 64, borderRadius: Radius.xl,
-    backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center',
-    overflow: 'hidden',
+  heroAvatar: {
+    width: 72, height: 72, borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.4)',
+    alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
-  profileEmoji: { fontSize: 32 },
-  profilePhoto: { width: '100%', height: '100%' },
-  profileInfo: { flex: 1 },
-  profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
-  profileBreed: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
-  profileAge: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
-  tabsScroll: { maxHeight: 60 },
-  tabsRow: { paddingHorizontal: Spacing.xl, gap: 8, paddingBottom: 8 },
-  tabItem: {
+  heroEmoji: { fontSize: 36 },
+  heroPhoto: { width: '100%', height: '100%' },
+  heroInfo: { flex: 1 },
+  heroName: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: '#fff' },
+  heroBreed: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
+  heroTags: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  heroTag: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: Spacing.md, paddingVertical: 8,
-    borderRadius: Radius.full, borderWidth: 1, borderColor: Colors.border,
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.full,
+    paddingHorizontal: 8, paddingVertical: 4,
   },
-  tabItemActive: { backgroundColor: Colors.primaryBg, borderColor: Colors.primaryBorder },
-  tabEmoji: { fontSize: 14 },
-  tabLabel: { fontSize: FontSize.xs, fontWeight: FontWeight.medium, color: Colors.textSecondary },
-  tabLabelActive: { color: Colors.primary },
+  heroTagText: { fontSize: 10, color: 'rgba(255,255,255,0.9)', fontWeight: FontWeight.medium },
+
+  // Tabs
+  tabsWrapper: { backgroundColor: '#fff', paddingVertical: Spacing.sm },
+  tabsRow: { paddingHorizontal: Spacing.xl, gap: 8 },
+  tabItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: Spacing.md, paddingVertical: 8,
+    borderRadius: Radius.full, borderWidth: 1.5, borderColor: Colors.border,
+    backgroundColor: '#fff',
+  },
+  tabItemActive: { backgroundColor: Colors.primaryBg },
+  tabLabel: { fontSize: FontSize.xs, fontWeight: FontWeight.semibold, color: Colors.textMuted },
   content: { flex: 1, paddingHorizontal: Spacing.xl, marginTop: Spacing.md },
   errorBanner: {
     backgroundColor: '#fef3cd', borderRadius: Radius.md,
@@ -599,10 +640,11 @@ const styles = StyleSheet.create({
   section: { gap: 12 },
   statsRow: { flexDirection: 'row', gap: 10 },
   statCard: {
-    flex: 1, borderRadius: Radius.lg, padding: Spacing.md,
+    flex: 1, borderRadius: Radius.xl, padding: Spacing.md,
     alignItems: 'center', borderWidth: 1,
+    shadowColor: '#059669', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
   },
-  statEmoji: { fontSize: 20, marginBottom: 4 },
+  statIconBox: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
   statValue: { fontSize: FontSize.xl, fontWeight: FontWeight.bold },
   statLabel: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
   infoCard: {
@@ -674,6 +716,11 @@ const styles = StyleSheet.create({
   },
   addBtnText: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.medium },
   emptyState: { alignItems: 'center', paddingTop: 48 },
+  emptyIconBox: {
+    width: 64, height: 64, borderRadius: 20, backgroundColor: '#F0FDF4',
+    alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.md,
+  },
+  alertTitleText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.warning },
   modalBackdrop: {
     flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.45)',
     alignItems: 'center', justifyContent: 'center', padding: Spacing.xl,
