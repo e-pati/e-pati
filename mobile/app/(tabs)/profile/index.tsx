@@ -7,6 +7,7 @@ import { router } from 'expo-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
 function useMobilePets() {
   const [count, setCount] = useState(0)
@@ -56,25 +57,25 @@ export default function ProfileScreen() {
     {
       title: 'Hesap',
       rows: [
-        { label: 'Kişisel Bilgiler', icon: '👤', onPress: () => Alert.alert('Yakında', 'Kişisel bilgi düzenleme özelliği yakında eklenecek.') },
-        { label: 'Güvenlik', icon: '🔒', onPress: () => Alert.alert('Güvenlik', 'Şifre değiştirmek için sistem yöneticinizle iletişime geçin.') },
-        { label: 'KVKK Ayarları', icon: '📋', onPress: () => Alert.alert('KVKK', 'Kişisel verilerinize ilişkin talepler için destek@epati.com adresine yazabilirsiniz.') },
+        { label: 'Kişisel Bilgiler', icon: 'person-outline' as const, color: Colors.primary, onPress: () => Alert.alert('Yakında', 'Kişisel bilgi düzenleme özelliği yakında eklenecek.') },
+        { label: 'Güvenlik', icon: 'lock-closed-outline' as const, color: '#6366f1', onPress: () => Alert.alert('Güvenlik', 'Şifre değiştirmek için sistem yöneticinizle iletişime geçin.') },
+        { label: 'KVKK Ayarları', icon: 'document-text-outline' as const, color: '#f59e0b', onPress: () => Alert.alert('KVKK', 'Kişisel verilerinize ilişkin talepler için destek@epati.com adresine yazabilirsiniz.') },
       ],
     },
     {
       title: 'Bildirimler',
       rows: [
-        { label: 'Tüm Bildirimler', icon: '🔔', toggle: true, value: notifications, onToggle: setNotifications },
-        { label: 'Aşı Uyarıları', icon: '💉', toggle: true, value: vaccinationAlerts, onToggle: setVaccinationAlerts },
-        { label: 'İlaç Hatırlatıcısı', icon: '💊', toggle: true, value: medicationReminders, onToggle: setMedicationReminders },
+        { label: 'Tüm Bildirimler', icon: 'notifications-outline' as const, color: Colors.primary, toggle: true, value: notifications, onToggle: setNotifications },
+        { label: 'Aşı Uyarıları', icon: 'medical-outline' as const, color: '#3b82f6', toggle: true, value: vaccinationAlerts, onToggle: setVaccinationAlerts },
+        { label: 'İlaç Hatırlatıcısı', icon: 'alarm-outline' as const, color: '#8b5cf6', toggle: true, value: medicationReminders, onToggle: setMedicationReminders },
       ],
     },
     {
       title: 'Uygulama',
       rows: [
-        { label: 'Yardım ve Destek', icon: '❓', onPress: () => Alert.alert('Destek', 'destek@epati.com adresine yazabilirsiniz.') },
-        { label: 'Gizlilik Politikası', icon: '🛡️', onPress: () => Alert.alert('Gizlilik', 'epati.com/gizlilik adresini ziyaret edin.') },
-        { label: 'Versiyon 1.0.0', icon: 'ℹ️', onPress: () => Alert.alert('e-Pati v1.0.0', 'Güncel sürümü kullanıyorsunuz.') },
+        { label: 'Yardım ve Destek', icon: 'help-circle-outline' as const, color: '#0ea5e9', onPress: () => Alert.alert('Destek', 'destek@epati.com adresine yazabilirsiniz.') },
+        { label: 'Gizlilik Politikası', icon: 'shield-checkmark-outline' as const, color: '#10b981', onPress: () => Alert.alert('Gizlilik', 'epati.com/gizlilik adresini ziyaret edin.') },
+        { label: 'Versiyon 1.0.0', icon: 'information-circle-outline' as const, color: '#94a3b8', onPress: () => Alert.alert('e-Pati v1.0.0', 'Güncel sürümü kullanıyorsunuz.') },
       ],
     },
   ]
@@ -132,8 +133,8 @@ export default function ProfileScreen() {
                     activeOpacity={row.toggle ? 1 : 0.7}
                   >
                     <View style={styles.rowLeft}>
-                      <View style={styles.rowIconBox}>
-                        <Text style={styles.rowIcon}>{row.icon}</Text>
+                      <View style={[styles.rowIconBox, { backgroundColor: (row.color ?? Colors.primary) + '18' }]}>
+                        <Ionicons name={row.icon} size={18} color={row.color ?? Colors.primary} />
                       </View>
                       <Text style={styles.rowLabel}>{row.label}</Text>
                     </View>
@@ -154,7 +155,7 @@ export default function ProfileScreen() {
           ))}
 
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85}>
-            <Text style={styles.logoutIcon}>🚪</Text>
+            <Ionicons name="log-out-outline" size={20} color={Colors.danger} />
             <Text style={styles.logoutText}>Çıkış Yap</Text>
           </TouchableOpacity>
         </View>
@@ -239,6 +240,6 @@ const styles = StyleSheet.create({
     shadowColor: Colors.danger, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 2,
     borderWidth: 1, borderColor: Colors.danger + '25',
   },
-  logoutIcon: { fontSize: 18 },
+  logoutIcon: { fontSize: 16 },
   logoutText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.danger },
 })
