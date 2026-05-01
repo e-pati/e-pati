@@ -23,6 +23,7 @@ export interface ApiPrescription {
     fullName?: string
     title?: string
   }
+  clinic?: { id: string; name: string }
 }
 
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }

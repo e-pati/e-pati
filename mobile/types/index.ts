@@ -26,6 +26,7 @@ export interface Examination {
   id: string
   petId: string
   vetName: string
+  clinicName?: string
   date: string
   complaint: string
   findings: string
@@ -41,6 +42,7 @@ export interface Vaccination {
   appliedDate: string
   nextDate: string
   manufacturer?: string
+  clinicName?: string
 }
 
 export interface Medication {
@@ -56,6 +58,7 @@ export interface Prescription {
   id: string
   petId: string
   vetName: string
+  clinicName?: string
   date: string
   medications: Medication[]
 }
@@ -66,6 +69,7 @@ export interface LabResult {
   testType: string
   date: string
   comment?: string
+  clinicName?: string
 }
 
 export interface AppNotification {

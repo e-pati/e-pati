@@ -8,6 +8,7 @@ export interface ApiLabResult {
   comment?: string
   createdAt?: string
   date?: string
+  clinic?: { id: string; name: string }
 }
 
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }

@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
-import { router } from 'expo-router'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Platform, Alert } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { authService } from '@/services/auth.service'
 
 export default function OtpScreen() {
+  const { email } = useLocalSearchParams<{ email: string }>()
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
   const [countdown, setCountdown] = useState(60)
+  const [errorMsg, setErrorMsg] = useState('')
   const inputs = useRef<(TextInput | null)[]>([])
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -21,10 +25,7 @@ export default function OtpScreen() {
     if (timerRef.current) clearInterval(timerRef.current)
     timerRef.current = setInterval(() => {
       setCountdown(c => {
-        if (c <= 1) {
-          clearInterval(timerRef.current!)
-          return 0
-        }
+        if (c <= 1) { clearInterval(timerRef.current!); return 0 }
         return c - 1
       })
     }, 1000)
@@ -35,6 +36,7 @@ export default function OtpScreen() {
     const next = [...otp]
     next[index] = digits.slice(-1)
     setOtp(next)
+    setErrorMsg('')
     if (digits && index < 5) inputs.current[index + 1]?.focus()
     if (next.every(d => d) && next.join('').length === 6) handleVerify(next.join(''))
   }
@@ -46,10 +48,39 @@ export default function OtpScreen() {
   }
 
   const handleVerify = async (code: string) => {
+    if (!email) return
     setLoading(true)
-    await new Promise(r => setTimeout(r, 800))
-    setLoading(false)
-    router.replace('/(tabs)/pets')
+    setErrorMsg('')
+    try {
+      await authService.verifyOtp(email, code)
+      router.replace('/(tabs)/pets')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      const text = msg ?? 'Kod hatalı veya süresi dolmuş.'
+      if (Platform.OS === 'web') {
+        setErrorMsg(text)
+      } else {
+        Alert.alert('Doğrulama başarısız', text)
+      }
+      setOtp(['', '', '', '', '', ''])
+      inputs.current[0]?.focus()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResend = async () => {
+    if (!email || resending) return
+    setResending(true)
+    try {
+      await authService.sendOtp(email)
+      startCountdown()
+      setErrorMsg('')
+    } catch {
+      setErrorMsg('Kod gönderilemedi, tekrar deneyin.')
+    } finally {
+      setResending(false)
+    }
   }
 
   const filled = otp.join('')
@@ -67,8 +98,15 @@ export default function OtpScreen() {
         </View>
         <Text style={styles.title}>E-posta Doğrulama</Text>
         <Text style={styles.subtitle}>
-          E-posta adresinize gönderilen 6 haneli kodu girin
+          <Text style={styles.emailText}>{email}</Text>
+          {'\n'}adresine gönderilen 6 haneli kodu girin
         </Text>
+
+        {errorMsg ? (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          </View>
+        ) : null}
 
         <View style={styles.otpRow}>
           {otp.map((digit, i) => (
@@ -99,12 +137,14 @@ export default function OtpScreen() {
         </TouchableOpacity>
 
         <View style={styles.resendRow}>
-          <Text style={styles.resendText}>Mail gelmediyse spam'i kontrol edin veya </Text>
+          <Text style={styles.resendText}>Spam klasörünü kontrol edin · </Text>
           {countdown > 0
-            ? <Text style={styles.countdown}>{countdown} saniye</Text>
+            ? <Text style={styles.countdown}>{countdown}s</Text>
             : (
-              <TouchableOpacity onPress={startCountdown}>
-                <Text style={styles.resendLink}>Tekrar Gönder</Text>
+              <TouchableOpacity onPress={handleResend} disabled={resending}>
+                <Text style={styles.resendLink}>
+                  {resending ? 'Gönderiliyor...' : 'Tekrar Gönder'}
+                </Text>
               </TouchableOpacity>
             )
           }
@@ -126,7 +166,13 @@ const styles = StyleSheet.create({
   },
   icon: { fontSize: 40 },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 8 },
-  subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xxxl },
+  subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.lg },
+  emailText: { fontWeight: FontWeight.semibold, color: Colors.text },
+  errorBox: {
+    backgroundColor: '#FEF2F2', borderRadius: Radius.md, padding: Spacing.md,
+    borderWidth: 1, borderColor: '#FECACA', marginBottom: Spacing.lg, width: '100%',
+  },
+  errorText: { color: '#DC2626', fontSize: FontSize.sm, textAlign: 'center' },
   otpRow: { flexDirection: 'row', gap: 10, marginBottom: Spacing.xxxl },
   otpInput: {
     width: 46, height: 56, borderRadius: Radius.md,
@@ -142,7 +188,7 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.4 },
   buttonText: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: '#fff' },
-  resendRow: { flexDirection: 'row', alignItems: 'center' },
+  resendRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' },
   resendText: { fontSize: FontSize.sm, color: Colors.textSecondary },
   countdown: { fontSize: FontSize.sm, color: Colors.textMuted },
   resendLink: { fontSize: FontSize.sm, color: Colors.primary, fontWeight: FontWeight.semibold },

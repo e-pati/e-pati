@@ -42,4 +42,9 @@ export const petsService = {
     const { data } = await api.get<{ token: string }>(`/pets/${id}/qr`)
     return data
   },
+
+  async claim(microchipNo: string): Promise<ApiPet> {
+    const { data } = await api.post<ApiPet>('/pets/claim', { microchipNo })
+    return data
+  },
 }

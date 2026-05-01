@@ -265,6 +265,11 @@ export default function PetDetailScreen() {
                     <Text style={styles.recordDate}>{formatDate(exam.date)}</Text>
                     <Text style={styles.recordVet}>{exam.vetName}</Text>
                   </View>
+                  {exam.clinicName && (
+                    <View style={styles.clinicBadge}>
+                      <Text style={styles.clinicBadgeText}>🏥 {exam.clinicName}</Text>
+                    </View>
+                  )}
                   {[
                     { label: 'Şikayet', value: exam.complaint },
                     { label: 'Bulgular', value: exam.findings },
@@ -309,6 +314,11 @@ export default function PetDetailScreen() {
                       <View style={{ flex: 1 }}>
                         <Text style={styles.vaccineName}>{vac.vaccineName}</Text>
                         {vac.manufacturer && <Text style={styles.vaccineManufacturer}>{vac.manufacturer}</Text>}
+                        {vac.clinicName && (
+                          <View style={styles.clinicBadge}>
+                            <Text style={styles.clinicBadgeText}>🏥 {vac.clinicName}</Text>
+                          </View>
+                        )}
                         <Text style={styles.vaccineDate}>Uygulandı: {formatDateShort(vac.appliedDate)}</Text>
                         <Text style={[styles.vaccineNext, { color: overdue ? Colors.danger : soon ? Colors.warning : Colors.textSecondary }]}>
                           Sonraki: {formatDateShort(vac.nextDate)} {overdue ? '(Gecikmiş!)' : ''}
@@ -462,6 +472,7 @@ function mapApiExamination(exam: ApiExamination): Examination {
     id: exam.id,
     petId: exam.petId,
     vetName: formatVetName(exam.vet),
+    clinicName: exam.clinic?.name,
     date: exam.date ?? exam.createdAt,
     complaint: exam.complaint,
     findings: exam.findings,
@@ -479,6 +490,7 @@ function mapApiVaccination(vaccination: ApiVaccination): Vaccination {
     appliedDate: vaccination.appliedAt,
     nextDate: vaccination.dueAt ?? vaccination.appliedAt,
     manufacturer: vaccination.notes ?? vaccination.lotNumber,
+    clinicName: vaccination.clinic?.name,
   }
 }
 
@@ -624,6 +636,11 @@ const styles = StyleSheet.create({
   recordHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   recordDate: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   recordVet: { fontSize: FontSize.xs, color: Colors.textMuted },
+  clinicBadge: {
+    alignSelf: 'flex-start', backgroundColor: Colors.primaryBg,
+    borderRadius: Radius.sm, paddingHorizontal: 8, paddingVertical: 3, marginBottom: 6,
+  },
+  clinicBadgeText: { fontSize: FontSize.xs, color: Colors.primary, fontWeight: FontWeight.medium },
   recordField: {},
   recordFieldLabel: { fontSize: FontSize.xs, fontWeight: FontWeight.semibold, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
   recordFieldValue: { fontSize: FontSize.sm, color: Colors.text, marginTop: 2, lineHeight: 20 },
