@@ -20,6 +20,8 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { SendOtpDto } from './dto/send-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import type { TokenPayload } from './types/token-payload';
 
@@ -38,12 +40,26 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiCreatedResponse({ description: 'Owner account created.' })
-  async register(
-    @Body() dto: RegisterDto,
+  @ApiCreatedResponse({ description: 'Owner account created pending OTP.' })
+  register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
+
+  @Post('send-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'OTP sent to owner email.' })
+  sendOtp(@Body() dto: SendOtpDto) {
+    return this.authService.sendOtp(dto);
+  }
+
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Owner email verified and logged in.' })
+  async verifyOtp(
+    @Body() dto: VerifyOtpDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const auth = await this.authService.register(dto);
+    const auth = await this.authService.verifyOtp(dto);
     this.setRefreshCookie(response, auth.refreshToken);
     return this.withoutRefreshToken(auth);
   }

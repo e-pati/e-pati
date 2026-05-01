@@ -33,19 +33,20 @@ enum NotificationStatus {
 }
 
 model Owner {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  phone         String?        @unique
-  passwordHash  String
-  fullName      String
-  role          Role           @default(OWNER)
-  pets          Pet[]
-  refreshTokens RefreshToken[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  deletedAt     DateTime?
+  id              String         @id @default(cuid())
+  email           String         @unique
+  phone           String?        @unique
+  passwordHash    String
+  fullName        String
+  role            Role           @default(OWNER)
+  emailVerifiedAt DateTime?
+  pets            Pet[]
+  refreshTokens   RefreshToken[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
 }
 
 model Clinic {

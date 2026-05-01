@@ -86,6 +86,7 @@ async function main() {
       passwordHash,
       fullName: 'Burak Yilmaz',
       role: Role.OWNER,
+      emailVerifiedAt: now,
       deletedAt: null,
     },
     create: {
@@ -95,6 +96,7 @@ async function main() {
       passwordHash,
       fullName: 'Burak Yilmaz',
       role: Role.OWNER,
+      emailVerifiedAt: now,
     },
   });
 
