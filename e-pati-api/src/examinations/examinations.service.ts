@@ -30,6 +30,7 @@ export class ExaminationsService {
     const [items, total] = await Promise.all([
       this.prisma.examination.findMany({
         where,
+        include: { clinic: { select: { id: true, name: true } } },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
@@ -54,6 +55,7 @@ export class ExaminationsService {
         assessment: dto.assessment,
         plan: dto.plan,
       },
+      include: { clinic: { select: { id: true, name: true } } },
     });
 
     await this.prisma.notification.create({
@@ -72,7 +74,7 @@ export class ExaminationsService {
   async findOne(id: string, user: TokenPayload): Promise<Examination> {
     const examination = await this.prisma.examination.findFirst({
       where: { id, deletedAt: null },
-      include: { pet: true },
+      include: { pet: true, clinic: { select: { id: true, name: true } } },
     });
 
     if (!examination) {
@@ -101,6 +103,7 @@ export class ExaminationsService {
         assessment: dto.assessment,
         plan: dto.plan,
       },
+      include: { clinic: { select: { id: true, name: true } } },
     });
 
     await this.prisma.auditLog.create({

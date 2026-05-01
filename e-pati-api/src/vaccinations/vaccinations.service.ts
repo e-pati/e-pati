@@ -30,6 +30,7 @@ export class VaccinationsService {
     const [items, total] = await Promise.all([
       this.prisma.vaccination.findMany({
         where,
+        include: { clinic: { select: { id: true, name: true } } },
         orderBy: [{ dueAt: 'asc' }, { appliedAt: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
@@ -55,6 +56,7 @@ export class VaccinationsService {
         dueAt: dto.dueAt ? new Date(dto.dueAt) : undefined,
         notes: dto.notes,
       },
+      include: { clinic: { select: { id: true, name: true } } },
     });
 
     if (vaccination.dueAt) {
@@ -88,6 +90,7 @@ export class VaccinationsService {
             ? { clinicId: user.clinicId }
             : {}),
       },
+      include: { clinic: { select: { id: true, name: true } } },
       orderBy: { dueAt: 'asc' },
     });
   }
@@ -95,7 +98,7 @@ export class VaccinationsService {
   async findOne(id: string, user: TokenPayload): Promise<Vaccination> {
     const vaccination = await this.prisma.vaccination.findFirst({
       where: { id, deletedAt: null },
-      include: { pet: true },
+      include: { pet: true, clinic: { select: { id: true, name: true } } },
     });
 
     if (!vaccination) {
@@ -119,6 +122,7 @@ export class VaccinationsService {
         dueAt: dto.dueAt ? new Date(dto.dueAt) : undefined,
         notes: dto.notes,
       },
+      include: { clinic: { select: { id: true, name: true } } },
     });
   }
 
