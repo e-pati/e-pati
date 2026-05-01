@@ -1,6 +1,6 @@
 # e-Pati Projesi — AI Devir Teslim Promptu
 
-> **Son güncelleme:** 1 Mayıs 2026 — Render backend bağlandı, web uyumluluğu tamamlandı
+> **Son güncelleme:** 30 Nisan 2026 — Mobil ekranlar emerald tema ile yeniden tasarlandı, OTP e-posta bug'ı düzeltildi
 
 ## Sen Kimsin, Ne Yapacaksın?
 
@@ -75,7 +75,7 @@ Burak ile birlikte **e-Pati** adlı evcil hayvan sağlık uygulaması geliştiri
 | Onboarding (3 slide) | ✅ |
 | Login | API bağlı |
 | Register | API bağlı |
-| OTP | Mock (SMS backend gerekli) |
+| OTP | Gerçek API bağlı (authService.verifyOtp / sendOtp), e-posta auth store'da tutulur |
 | Pets listesi | API bağlı, pull-to-refresh, boş durum CTA |
 | Pet detay | API bağlı, 5 sekme, QR modal + Paylaş |
 | Yeni hayvan | API bağlı |
@@ -105,8 +105,8 @@ GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferenc
 
 ## Yapılabilecek Sonraki İşler
 
-1. **SMS/OTP gerçek entegrasyon** — OTP ekranı mock, backend'de SMS servisi (Netgsm) gerekli
-2. **Erol'dan beklenenler** — Resend API key, Firebase (push notif), R2 (dosya upload)
+1. **OTP e-posta tüm kullanıcılara:** Şu an Resend ücretsiz plan sadece hesap sahibine gönderiyor. Erol'un özel domain + Resend key eklemesi gerekiyor
+2. **Erol'dan beklenenler** — Firebase (push notif), R2 (dosya upload), Resend domain doğrulaması
 3. **Erol'un ileride ekleyebilecekleri** — randevu sistemi, AI semptom yönlendirme
 
 ## Tamamlanan (1 Mayıs 2026)
@@ -117,7 +117,19 @@ GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferenc
 - Telefon numarası otomatik +90 formatına normalize ediliyor
 - Vaccinations + examinations/new sayfaları useAllClinicPatients() ile owner bilgisi gösteriyor
 
-## Tamamlanan (30 Nisan 2026)
+## Tamamlanan (30 Nisan 2026 — 2. batch)
+
+- Tüm mobil ekranlar emerald tema ile yeniden tasarlandı (F0FDF4 arka plan, Ionicons)
+- **OTP e-posta bug'ı düzeltildi:** e-posta artık Zustand `pendingEmail` store'da tutulur (URL param yerine)
+- Auth store: `pendingEmail` + `setPendingEmail` + `clearPendingEmail` eklendi
+- Login: emerald hero section, paw ikonu, beyaz kart form
+- Register: telefon alanı kaldırıldı, 4 alan (ad/soyad/e-posta/şifre), Ionicons geri butonu
+- New/Edit pet: DatePickerField bileşeni, Ionicons geri butonu
+- Portal landing: istatistikler güncellendi (Beta / 7/24 / 100% / Ücretsiz)
+- `app.json`: expo-font ve datetimepicker plugin'leri kaydedildi
+- Portal Vercel deploy: güncel (`https://e-pati.vercel.app`)
+
+## Tamamlanan (30 Nisan 2026 — 1. batch)
 
 - Dashboard → `GET /clinics/:id/dashboard` (tek call, gerçek klinik statsları)
 - Patients → `GET /clinics/:id/patients` (server-side pagination, owner bilgisi dahil)
