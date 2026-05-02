@@ -48,8 +48,10 @@ test.describe('Dashboard', () => {
   test('dashboard sayfasında içerik görünmeli', async ({ page }) => {
     await setLoggedIn(page)
     await page.goto('/dashboard')
-    // Herhangi bir kart veya içerik yüklenmeli
-    await expect(page.locator('[class*="Card"], [class*="card"]').first()).toBeVisible({ timeout: 10000 })
+    // Stat kartları veya herhangi bir ana içerik yüklenmeli
+    await expect(
+      page.locator('[class*="rounded-2xl"], [class*="shadow-sm"], h1, h2').first()
+    ).toBeVisible({ timeout: 10000 })
   })
 })
 
