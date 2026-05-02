@@ -6,11 +6,15 @@ import {
 import { Pet, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
+import { UploadsService } from '../uploads/uploads.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 
 @Injectable()
 export class PrescriptionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadsService: UploadsService,
+  ) {}
 
   async create(dto: CreatePrescriptionDto, user: TokenPayload) {
     this.ensureVeterinarian(user);
@@ -68,10 +72,15 @@ export class PrescriptionsService {
 
   async getPdfUrl(id: string, user: TokenPayload) {
     const prescription = await this.findOne(id, user);
+    const url = prescription.pdfUrl
+      ? await this.uploadsService.createPresignedDownloadUrl(
+          prescription.pdfUrl,
+        )
+      : null;
 
     return {
       prescriptionId: prescription.id,
-      url: prescription.pdfUrl,
+      url: url ?? prescription.pdfUrl,
       status: prescription.pdfUrl ? 'ready' : 'pending_pdf_generation',
     };
   }
