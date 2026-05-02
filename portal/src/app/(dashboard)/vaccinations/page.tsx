@@ -74,39 +74,38 @@ export default function VaccinationsPage() {
         {/* Özet kartları */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Gecikmiş', value: overdueCount, color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20', icon: AlertTriangle, mode: 'overdue' as FilterMode },
-            { label: 'Yaklaşan (30 gün)', value: upcomingCount, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', icon: Clock, mode: 'upcoming' as FilterMode },
-            { label: 'Toplam', value: enriched.length, color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20', icon: Syringe, mode: 'all' as FilterMode },
+            { label: 'Gecikmiş', value: overdueCount, color: 'text-destructive', iconBg: 'bg-destructive/10', icon: AlertTriangle, mode: 'overdue' as FilterMode },
+            { label: 'Yaklaşan (30 gün)', value: upcomingCount, color: 'text-amber-600', iconBg: 'bg-amber-100', icon: Clock, mode: 'upcoming' as FilterMode },
+            { label: 'Toplam Kayıt', value: enriched.length, color: 'text-primary', iconBg: 'bg-primary/10', icon: Syringe, mode: 'all' as FilterMode },
           ].map(s => (
             <button
               key={s.label}
               onClick={() => setFilter(s.mode)}
-              className={`text-left p-4 rounded-xl border transition-all ${s.bg} ${s.border} ${filter === s.mode ? 'ring-2 ring-offset-1 ring-primary/40' : 'hover:opacity-80'}`}
+              className={`text-left p-5 bg-white rounded-2xl shadow-sm border transition-all ${filter === s.mode ? 'border-primary/30 ring-2 ring-primary/10' : 'border-gray-100/50 hover:shadow-md'}`}
             >
-              <div className="flex items-center gap-2 mb-2">
+              <div className={`w-9 h-9 rounded-xl ${s.iconBg} flex items-center justify-center mb-3`}>
                 <s.icon className={`w-4 h-4 ${s.color}`} />
-                <span className="text-xs text-muted-foreground">{s.label}</span>
               </div>
               <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
+              <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
             </button>
           ))}
         </div>
 
-        {/* Filtre butonları */}
+        {/* Filtre pill'leri */}
         <div className="flex gap-2">
           {([
             { key: 'all', label: 'Tümü' },
             { key: 'overdue', label: `Gecikmiş (${overdueCount})` },
             { key: 'upcoming', label: `Yaklaşan (${upcomingCount})` },
           ] as const).map(f => (
-            <Button
+            <button
               key={f.key}
-              variant={filter === f.key ? 'default' : 'outline'}
-              size="sm"
               onClick={() => setFilter(f.key)}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${filter === f.key ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted-foreground border border-gray-200 hover:border-primary/30 hover:text-foreground'}`}
             >
               {f.label}
-            </Button>
+            </button>
           ))}
         </div>
 
@@ -133,7 +132,7 @@ export default function VaccinationsPage() {
         ) : (
           <div className="space-y-3">
             {paginated.map(v => (
-              <Card key={v.id} className={`border-border/50 transition-colors ${v.overdue ? 'border-destructive/30 bg-destructive/[0.02]' : v.soon ? 'border-amber-300/50 bg-amber-50/30' : ''}`}>
+              <Card key={v.id} className={`shadow-sm border-0 transition-all rounded-2xl ${v.overdue ? 'bg-red-50/70' : v.soon ? 'bg-amber-50/60' : 'bg-white'}`}>
                 <CardContent className="p-4 flex items-center gap-4">
                   {/* Durum ikonu */}
                   <div className={`p-2.5 rounded-xl flex-shrink-0 ${v.overdue ? 'bg-destructive/10' : v.soon ? 'bg-amber-100' : 'bg-primary/10'}`}>

@@ -72,7 +72,7 @@ function PatientsContent() {
               value={query}
               onChange={handleQueryChange}
               placeholder="Ad, sahip, mikro çip no..."
-              className="pl-9"
+              className="pl-9 rounded-full bg-gray-50 border-gray-100 focus-visible:bg-white focus-visible:border-primary/30"
             />
           </div>
           <Select value={speciesFilter} onValueChange={handleSpeciesChange}>
@@ -139,7 +139,7 @@ function PatientsContent() {
               const ownerName = pet.owner?.fullName ?? '—'
               return (
                 <Link href={`/patients/${pet.id}`} key={pet.id}>
-                  <Card className="border-border/50 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
+                  <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group rounded-2xl">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">

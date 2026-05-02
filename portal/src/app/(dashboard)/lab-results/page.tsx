@@ -110,7 +110,7 @@ function LabResultsContent() {
         ) : (
           <div className="space-y-3">
             {paginated.map(lab => (
-              <Card key={lab.id} className="border-border/50 hover:shadow-sm transition-all">
+              <Card key={lab.id} className="bg-white border-0 shadow-sm hover:shadow-md transition-all rounded-2xl">
                 <CardContent className="p-4 flex items-center gap-4">
                   {/* İkon */}
                   <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center flex-shrink-0">

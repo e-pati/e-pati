@@ -103,7 +103,7 @@ function PrescriptionsContent() {
         ) : (
           <div className="space-y-3">
             {paginated.map(rx => (
-              <Card key={rx.id} className="border-border/50 hover:shadow-sm transition-all">
+              <Card key={rx.id} className="bg-white border-0 shadow-sm hover:shadow-md transition-all rounded-2xl">
                 <CardContent className="p-4 flex items-start gap-4">
                   {/* İkon */}
                   <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center flex-shrink-0">
