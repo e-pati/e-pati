@@ -6,12 +6,16 @@ import {
 import { LabResult, Pet, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
+import { UploadsService } from '../uploads/uploads.service';
 import { CreateLabResultDto } from './dto/create-lab-result.dto';
 import { ListLabResultsQueryDto } from './dto/list-lab-results-query.dto';
 
 @Injectable()
 export class LabResultsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadsService: UploadsService,
+  ) {}
 
   async create(dto: CreateLabResultDto, user: TokenPayload) {
     this.ensureClinicStaff(user);
@@ -73,12 +77,15 @@ export class LabResultsService {
 
   async getFile(id: string, user: TokenPayload) {
     const labResult = await this.findOne(id, user);
+    const signedUrl = await this.uploadsService.createPresignedDownloadUrl(
+      labResult.fileUrl,
+    );
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 15);
 
     return {
       labResultId: labResult.id,
-      url: labResult.fileUrl,
+      url: signedUrl ?? labResult.fileUrl,
       expiresAt,
     };
   }
