@@ -1,17 +1,55 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
+  OnModuleDestroy,
+  OnModuleInit,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { NotificationChannel, Prisma, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListNotificationsQueryDto } from './dto/list-notifications-query.dto';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
+import { PushNotificationsService } from './push-notifications.service';
+
+type CreateOwnerNotificationInput = {
+  ownerId: string;
+  title: string;
+  body: string;
+  payload?: Prisma.InputJsonObject;
+  scheduledAt?: Date;
+};
 
 @Injectable()
-export class NotificationsService {
-  constructor(private readonly prisma: PrismaService) {}
+export class NotificationsService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(NotificationsService.name);
+  private scheduledWorker?: NodeJS.Timeout;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pushNotifications: PushNotificationsService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  onModuleInit() {
+    if (
+      this.configService.get<string>('NOTIFICATION_WORKER_ENABLED') === 'false'
+    ) {
+      return;
+    }
+
+    this.scheduledWorker = setInterval(() => {
+      void this.sendDueScheduledNotifications();
+    }, 60_000);
+  }
+
+  onModuleDestroy() {
+    if (this.scheduledWorker) {
+      clearInterval(this.scheduledWorker);
+    }
+  }
 
   async findAll(query: ListNotificationsQueryDto, user: TokenPayload) {
     this.ensureOwner(user);
@@ -55,15 +93,107 @@ export class NotificationsService {
   updatePreferences(dto: UpdateNotificationPreferencesDto, user: TokenPayload) {
     this.ensureOwner(user);
 
-    return {
-      ownerId: user.sub,
-      preferences: {
-        push: dto.push ?? true,
-        email: dto.email ?? true,
-        sms: dto.sms ?? false,
+    return this.prisma.owner.update({
+      where: { id: user.sub },
+      data: {
+        pushEnabled: dto.push ?? true,
+        pushToken: dto.pushToken,
       },
-      persistence: 'pending_schema_support',
-    };
+      select: {
+        id: true,
+        pushEnabled: true,
+        pushToken: true,
+      },
+    });
+  }
+
+  async createOwnerNotification(input: CreateOwnerNotificationInput) {
+    const notification = await this.prisma.notification.create({
+      data: {
+        ownerId: input.ownerId,
+        channel: NotificationChannel.PUSH,
+        title: input.title,
+        body: input.body,
+        payload: input.payload,
+        scheduledAt: input.scheduledAt,
+      },
+    });
+
+    if (input.scheduledAt && input.scheduledAt > new Date()) {
+      return notification;
+    }
+
+    return this.sendExistingNotification(notification.id);
+  }
+
+  async sendDueScheduledNotifications(limit = 25): Promise<void> {
+    const notifications = await this.prisma.notification.findMany({
+      where: {
+        channel: NotificationChannel.PUSH,
+        status: 'PENDING',
+        scheduledAt: { lte: new Date() },
+      },
+      orderBy: { scheduledAt: 'asc' },
+      take: limit,
+    });
+
+    await Promise.all(
+      notifications.map((notification) =>
+        this.sendExistingNotification(notification.id),
+      ),
+    );
+  }
+
+  private async sendExistingNotification(notificationId: string) {
+    const notification = await this.prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
+
+    if (!notification || notification.status !== 'PENDING') {
+      return notification;
+    }
+
+    const owner = await this.prisma.owner.findFirst({
+      where: { id: notification.ownerId, deletedAt: null },
+      select: { pushToken: true, pushEnabled: true },
+    });
+
+    if (!owner?.pushToken || !owner.pushEnabled) {
+      return notification;
+    }
+
+    try {
+      await this.pushNotifications.send({
+        token: owner.pushToken,
+        title: notification.title,
+        body: notification.body,
+        data: this.toRecord(notification.payload),
+      });
+
+      return this.prisma.notification.update({
+        where: { id: notification.id },
+        data: { status: 'SENT', sentAt: new Date() },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Push notification failed for ${notification.id}: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
+
+      return this.prisma.notification.update({
+        where: { id: notification.id },
+        data: { status: 'FAILED' },
+      });
+    }
+  }
+
+  private toRecord(payload: unknown): Record<string, unknown> | undefined {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return undefined;
+    }
+
+    return payload as Record<string, unknown>;
   }
 
   private ensureOwner(user: TokenPayload): void {

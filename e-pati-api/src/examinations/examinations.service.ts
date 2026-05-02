@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Examination, Pet, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExaminationDto } from './dto/create-examination.dto';
 import { ListExaminationsQueryDto } from './dto/list-examinations-query.dto';
@@ -12,7 +13,10 @@ import { UpdateExaminationDto } from './dto/update-examination.dto';
 
 @Injectable()
 export class ExaminationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async findAll(query: ListExaminationsQueryDto, user: TokenPayload) {
     const page = query.page ?? 1;
@@ -58,14 +62,11 @@ export class ExaminationsService {
       include: { clinic: { select: { id: true, name: true } } },
     });
 
-    await this.prisma.notification.create({
-      data: {
-        ownerId: pet.ownerId,
-        channel: 'PUSH',
-        title: 'Yeni muayene kaydı',
-        body: `${pet.name} için yeni muayene kaydı oluşturuldu.`,
-        payload: { examinationId: examination.id, petId: pet.id },
-      },
+    await this.notificationsService.createOwnerNotification({
+      ownerId: pet.ownerId,
+      title: 'Yeni muayene kaydı',
+      body: `${pet.name} için yeni muayene kaydı oluşturuldu.`,
+      payload: { examinationId: examination.id, petId: pet.id },
     });
 
     return examination;
