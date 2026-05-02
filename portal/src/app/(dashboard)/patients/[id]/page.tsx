@@ -131,80 +131,96 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        {/* Üst bilgi kartı */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Hayvan profili */}
-          <Card className="border-border/50">
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-5xl mb-3 overflow-hidden">
-                  {pet.photoUrl
-                    ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
-                    : speciesEmoji(petSpecies)
-                  }
-                </div>
+        {/* Hero profil kartı */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+          {/* Üst bant */}
+          <div className="h-20 bg-gradient-to-r from-primary/80 to-primary relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="absolute w-8 h-8 rounded-full bg-white" style={{ top: `${(i * 37) % 80}%`, left: `${(i * 53 + 10) % 100}%` }} />
+              ))}
+            </div>
+          </div>
+          <div className="px-6 pb-6">
+            {/* Avatar + ad */}
+            <div className="flex items-end gap-5 -mt-10 mb-5">
+              <div className="w-20 h-20 rounded-2xl bg-white shadow-md border-4 border-white flex items-center justify-center text-5xl overflow-hidden flex-shrink-0">
+                {pet.photoUrl
+                  ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
+                  : speciesEmoji(petSpecies)
+                }
+              </div>
+              <div className="pb-1">
                 <h2 className="text-xl font-bold text-foreground">{pet.name}</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">{pet.breed ?? 'Irk belirtilmemiş'}</p>
-                <Badge className="mt-2 bg-primary/10 text-primary border-0 hover:bg-primary/20">
-                  {speciesLabel(petSpecies)}
-                </Badge>
+                <p className="text-sm text-muted-foreground">{pet.breed ?? 'Irk belirtilmemiş'}</p>
               </div>
+              <div className="ml-auto pb-1 flex gap-2">
+                <Badge className="bg-primary/10 text-primary border-0">{speciesLabel(petSpecies)}</Badge>
+              </div>
+            </div>
 
-              <div className="space-y-3">
-                {pet.birthDate && (
-                  <>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-muted-foreground">Doğum:</span>
-                      <span className="font-medium ml-auto">{formatDate(pet.birthDate)}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-muted-foreground">Yaş:</span>
-                      <span className="font-medium ml-auto">{calculateAge(pet.birthDate)}</span>
-                    </div>
-                  </>
-                )}
-                {pet.microchipNo && (
-                  <div className="flex items-center gap-3 text-sm">
-                    <Cpu className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                    <span className="text-muted-foreground">Mikro Çip:</span>
-                    <span className="font-mono text-xs font-medium ml-auto">{pet.microchipNo}</span>
+            {/* Info satırları */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {pet.birthDate && (
+                <>
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Doğum Tarihi</div>
+                    <div className="text-sm font-semibold text-foreground">{formatDate(pet.birthDate)}</div>
                   </div>
-                )}
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <div className="text-xs text-muted-foreground mb-1">Yaş</div>
+                    <div className="text-sm font-semibold text-foreground">{calculateAge(pet.birthDate)}</div>
+                  </div>
+                </>
+              )}
+              {pet.microchipNo && (
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <div className="text-xs text-muted-foreground mb-1">Mikro Çip</div>
+                  <div className="text-xs font-mono font-semibold text-foreground truncate">{pet.microchipNo}</div>
+                </div>
+              )}
+              <div className="bg-gray-50 rounded-xl p-3">
+                <div className="text-xs text-muted-foreground mb-1">Kayıt Tarihi</div>
+                <div className="text-sm font-semibold text-foreground">{formatDate(pet.createdAt)}</div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        </div>
 
+        {/* Sahip + özet kartları */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sahip bilgisi */}
-          <Card className="border-border/50">
+          <Card className="bg-white border-0 shadow-sm rounded-2xl">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Sahip Bilgileri
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <div className="text-base font-semibold text-foreground">
-                  {ownerName}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-primary">
+                    {ownerName.slice(0, 2).toUpperCase()}
+                  </span>
                 </div>
+                <div className="text-sm font-semibold text-foreground">{ownerName}</div>
               </div>
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {ownerPhone && (
-                  <a href={`tel:${ownerPhone}`} className="flex items-center gap-3 text-sm hover:text-primary transition-colors">
+                  <a href={`tel:${ownerPhone}`} className="flex items-center gap-3 text-sm hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50">
                     <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span>{ownerPhone}</span>
                   </a>
                 )}
                 {ownerEmail && (
-                  <a href={`mailto:${ownerEmail}`} className="flex items-center gap-3 text-sm hover:text-primary transition-colors">
+                  <a href={`mailto:${ownerEmail}`} className="flex items-center gap-3 text-sm hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50">
                     <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                    <span>{ownerEmail}</span>
+                    <span className="truncate">{ownerEmail}</span>
                   </a>
                 )}
                 {!ownerPhone && !ownerEmail && (
-                  <div className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground p-2">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span>İletişim bilgisi bulunmuyor</span>
                   </div>
                 )}
@@ -213,7 +229,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </Card>
 
           {/* Özet */}
-          <Card className="border-border/50">
+          <Card className="bg-white border-0 shadow-sm rounded-2xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Sağlık Özeti
@@ -240,7 +256,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Sekmeli detay */}
         <Tabs defaultValue="examinations">
-          <TabsList className="border border-border/50 bg-muted/50 p-1">
+          <TabsList className="bg-white border border-gray-100 shadow-sm p-1 rounded-xl">
             <TabsTrigger value="examinations" className="gap-2 text-xs">
               <Stethoscope className="w-3.5 h-3.5" />
               Muayeneler ({examinations.length})
@@ -273,7 +289,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               <EmptyState icon={Stethoscope} message="Henüz muayene kaydı yok" />
             ) : (
               examinations.map(exam => (
-                <Card key={exam.id} className="border-border/50">
+                <Card key={exam.id} className="bg-white border-0 shadow-sm rounded-2xl">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -325,7 +341,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                   const overdue = vac.dueAt ? isVaccinationOverdue(vac.dueAt) : false
                   const soon = vac.dueAt ? isVaccinationDueSoon(vac.dueAt) : false
                   return (
-                    <Card key={vac.id} className="border-border/50">
+                    <Card key={vac.id} className="bg-white border-0 shadow-sm rounded-2xl">
                       <CardContent className="p-4 flex items-center gap-4">
                         <div className={`p-2 rounded-xl ${overdue ? 'bg-destructive/10' : soon ? 'bg-amber-500/10' : 'bg-primary/10'}`}>
                           {overdue
@@ -368,7 +384,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               <EmptyState icon={FileText} message="Henüz reçete yok" />
             ) : (
               prescriptions.map(rx => (
-                <Card key={rx.id} className="border-border/50">
+                <Card key={rx.id} className="bg-white border-0 shadow-sm rounded-2xl">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-sm font-semibold">{formatDate(prescriptionDate(rx))}</div>
@@ -416,7 +432,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               <EmptyState icon={FlaskConical} message="Henüz lab sonucu yok" />
             ) : (
               labResults.map(lab => (
-                <Card key={lab.id} className="border-border/50">
+                <Card key={lab.id} className="bg-white border-0 shadow-sm rounded-2xl">
                   <CardContent className="p-4 flex items-center gap-4">
                     <div className="p-2 rounded-xl bg-rose-500/10">
                       <FlaskConical className="w-4 h-4 text-rose-500" />
@@ -608,7 +624,7 @@ function PatientDetailSkeleton() {
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, index) => (
-            <Card key={index} className="border-border/50">
+            <Card key={index} className="bg-white border-0 shadow-sm rounded-2xl">
               <CardContent className="p-6 space-y-4">
                 <Skeleton className="h-16 w-16 rounded-2xl mx-auto" />
                 <Skeleton className="h-5 w-32 mx-auto" />
