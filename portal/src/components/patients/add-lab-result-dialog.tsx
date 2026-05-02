@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -9,12 +9,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useQueryClient } from '@tanstack/react-query'
 import { labResultsService } from '@/services/lab-results.service'
+import { uploadsService } from '@/services/uploads.service'
 import { toast } from 'sonner'
-import { FlaskConical, X } from 'lucide-react'
+import { FlaskConical, X, Upload, FileText, Loader2 } from 'lucide-react'
 
 const schema = z.object({
   testType: z.string().min(2, 'Test türü gerekli'),
-  fileUrl: z.string().url('Geçerli URL giriniz').optional().or(z.literal('')),
   comment: z.string().optional(),
 })
 
@@ -25,6 +25,8 @@ const COMMON_TESTS = [
   'Röntgen', 'Ultrason', 'PCR Test', 'Allerji Testi', 'Hormon Paneli',
 ]
 
+const ACCEPTED = '.pdf,.jpg,.jpeg,.png,.webp'
+
 interface Props {
   petId: string
   open: boolean
@@ -33,34 +35,60 @@ interface Props {
 
 export function AddLabResultDialog({ petId, open, onClose }: Props) {
   const qc = useQueryClient()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    if (f.size > 20 * 1024 * 1024) {
+      toast.error('Dosya 20 MB\'dan küçük olmalı')
+      return
+    }
+    setFile(f)
+  }
+
   const onSubmit = async (data: FormData) => {
     setSubmitting(true)
     try {
+      let fileUrl: string | undefined
+
+      if (file) {
+        setUploading(true)
+        fileUrl = await uploadsService.uploadFile(file, 'lab-results')
+        setUploading(false)
+      }
+
       await labResultsService.create({
         petId,
         testType: data.testType,
-        fileUrl: data.fileUrl || undefined,
+        fileUrl,
         comment: data.comment || undefined,
       })
+
       toast.success('Lab sonucu kaydedildi')
       qc.invalidateQueries({ queryKey: ['lab-results', { petId }] })
       qc.invalidateQueries({ queryKey: ['lab-results'] })
       reset()
+      setFile(null)
       onClose()
     } catch {
       toast.error('Lab sonucu kaydedilemedi')
     } finally {
       setSubmitting(false)
+      setUploading(false)
     }
   }
 
   if (!open) return null
+
+  const busy = submitting || uploading
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -80,7 +108,6 @@ export function AddLabResultDialog({ petId, open, onClose }: Props) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
           {/* Test türü */}
           <div className="space-y-2">
@@ -90,7 +117,7 @@ export function AddLabResultDialog({ petId, open, onClose }: Props) {
               {...register('testType')}
               className={errors.testType ? 'border-destructive' : ''}
             />
-            <div className="flex flex-wrap gap-1.5 mt-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {COMMON_TESTS.map(t => (
                 <button
                   key={t}
@@ -105,18 +132,39 @@ export function AddLabResultDialog({ petId, open, onClose }: Props) {
             {errors.testType && <p className="text-xs text-destructive">{errors.testType.message}</p>}
           </div>
 
-          {/* Dosya URL */}
-          <div className="space-y-1.5">
-            <Label>Dosya URL (Opsiyonel)</Label>
-            <Input
-              placeholder="https://... (PDF, görüntü linki)"
-              {...register('fileUrl')}
-              className={errors.fileUrl ? 'border-destructive' : ''}
+          {/* Dosya yükleme */}
+          <div className="space-y-2">
+            <Label>Dosya (PDF veya görüntü)</Label>
+            <input
+              ref={fileRef}
+              type="file"
+              accept={ACCEPTED}
+              onChange={handleFileChange}
+              className="hidden"
             />
-            {errors.fileUrl && <p className="text-xs text-destructive">{errors.fileUrl.message}</p>}
-            <p className="text-xs text-muted-foreground">
-              Dosya yükleme özelliği yakında eklenecek. Şimdilik harici bir link girebilirsiniz.
-            </p>
+            {file ? (
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/30 bg-primary/5">
+                <FileText className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-sm text-foreground flex-1 truncate">{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => { setFile(null); if (fileRef.current) fileRef.current.value = '' }}
+                  className="p-1 rounded-md hover:bg-primary/10 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="w-full flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/[0.02] transition-colors"
+              >
+                <Upload className="w-5 h-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Dosya seç veya sürükle</span>
+                <span className="text-xs text-muted-foreground/70">PDF, JPG, PNG · Maks 20 MB</span>
+              </button>
+            )}
           </div>
 
           {/* Yorum */}
@@ -131,11 +179,18 @@ export function AddLabResultDialog({ petId, open, onClose }: Props) {
           </div>
 
           <div className="flex gap-3 pt-1">
-            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>İptal</Button>
-            <Button type="submit" className="flex-1" disabled={submitting}>
-              {submitting ? (
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={busy}>
+              İptal
+            </Button>
+            <Button type="submit" className="flex-1" disabled={busy}>
+              {uploading ? (
                 <span className="flex items-center gap-2">
-                  <span className="w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Yükleniyor...
+                </span>
+              ) : submitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   Kaydediliyor...
                 </span>
               ) : 'Kaydet'}
