@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Pet, Role, Vaccination } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVaccinationDto } from './dto/create-vaccination.dto';
 import { ListVaccinationsQueryDto } from './dto/list-vaccinations-query.dto';
@@ -12,7 +13,10 @@ import { UpdateVaccinationDto } from './dto/update-vaccination.dto';
 
 @Injectable()
 export class VaccinationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async findAll(query: ListVaccinationsQueryDto, user: TokenPayload) {
     const page = query.page ?? 1;
@@ -60,15 +64,12 @@ export class VaccinationsService {
     });
 
     if (vaccination.dueAt) {
-      await this.prisma.notification.create({
-        data: {
-          ownerId: pet.ownerId,
-          channel: 'PUSH',
-          title: 'Aşı hatırlatması planlandı',
-          body: `${pet.name} için ${vaccination.name} aşı hatırlatması oluşturuldu.`,
-          payload: { vaccinationId: vaccination.id, petId: pet.id },
-          scheduledAt: vaccination.dueAt,
-        },
+      await this.notificationsService.createOwnerNotification({
+        ownerId: pet.ownerId,
+        title: 'Aşı hatırlatması planlandı',
+        body: `${pet.name} için ${vaccination.name} aşı hatırlatması oluşturuldu.`,
+        payload: { vaccinationId: vaccination.id, petId: pet.id },
+        scheduledAt: vaccination.dueAt,
       });
     }
 

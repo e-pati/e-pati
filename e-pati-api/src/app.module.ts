@@ -12,6 +12,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { LabResultsModule } from './lab-results/lab-results.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ClinicsModule } from './clinics/clinics.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ClinicsModule } from './clinics/clinics.module';
     LabResultsModule,
     NotificationsModule,
     ClinicsModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

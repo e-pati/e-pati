@@ -1,0 +1,2 @@
+ALTER TABLE "Owner" ADD COLUMN "pushToken" TEXT;
+ALTER TABLE "Owner" ADD COLUMN "pushEnabled" BOOLEAN NOT NULL DEFAULT true;

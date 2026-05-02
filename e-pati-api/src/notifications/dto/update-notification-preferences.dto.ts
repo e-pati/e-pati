@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class UpdateNotificationPreferencesDto {
   @ApiPropertyOptional({ default: true })
@@ -16,4 +16,9 @@ export class UpdateNotificationPreferencesDto {
   @IsOptional()
   @IsBoolean()
   sms?: boolean;
+
+  @ApiPropertyOptional({ example: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]' })
+  @IsOptional()
+  @IsString()
+  pushToken?: string;
 }
