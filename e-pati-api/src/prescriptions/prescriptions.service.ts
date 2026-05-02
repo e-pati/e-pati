@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Pet, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadsService } from '../uploads/uploads.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
@@ -14,13 +15,14 @@ export class PrescriptionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploadsService: UploadsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(dto: CreatePrescriptionDto, user: TokenPayload) {
     this.ensureVeterinarian(user);
     const pet = await this.findPetForClinic(dto.petId, user);
 
-    return this.prisma.$transaction(async (tx) => {
+    const prescription = await this.prisma.$transaction(async (tx) => {
       const prescription = await tx.prescription.create({
         data: {
           petId: pet.id,
@@ -38,18 +40,17 @@ export class PrescriptionsService {
         },
       });
 
-      await tx.notification.create({
-        data: {
-          ownerId: pet.ownerId,
-          channel: 'PUSH',
-          title: 'Yeni reçete',
-          body: `${pet.name} için yeni reçete oluşturuldu.`,
-          payload: { prescriptionId: prescription.id, petId: pet.id },
-        },
-      });
-
       return prescription;
     });
+
+    await this.notificationsService.createOwnerNotification({
+      ownerId: pet.ownerId,
+      title: 'Yeni reçete',
+      body: `${pet.name} için yeni reçete oluşturuldu.`,
+      payload: { prescriptionId: prescription.id, petId: pet.id },
+    });
+
+    return prescription;
   }
 
   async findOne(id: string, user: TokenPayload) {

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { LabResult, Pet, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadsService } from '../uploads/uploads.service';
 import { CreateLabResultDto } from './dto/create-lab-result.dto';
@@ -15,6 +16,7 @@ export class LabResultsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploadsService: UploadsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(dto: CreateLabResultDto, user: TokenPayload) {
@@ -35,14 +37,11 @@ export class LabResultsService {
       include: { clinic: { select: { id: true, name: true } } },
     });
 
-    await this.prisma.notification.create({
-      data: {
-        ownerId: pet.ownerId,
-        channel: 'PUSH',
-        title: 'Yeni laboratuvar sonucu',
-        body: `${pet.name} için yeni laboratuvar sonucu yüklendi.`,
-        payload: { labResultId: labResult.id, petId: pet.id },
-      },
+    await this.notificationsService.createOwnerNotification({
+      ownerId: pet.ownerId,
+      title: 'Yeni laboratuvar sonucu',
+      body: `${pet.name} için yeni laboratuvar sonucu yüklendi.`,
+      payload: { labResultId: labResult.id, petId: pet.id },
     });
 
     return labResult;

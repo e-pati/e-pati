@@ -40,6 +40,8 @@ model Owner {
   fullName        String
   role            Role           @default(OWNER)
   emailVerifiedAt DateTime?
+  pushToken       String?
+  pushEnabled     Boolean        @default(true)
   pets            Pet[]
   refreshTokens   RefreshToken[]
   notifications   Notification[]
