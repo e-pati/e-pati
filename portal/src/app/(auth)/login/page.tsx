@@ -73,7 +73,7 @@ export default function LoginPage() {
           <div className="bg-white/15 rounded-xl p-2.5">
             <PawPrint className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight">e-Pati</span>
+          <span className="text-xl font-bold tracking-tight">VetCep</span>
         </div>
 
         {/* Main content */}
@@ -100,7 +100,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="relative z-10 text-xs text-primary-foreground/40">
-          e-Pati Klinik Portalı · 2026
+          VetCep Klinik Portalı · 2026
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export default function LoginPage() {
             <div className="bg-primary rounded-xl p-2">
               <PawPrint className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-primary">e-Pati</span>
+            <span className="text-xl font-bold text-primary">VetCep</span>
           </div>
 
           <Card className="bg-white border-0 shadow-lg rounded-2xl">

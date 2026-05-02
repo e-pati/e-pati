@@ -355,8 +355,8 @@ export class AuthService {
     await this.getResend().emails.send({
       from: this.getMailFrom(),
       to: this.getMailTo(email),
-      subject: 'e-Pati dogrulama kodunuz',
-      text: `e-Pati dogrulama kodunuz: ${code}. Kod 5 dakika gecerlidir.`,
+      subject: 'VetCep dogrulama kodunuz',
+      text: `VetCep dogrulama kodunuz: ${code}. Kod 5 dakika gecerlidir.`,
     });
   }
 
@@ -389,7 +389,7 @@ export class AuthService {
   private getMailFrom(): string {
     return (
       this.configService.get<string>('MAIL_FROM') ??
-      'e-Pati <noreply@example.com>'
+      'VetCep <noreply@example.com>'
     );
   }
 

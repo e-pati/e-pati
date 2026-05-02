@@ -98,7 +98,7 @@ export default function SettingsPage() {
         {
           icon: Info,
           label: 'Versiyon',
-          description: 'e-Pati Klinik Portalı v1.0.0',
+          description: 'VetCep Klinik Portalı v1.0.0',
           badge: 'Güncel',
         },
       ],

@@ -1,4 +1,4 @@
-# e-Pati
+# VetCep
 
 Veteriner klinikleri ve hayvan sahipleri için dijital sağlık kaydı backend'i.
 

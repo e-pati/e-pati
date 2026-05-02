@@ -121,7 +121,7 @@ function PatientsContent() {
                 <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-5xl mb-6">🐾</div>
                 <p className="text-xl font-semibold text-foreground mb-2">Henüz hasta kaydı yok</p>
                 <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-                  Hayvan sahipleri e-Pati mobil uygulamasından kayıt olduğunda hastalar burada görünür.
+                  Hayvan sahipleri VetCep mobil uygulamasından kayıt olduğunda hastalar burada görünür.
                 </p>
               </>
             ) : (

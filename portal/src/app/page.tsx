@@ -59,7 +59,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <PawPrint className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-bold text-foreground">e-Pati</span>
+            <span className="text-lg font-bold text-foreground">VetCep</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -124,7 +124,7 @@ export default function LandingPage() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4">Kliniğinize özel her şey</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Kağıt dosyaya ve Excel tablolarına son. e-Pati ile klinik iş akışınız tamamen dijitale taşınır.
+            Kağıt dosyaya ve Excel tablolarına son. VetCep ile klinik iş akışınız tamamen dijitale taşınır.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -212,7 +212,7 @@ export default function LandingPage() {
             <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
               <PawPrint className="w-3 h-3 text-primary-foreground" />
             </div>
-            <span className="text-sm font-semibold text-foreground">e-Pati</span>
+            <span className="text-sm font-semibold text-foreground">VetCep</span>
             <span className="text-xs text-muted-foreground ml-2">© 2026</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">

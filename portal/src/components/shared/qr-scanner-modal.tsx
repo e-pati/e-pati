@@ -42,7 +42,7 @@ export function QRScannerModal({ open, onClose }: Props) {
         }, 800)
       } else {
         setStatus('error')
-        setErrorMsg('Geçersiz QR kod. Lütfen e-Pati hayvan QR kodunu tarayın.')
+        setErrorMsg('Geçersiz QR kod. Lütfen VetCep hayvan QR kodunu tarayın.')
         setTimeout(() => {
           processed.current = false
           setStatus('scanning')
@@ -117,7 +117,7 @@ export function QRScannerModal({ open, onClose }: Props) {
         {/* Alt bilgi */}
         <div className="p-4 text-center">
           <p className="text-xs text-muted-foreground">
-            Hayvan sahibinin e-Pati mobil uygulamasındaki QR kodu kameraya gösterin
+            Hayvan sahibinin VetCep mobil uygulamasındaki QR kodu kameraya gösterin
           </p>
         </div>
       </div>
