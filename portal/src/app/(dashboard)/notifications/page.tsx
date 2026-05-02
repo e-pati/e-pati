@@ -61,8 +61,12 @@ export default function NotificationsPage() {
         )}
 
         {unreadCount > 0 && (
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" className="gap-2" onClick={markAll} disabled={markRead.isPending}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              {unreadCount} okunmamış bildirim
+            </div>
+            <Button variant="outline" size="sm" className="gap-2 rounded-xl border-gray-200 text-xs" onClick={markAll} disabled={markRead.isPending}>
               <Check className="w-3.5 h-3.5" />
               Tümünü okundu işaretle
             </Button>
@@ -71,8 +75,8 @@ export default function NotificationsPage() {
 
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="p-4 rounded-2xl bg-muted mb-4">
-              <Bell className="w-8 h-8 text-muted-foreground" />
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+              <Bell className="w-7 h-7 text-muted-foreground" />
             </div>
             <p className="text-base font-medium">Bildirim yok</p>
             <p className="text-sm text-muted-foreground mt-1">Yeni işlemler geldiğinde burada görünecek</p>
@@ -83,15 +87,14 @@ export default function NotificationsPage() {
               const cfg = typeConfig[notif.type] ?? typeConfig.reminder
               const read = isNotificationRead(notif)
               return (
-                <Card
+                <div
                   key={notif.id}
-                  className={`border-border/50 cursor-pointer transition-all hover:shadow-sm ${!read ? 'border-primary/20 bg-primary/[0.02]' : ''}`}
+                  className={`bg-white rounded-2xl shadow-sm border cursor-pointer transition-all hover:shadow-md p-4 flex items-start gap-4 ${!read ? 'border-primary/20' : 'border-gray-100/50'}`}
                   onClick={() => { void markOne(notif.id) }}
                 >
-                  <CardContent className="p-4 flex items-start gap-4">
-                    <div className={`p-2.5 rounded-xl flex-shrink-0 ${cfg.bg}`}>
-                      <cfg.icon className={`w-4 h-4 ${cfg.color}`} />
-                    </div>
+                  <div className={`p-2.5 rounded-xl flex-shrink-0 ${cfg.bg}`}>
+                    <cfg.icon className={`w-4 h-4 ${cfg.color}`} />
+                  </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-medium text-foreground">{notif.title}</p>
@@ -104,8 +107,7 @@ export default function NotificationsPage() {
                       </div>
                       <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{notif.message}</p>
                     </div>
-                  </CardContent>
-                </Card>
+                </div>
               )
             })}
           </div>

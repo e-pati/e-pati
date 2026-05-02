@@ -62,44 +62,50 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Sol panel — marka */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary flex-col items-center justify-center p-12 text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          {pawPositions.map((pos, i) => (
-            <PawPrint
-              key={i}
-              className="absolute text-white"
-              style={pos}
-            />
-          ))}
-        </div>
-        <div className="relative z-10 text-center max-w-md">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="bg-white/20 rounded-2xl p-4">
-              <PawPrint className="w-10 h-10" />
-            </div>
-            <span className="text-4xl font-bold tracking-tight">e-Pati</span>
+      <div className="hidden lg:flex lg:w-[45%] bg-primary flex-col justify-between p-12 text-primary-foreground relative overflow-hidden">
+        {/* Dekoratif daireler */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-12 -translate-x-12" />
+        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-white/[0.03] rounded-full -translate-x-1/2 -translate-y-1/2" />
+
+        {/* Logo */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="bg-white/15 rounded-xl p-2.5">
+            <PawPrint className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-3xl font-bold mb-4">Veteriner Klinik Portalı</h1>
-          <p className="text-primary-foreground/80 text-lg leading-relaxed">
-            Tüm hastalarınızın sağlık geçmişi, aşı takvimleri ve muayene kayıtları tek ekranda.
+          <span className="text-xl font-bold tracking-tight">e-Pati</span>
+        </div>
+
+        {/* Main content */}
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold leading-tight mb-4">
+            Kliniğinizin her<br />kaydı burada.
+          </h1>
+          <p className="text-primary-foreground/70 text-base leading-relaxed mb-10">
+            Hasta takibi, aşı planı, muayene arşivi ve<br />lab sonuçları — tek platformda.
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Aktif Hasta', value: '247' },
-              { label: 'Bugün Muayene', value: '12' },
-              { label: 'Aşı Takibi', value: '38' },
+              { label: 'Hasta Takibi', value: '🐾' },
+              { label: 'Aşı Planı', value: '💉' },
+              { label: 'Muayene Arşivi', value: '🩺' },
             ].map(stat => (
-              <div key={stat.label} className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <div className="text-sm text-primary-foreground/70 mt-1">{stat.label}</div>
+              <div key={stat.label} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                <div className="text-2xl mb-1">{stat.value}</div>
+                <div className="text-xs text-primary-foreground/60 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Footer */}
+        <div className="relative z-10 text-xs text-primary-foreground/40">
+          e-Pati Klinik Portalı · 2026
+        </div>
       </div>
 
       {/* Sağ panel — form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+      <div className="flex-1 flex items-center justify-center p-6 bg-[#F8FAFC]">
         <div className="w-full max-w-md">
           {/* Mobilde logo */}
           <div className="flex items-center gap-2 mb-8 lg:hidden">
@@ -109,7 +115,7 @@ export default function LoginPage() {
             <span className="text-xl font-bold text-primary">e-Pati</span>
           </div>
 
-          <Card className="border-border/50 shadow-lg">
+          <Card className="bg-white border-0 shadow-lg rounded-2xl">
             <CardHeader className="space-y-1 pb-6">
               <CardTitle className="text-2xl font-bold">Giriş Yap</CardTitle>
               <CardDescription>Klinik hesabınızla oturum açın</CardDescription>

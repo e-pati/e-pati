@@ -112,7 +112,7 @@ function ExaminationsContent() {
           <div className="space-y-3">
             {paginated.map(exam => (
               <Link key={exam.id} href={`/patients/${exam.petId}`}>
-                <Card className="border-border/50 hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
+                <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer rounded-2xl">
                   <CardContent className="p-4 flex items-start gap-4">
                     {/* Pet avatar */}
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl flex-shrink-0">

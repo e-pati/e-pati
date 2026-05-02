@@ -114,7 +114,7 @@ export default function SettingsPage() {
         {/* Görünüm */}
         <div>
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Görünüm</h3>
-          <Card className="border-border/50">
+          <Card className="bg-white border-0 shadow-sm rounded-2xl">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-muted">
@@ -150,24 +150,24 @@ export default function SettingsPage() {
         </div>
 
         {/* Kullanıcı kartı */}
-        <Card className="border-border/50">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-xl font-bold text-primary">
-                  {user?.fullName?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() ?? 'KL'}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-lg font-semibold text-foreground">{user?.fullName ?? 'Kullanıcı'}</div>
-                <div className="text-sm text-muted-foreground">{user?.email ?? ''}</div>
-                <Badge className="mt-1.5 bg-primary/10 text-primary border-0 text-xs">
-                  {roleLabel(user?.role)}
-                </Badge>
+        <div className="bg-primary rounded-2xl p-6 text-primary-foreground relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-full -translate-y-8 translate-x-8" />
+          <div className="absolute right-8 bottom-0 w-20 h-20 bg-white/5 rounded-full translate-y-6" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <span className="text-xl font-bold text-white">
+                {user?.fullName?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() ?? 'KL'}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-lg font-bold text-white">{user?.fullName ?? 'Kullanıcı'}</div>
+              <div className="text-sm text-primary-foreground/70">{user?.email ?? ''}</div>
+              <div className="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-full bg-white/20 text-xs font-medium text-white">
+                {roleLabel(user?.role)}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Ayar bölümleri */}
         {sections.map(section => (
@@ -175,18 +175,18 @@ export default function SettingsPage() {
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
               {section.title}
             </h3>
-            <Card className="border-border/50 overflow-hidden">
+            <Card className="bg-white border-0 shadow-sm rounded-2xl overflow-hidden">
               {section.rows.map((row, i) => (
                 <button
                   key={row.label}
                   onClick={row.onClick}
                   disabled={!row.onClick}
                   className={`w-full flex items-center gap-4 px-5 py-4 text-left transition-colors
-                    ${row.onClick ? 'hover:bg-muted/50 cursor-pointer' : 'cursor-default'}
-                    ${i < section.rows.length - 1 ? 'border-b border-border/50' : ''}
+                    ${row.onClick ? 'hover:bg-gray-50 cursor-pointer' : 'cursor-default'}
+                    ${i < section.rows.length - 1 ? 'border-b border-gray-100' : ''}
                   `}
                 >
-                  <div className="p-2 rounded-lg bg-muted flex-shrink-0">
+                  <div className="p-2 rounded-xl bg-gray-100 flex-shrink-0">
                     <row.icon className="w-4 h-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
