@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native'
+import { DatePickerField } from '@/components/DatePickerField'
 import { useLocalSearchParams, router } from 'expo-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,6 +12,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as ImagePicker from 'expo-image-picker'
 import { petsService } from '@/services/pets.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { Ionicons } from '@expo/vector-icons'
 
 const schema = z.object({
   name: z.string().min(2, 'En az 2 karakter'),
@@ -112,7 +114,7 @@ export default function EditPetScreen() {
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <TouchableOpacity style={styles.back} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Geri</Text>
+          <Ionicons name="chevron-back" size={20} color={Colors.primary} /><Text style={styles.backText}>Geri</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Hayvan Bilgilerini Düzenle</Text>
@@ -209,13 +211,10 @@ export default function EditPetScreen() {
               control={control}
               name="birthDate"
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={styles.input}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={Colors.textMuted}
-                  keyboardType="numbers-and-punctuation"
+                <DatePickerField
+                  value={value || undefined}
+                  onChange={onChange}
+                  placeholder="Doğum tarihi seçin"
                 />
               )}
             />
@@ -258,10 +257,10 @@ export default function EditPetScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
+  container: { flex: 1, backgroundColor: '#F0FDF4' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },
-  back: { marginBottom: Spacing.xxl },
+  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: 40 },
+  back: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: Spacing.xl },
   backText: { fontSize: FontSize.base, color: Colors.primary, fontWeight: FontWeight.medium },
   title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: Spacing.xl },
   errorBox: { backgroundColor: '#fef2f2', borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.lg, borderWidth: 1, borderColor: '#fecaca' },

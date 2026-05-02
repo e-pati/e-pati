@@ -11,6 +11,7 @@ import { z } from 'zod/v4'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import { authService } from '@/services/auth.service'
 import { haptic } from '@/lib/haptics'
+import { Ionicons } from '@expo/vector-icons'
 
 const schema = z.object({
   email: z.string().email('Geçerli e-posta girin'),
@@ -49,21 +50,24 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <StatusBar style="light" />
 
-        {/* Logo */}
-        <View style={styles.logoBox}>
-          <View style={styles.logoIcon}>
-            <Text style={styles.logoEmoji}>🐾</Text>
+      {/* Hero */}
+      <View style={styles.hero}>
+        <View style={styles.heroBrand}>
+          <View style={styles.heroIcon}>
+            <Ionicons name="paw" size={32} color="#fff" />
           </View>
-          <Text style={styles.logoText}>e-Pati</Text>
-          <Text style={styles.logoSub}>Evcil Hayvan Sağlık Uygulaması</Text>
+          <Text style={styles.heroTitle}>e-Pati</Text>
         </View>
+        <Text style={styles.heroSub}>Evcil Hayvan Sağlık Uygulaması</Text>
+      </View>
 
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Form */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Giriş Yap</Text>
+          <Text style={styles.cardSub}>Hesabınıza erişin</Text>
 
           {apiError ? (
             <View style={styles.errorBox}>
@@ -150,29 +154,36 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 80, paddingBottom: 40 },
-  logoBox: { alignItems: 'center', marginBottom: Spacing.xxxl },
-  logoIcon: {
-    width: 80, height: 80, borderRadius: Radius.xl,
-    backgroundColor: Colors.primaryBg,
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: Spacing.lg,
+  container: { flex: 1, backgroundColor: '#F0FDF4' },
+  hero: {
+    backgroundColor: Colors.primaryDark,
+    paddingTop: Platform.OS === 'android' ? 48 : 60,
+    paddingBottom: 40,
+    paddingHorizontal: Spacing.xl,
+    borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
+    alignItems: 'center',
   },
-  logoEmoji: { fontSize: 40 },
-  logoText: { fontSize: 28, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.primary },
-  logoSub: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: 4, fontFamily: Fonts.regular },
+  heroBrand: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: 8 },
+  heroIcon: {
+    width: 52, height: 52, borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  heroTitle: { fontSize: 32, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: '#fff' },
+  heroSub: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.7)', fontFamily: Fonts.regular },
+  scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, paddingBottom: 40 },
   card: {
-    backgroundColor: Colors.background,
+    backgroundColor: '#fff',
     borderRadius: Radius.xl,
     padding: Spacing.xxl,
-    shadowColor: '#000',
+    shadowColor: '#059669',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
-  cardTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: Spacing.xl },
+  cardTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 2 },
+  cardSub: { fontSize: FontSize.sm, color: Colors.textMuted, marginBottom: Spacing.xl, fontFamily: Fonts.regular },
   field: { marginBottom: Spacing.lg },
   label: { fontSize: FontSize.sm, fontWeight: FontWeight.medium, color: Colors.textSecondary, marginBottom: 6 },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
