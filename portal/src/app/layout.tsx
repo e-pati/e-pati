@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'e-Pati — Veteriner Klinik Portalı',
+  title: 'VetCep — Veteriner Klinik Portalı',
   description: 'Evcil hayvan sağlık kayıtları yönetim sistemi',
 }
 

@@ -52,7 +52,7 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
             <PawPrint className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <span className="font-bold text-lg text-foreground">e-Pati</span>
+            <span className="font-bold text-lg text-foreground">VetCep</span>
             <div className="text-[10px] text-muted-foreground leading-none">Klinik Portalı</div>
           </div>
         </Link>

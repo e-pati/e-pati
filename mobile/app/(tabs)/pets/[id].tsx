@@ -436,8 +436,8 @@ export default function PetDetailScreen() {
               <TouchableOpacity
                 style={[styles.qrBtn2, { backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder }]}
                 onPress={() => Share.share({
-                  message: `e-Pati: ${pet.name} hayvanının sağlık kaydı\nToken: ${qrToken || pet.id}`,
-                  title: `${pet.name} - e-Pati`,
+                  message: `VetCep: ${pet.name} hayvanının sağlık kaydı\nToken: ${qrToken || pet.id}`,
+                  title: `${pet.name} - VetCep`,
                 })}
               >
                 <Text style={[styles.qrBtnText2, { color: Colors.primary }]}>📤 Paylaş</Text>

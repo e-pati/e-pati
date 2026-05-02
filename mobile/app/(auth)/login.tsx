@@ -58,7 +58,7 @@ export default function LoginScreen() {
           <View style={styles.heroIcon}>
             <Ionicons name="paw" size={32} color="#fff" />
           </View>
-          <Text style={styles.heroTitle}>e-Pati</Text>
+          <Text style={styles.heroTitle}>VetCep</Text>
         </View>
         <Text style={styles.heroSub}>Evcil Hayvan Sağlık Uygulaması</Text>
       </View>

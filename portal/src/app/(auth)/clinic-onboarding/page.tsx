@@ -51,7 +51,7 @@ export default function ClinicOnboardingPage() {
 
   const onSubmit = async (data: OnboardingForm) => {
     await new Promise(resolve => setTimeout(resolve, 400))
-    const subject = encodeURIComponent(`e-Pati Klinik Başvurusu — ${data.clinicName}`)
+    const subject = encodeURIComponent(`VetCep Klinik Başvurusu — ${data.clinicName}`)
     const body = encodeURIComponent(
       `Klinik Adı: ${data.clinicName}\n` +
       `Yetkili: ${data.authorizedName}\n` +
@@ -112,7 +112,7 @@ export default function ClinicOnboardingPage() {
           </div>
           <h1 className="text-4xl font-bold tracking-tight">Klinik Ön Kayıt</h1>
           <p className="text-primary-foreground/80 mt-4 text-lg leading-relaxed">
-            Klinik ekibiniz için e-Pati portal hesabı başlatın.
+            Klinik ekibiniz için VetCep portal hesabı başlatın.
           </p>
         </div>
         <div className="relative z-10 grid grid-cols-3 gap-3">

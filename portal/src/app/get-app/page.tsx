@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { PawPrint, Stethoscope, Syringe, Bell, QrCode, Star } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'e-Pati Uygulamasını İndir',
+  title: 'VetCep Uygulamasını İndir',
   description: 'Evcil hayvanınızın sağlık kayıtlarını, aşı takvimini ve veteriner bilgilerini her zaman yanınızda taşıyın.',
 }
 
@@ -23,7 +23,7 @@ export default function GetAppPage() {
         <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
           <PawPrint className="w-7 h-7 text-primary-foreground" />
         </div>
-        <span className="text-3xl font-bold text-foreground tracking-tight">e-Pati</span>
+        <span className="text-3xl font-bold text-foreground tracking-tight">VetCep</span>
       </div>
 
       {/* Başlık */}

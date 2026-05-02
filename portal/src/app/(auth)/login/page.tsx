@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div className="bg-white/20 rounded-2xl p-4">
               <PawPrint className="w-10 h-10" />
             </div>
-            <span className="text-4xl font-bold tracking-tight">e-Pati</span>
+            <span className="text-4xl font-bold tracking-tight">VetCep</span>
           </div>
           <h1 className="text-3xl font-bold mb-4">Veteriner Klinik Portalı</h1>
           <p className="text-primary-foreground/80 text-lg leading-relaxed">
@@ -106,7 +106,7 @@ export default function LoginPage() {
             <div className="bg-primary rounded-xl p-2">
               <PawPrint className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-primary">e-Pati</span>
+            <span className="text-xl font-bold text-primary">VetCep</span>
           </div>
 
           <Card className="border-border/50 shadow-lg">

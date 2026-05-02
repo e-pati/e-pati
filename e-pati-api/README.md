@@ -1,6 +1,6 @@
-# e-Pati API
+# VetCep API
 
-NestJS + Prisma + PostgreSQL backend for the e-Pati veterinary health record app.
+NestJS + Prisma + PostgreSQL backend for the VetCep veterinary health record app.
 
 ## Requirements
 
