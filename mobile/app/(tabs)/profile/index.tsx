@@ -75,7 +75,7 @@ export default function ProfileScreen() {
       rows: [
         { label: 'Yardım ve Destek', icon: 'help-circle-outline' as const, color: '#0ea5e9', onPress: () => Alert.alert('Destek', 'destek@epati.com adresine yazabilirsiniz.') },
         { label: 'Gizlilik Politikası', icon: 'shield-checkmark-outline' as const, color: '#10b981', onPress: () => Alert.alert('Gizlilik', 'epati.com/gizlilik adresini ziyaret edin.') },
-        { label: 'Versiyon 1.0.0', icon: 'information-circle-outline' as const, color: '#94a3b8', onPress: () => Alert.alert('e-Pati v1.0.0', 'Güncel sürümü kullanıyorsunuz.') },
+        { label: 'Versiyon 1.0.0', icon: 'information-circle-outline' as const, color: '#94a3b8', onPress: () => Alert.alert('VetCep v1.0.0', 'Güncel sürümü kullanıyorsunuz.') },
       ],
     },
   ]
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>e-Pati</Text>
+              <Text style={styles.statValue}>VetCep</Text>
               <Text style={styles.statLabel}>Üye</Text>
             </View>
             <View style={styles.statDivider} />

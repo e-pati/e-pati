@@ -23,7 +23,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('e-Pati API')
+    .setTitle('VetCep API')
     .setDescription('Veterinary health record and notification API')
     .setVersion('0.1.0')
     .addBearerAuth()

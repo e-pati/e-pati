@@ -65,7 +65,7 @@ async function registerToken() {
 
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'e-Pati',
+        name: 'VetCep',
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#16a34a',

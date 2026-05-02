@@ -38,8 +38,8 @@ test.describe('Auth', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 })
   })
 
-  test('e-Pati başlığı görünür olmalı', async ({ page }) => {
+  test('VetCep başlığı görünür olmalı', async ({ page }) => {
     await page.goto('/login')
-    await expect(page.locator('text=e-Pati').first()).toBeVisible()
+    await expect(page.locator('text=VetCep').first()).toBeVisible()
   })
 })

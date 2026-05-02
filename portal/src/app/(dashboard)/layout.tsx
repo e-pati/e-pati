@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
           <div className="flex items-center gap-2">
             <span className="text-lg">🐾</span>
-            <span className="font-bold text-primary">e-Pati</span>
+            <span className="font-bold text-primary">VetCep</span>
           </div>
         </div>
         {children}
