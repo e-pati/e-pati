@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -11,6 +12,7 @@ import { NotificationChannel, Prisma, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListNotificationsQueryDto } from './dto/list-notifications-query.dto';
+import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
 import { PushNotificationsService } from './push-notifications.service';
 
@@ -98,6 +100,28 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
       data: {
         pushEnabled: dto.push ?? true,
         pushToken: dto.pushToken,
+      },
+      select: {
+        id: true,
+        pushEnabled: true,
+        pushToken: true,
+      },
+    });
+  }
+
+  registerPushToken(dto: RegisterPushTokenDto, user: TokenPayload) {
+    this.ensureOwner(user);
+    const pushToken = dto.pushToken ?? dto.token;
+
+    if (!pushToken) {
+      throw new BadRequestException('Push token is required.');
+    }
+
+    return this.prisma.owner.update({
+      where: { id: user.sub },
+      data: {
+        pushEnabled: true,
+        pushToken,
       },
       select: {
         id: true,

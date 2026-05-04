@@ -13,6 +13,7 @@ import type { TokenPayload } from '../auth/types/token-payload';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ListNotificationsQueryDto } from './dto/list-notifications-query.dto';
+import { RegisterPushTokenDto } from './dto/register-push-token.dto';
 import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
 import { NotificationsService } from './notifications.service';
 
@@ -45,5 +46,14 @@ export class NotificationsController {
     @CurrentUser() user: TokenPayload,
   ) {
     return this.notificationsService.updatePreferences(dto, user);
+  }
+
+  @Post('push-token')
+  @ApiOkResponse({ description: 'Owner push token registered.' })
+  registerPushToken(
+    @Body() dto: RegisterPushTokenDto,
+    @CurrentUser() user: TokenPayload,
+  ) {
+    return this.notificationsService.registerPushToken(dto, user);
   }
 }
