@@ -4,7 +4,13 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
+import {
+  cert,
+  getApps,
+  initializeApp,
+  type App,
+  type ServiceAccount,
+} from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
 
 type PushPayload = {
@@ -87,13 +93,14 @@ export class PushNotificationsService {
     return this.firebaseApp;
   }
 
-  private getServiceAccount() {
+  private getServiceAccount(): ServiceAccount {
     const rawJson = this.configService.get<string>(
       'FIREBASE_SERVICE_ACCOUNT_JSON',
     );
 
     if (rawJson) {
-      return JSON.parse(rawJson);
+      const serviceAccount = JSON.parse(rawJson) as unknown;
+      return serviceAccount as ServiceAccount;
     }
 
     const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
