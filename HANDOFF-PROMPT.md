@@ -1,17 +1,17 @@
-# e-Pati Projesi — AI Devir Teslim Promptu
+# VetCep Projesi — AI Devir Teslim Promptu
 
-> **Son güncelleme:** 30 Nisan 2026 — Mobil ekranlar emerald tema ile yeniden tasarlandı, OTP e-posta bug'ı düzeltildi
+> **Son güncelleme:** 4 Mayıs 2026 — vetcep.com canlıya geçti, R2 + Firebase aktif, tasarım tamamen yenilendi
 
 ## Sen Kimsin, Ne Yapacaksın?
 
-Burak ile birlikte **e-Pati** adlı evcil hayvan sağlık uygulaması geliştiriyorsun. Kod yazıyorsun, push yapıyorsun, sorun çözüyorsun — tam bir geliştirici gibi.
+Burak ile birlikte **VetCep** adlı veteriner klinik yönetim + evcil hayvan sağlık uygulaması geliştiriyorsun. Kod yazıyorsun, push yapıyorsun, sorun çözüyorsun — tam bir geliştirici gibi. Burak ilk kez proje yapıyor, sana güveniyor — sabırlı ve açıklayıcı ol.
 
 ---
 
 ## Ekip
 
-- **Burak (kullanıcı):** Frontend + Mobil
-- **Erol:** Backend (NestJS API) — `dev/backend` branch'inde
+- **Burak (kullanıcı):** Frontend + Mobil geliştirme, ürün kararları
+- **Erol:** Backend (NestJS API) — `dev/backend` branch'inde çalışır
 - **AI (sen):** Burak'ın pair programmer'ı
 
 ---
@@ -19,7 +19,7 @@ Burak ile birlikte **e-Pati** adlı evcil hayvan sağlık uygulaması geliştiri
 ## GitHub
 
 **Repo:** `https://github.com/e-pati/e-pati`
-**Çalışma branch'i:** `feature/portal` ← sadece buraya push et
+**Çalışma branch'i:** `feature/portal` ← sadece buraya push et, main'e dokunma
 
 ---
 
@@ -34,18 +34,36 @@ Burak ile birlikte **e-Pati** adlı evcil hayvan sağlık uygulaması geliştiri
 
 ---
 
+## Canlı URL'ler
+
+| Servis | URL |
+|---|---|
+| **Web Portal (production)** | `https://vetcep.com` |
+| **Backend API** | `https://e-pati.onrender.com` |
+| **Vercel dashboard** | burakgemicioglu33-1355s-projects |
+
+---
+
 ## Stack
 
-### Portal
-- Next.js 16 App Router, TypeScript, Tailwind, shadcn/ui
+### Portal (Next.js)
+- Next.js 16 App Router, TypeScript, Tailwind CSS, shadcn/ui
 - Zustand (`src/stores/auth.store.ts`), TanStack Query (`src/hooks/`)
-- Axios (`src/lib/api.ts`), React Hook Form + Zod, Sonner
-- Deploy: `https://e-pati.vercel.app`
+- Axios (`src/lib/api.ts`), React Hook Form + Zod, Sonner (toast)
+- Playwright E2E testler (`portal/tests/`)
 
-### Mobile
-- React Native 0.81 + Expo SDK 54, Expo Router
-- TanStack Query, Axios (`lib/api.ts`) + SecureStore
+### Mobile (React Native)
+- React Native 0.81 + Expo SDK 54, Expo Router (file-based nav)
+- TanStack Query, Axios (`lib/api.ts`) + SecureStore (token saklama)
 - Zustand (`stores/auth.store.ts`), React Hook Form + Zod/v4
+- `@expo-google-fonts/nunito`, `@expo/vector-icons` (Ionicons)
+- Push: `expo-notifications` → Expo Push Token → `/notifications/preferences`
+
+### Backend (Erol'un — bilgi amaçlı)
+- NestJS, PostgreSQL (Supabase), Redis (Upstash), Render hosting
+- Cloudflare R2 dosya depolama (aktif)
+- Firebase Admin + Expo push notifications (aktif)
+- Resend e-posta (OTP)
 
 ---
 
@@ -54,87 +72,96 @@ Burak ile birlikte **e-Pati** adlı evcil hayvan sağlık uygulaması geliştiri
 ### Portal ✅
 | Sayfa/Bileşen | Durum |
 |---|---|
-| `/login` | API bağlı |
-| `/dashboard` | Gerçek API (pets, examinations, aşı uyarıları, haftalık chart) |
-| `/patients` | API bağlı, pagination (12/sayfa), tür filtresi |
-| `/patients/[id]` | API bağlı, 4 sekme (muayene/aşı/reçete/lab) |
-| `/patients/new` | API bağlı |
-| `/examinations` | API bağlı, arama |
-| `/examinations/new` | API bağlı, hasta arama, SOAP |
-| `/vaccinations` | API bağlı, filtreler |
+| `/` (landing page) | VetCep markası, özellikler, CTA |
+| `/login` | API bağlı, split layout, emerald tema |
+| `/dashboard` | Gerçek API, stat kartları, haftalık chart, aşı uyarıları |
+| `/patients` | API bağlı, pagination (12/sayfa), tür filtresi, arama |
+| `/patients/[id]` | 4 sekme: muayene/aşı/reçete/lab, owner bilgisi |
+| `/patients/new` | API bağlı, **R2 fotoğraf yükleme** aktif |
+| `/examinations` | API bağlı, arama, SOAP format |
+| `/examinations/new` | Hasta arama, SOAP form |
+| `/vaccinations` | Filtreler (gecikmiş/yaklaşan/tümü) |
 | `/lab-results` | API bağlı |
 | `/notifications` | API bağlı, okundu işareti |
-| `/settings` | Kullanıcı profili, logout |
-| Modallar | Aşı ekle ✅, Reçete yaz ✅, Lab sonucu ✅, Hasta düzenle ✅ |
-| Auth koruması | `proxy.ts` (cookie tabanlı) |
-| Error boundary | `error.tsx`, `not-found.tsx` |
+| `/settings` | Kullanıcı profili, tema switcher, logout |
+| Modallar | Aşı ekle ✅, Reçete yaz ✅, **Lab sonucu (R2 upload)** ✅, Hasta düzenle ✅ |
+| Auth koruması | `middleware.ts` (cookie tabanlı) |
+| QR scanner | Header'da, kamera ile hayvan QR okuma |
 
 ### Mobile ✅
 | Ekran | Durum |
 |---|---|
 | Onboarding (3 slide) | ✅ |
-| Login | API bağlı |
-| Register | API bağlı |
-| OTP | Gerçek API bağlı (authService.verifyOtp / sendOtp), e-posta auth store'da tutulur |
-| Pets listesi | API bağlı, pull-to-refresh, boş durum CTA |
-| Pet detay | API bağlı, 5 sekme, QR modal + Paylaş |
-| Yeni hayvan | API bağlı |
+| Login | API bağlı, emerald tema |
+| Register | API bağlı, 4 alan (telefon yok) |
+| OTP | Gerçek API, e-posta Zustand store'da (`pendingEmail`) |
+| Pets listesi | API bağlı, pull-to-refresh |
+| Pet detay | 5 sekme, QR modal, Paylaş |
+| Yeni hayvan | **R2 fotoğraf yükleme** aktif |
+| Hayvan düzenle | API bağlı, DatePickerField |
 | Takvim | API bağlı (vaccinations/upcoming) |
 | Bildirimler | API bağlı, okundu işareti |
 | Profil | Gerçek kullanıcı bilgisi, logout |
 | Tab bar badge | Gerçek okunmamış sayısı |
-| Push notifications | Expo token → backend'e kaydediliyor |
+| Push notifications | Expo token backend'e kaydediliyor, Firebase aktif |
 
 ---
 
-## Backend API — TÜMÜ HAZIR
+## Backend API Endpoint'leri
 
-**Base URL:** `http://localhost:3000`
+**Base URL (production):** `https://e-pati.onrender.com`
 
 ```
-POST /auth/register, /auth/login, /auth/refresh, /auth/logout
-GET/POST/PATCH/DELETE /pets, GET /pets/:id/qr
+POST /auth/login                          ← Klinik girişi
+POST /auth/clinic/login                   ← Alternatif klinik girişi
+POST /auth/register, /auth/refresh, /auth/logout
+
+GET/POST/PATCH/DELETE /pets
+POST /pets/claim                          ← Mikro çip ile hayvan sahiplenme
+GET  /pets/:id/qr
+
 GET/POST/PATCH /examinations
-GET/POST/PATCH /vaccinations, GET /vaccinations/upcoming
-POST /prescriptions, GET /prescriptions/:id, GET /prescriptions/:id/pdf
-POST /lab-results, GET /lab-results, GET /lab-results/:id/file
-GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferences
+GET/POST/PATCH /vaccinations
+GET  /vaccinations/upcoming
+
+POST /prescriptions
+GET  /prescriptions/:id
+GET  /prescriptions/:id/pdf
+
+POST /lab-results
+GET  /lab-results
+GET  /lab-results/:id/file               ← Presigned download URL
+
+POST /uploads/presign                    ← R2 presigned upload URL (aktif)
+
+GET  /notifications
+PATCH /notifications/:id/read
+POST /notifications/preferences          ← Push token kayıt: { pushToken: "ExponentPushToken[...]" }
+
+GET  /clinics/:id/dashboard
+GET  /clinics/:id/patients
+```
+
+**Test hesabı (seed data):**
+```
+Veteriner:  vet@example.com / DemoPass123
+Owner:      sahip@example.com / DemoPass123
 ```
 
 ---
 
-## Yapılabilecek Sonraki İşler
+## Dosya Yükleme (R2) Nasıl Çalışır
 
-1. **OTP e-posta tüm kullanıcılara:** Şu an Resend ücretsiz plan sadece hesap sahibine gönderiyor. Erol'un özel domain + Resend key eklemesi gerekiyor
-2. **Erol'dan beklenenler** — Firebase (push notif), R2 (dosya upload), Resend domain doğrulaması
-3. **Erol'un ileride ekleyebilecekleri** — randevu sistemi, AI semptom yönlendirme
+```
+1. Frontend → POST /uploads/presign { fileName, mimeType, folder }
+2. Backend  → { uploadUrl (presigned), fileUrl, key } döner
+3. Frontend → PUT uploadUrl (direkt R2'ye, backend üzerinden geçmez)
+4. Frontend → fileUrl'i kayıt ile birlikte gönderir
+```
 
-## Tamamlanan (1 Mayıs 2026)
-
-- Render backend bağlandı (`https://e-pati.onrender.com`), Redis + CORS düzeltildi
-- Vercel portal deploy güncellendi (NEXT_PUBLIC_API_URL=Render URL)
-- Mobile web uyumluluğu: Alert.alert → inline hata mesajları (4 modal + logout + register)
-- Telefon numarası otomatik +90 formatına normalize ediliyor
-- Vaccinations + examinations/new sayfaları useAllClinicPatients() ile owner bilgisi gösteriyor
-
-## Tamamlanan (30 Nisan 2026 — 2. batch)
-
-- Tüm mobil ekranlar emerald tema ile yeniden tasarlandı (F0FDF4 arka plan, Ionicons)
-- **OTP e-posta bug'ı düzeltildi:** e-posta artık Zustand `pendingEmail` store'da tutulur (URL param yerine)
-- Auth store: `pendingEmail` + `setPendingEmail` + `clearPendingEmail` eklendi
-- Login: emerald hero section, paw ikonu, beyaz kart form
-- Register: telefon alanı kaldırıldı, 4 alan (ad/soyad/e-posta/şifre), Ionicons geri butonu
-- New/Edit pet: DatePickerField bileşeni, Ionicons geri butonu
-- Portal landing: istatistikler güncellendi (Beta / 7/24 / 100% / Ücretsiz)
-- `app.json`: expo-font ve datetimepicker plugin'leri kaydedildi
-- Portal Vercel deploy: güncel (`https://e-pati.vercel.app`)
-
-## Tamamlanan (30 Nisan 2026 — 1. batch)
-
-- Dashboard → `GET /clinics/:id/dashboard` (tek call, gerçek klinik statsları)
-- Patients → `GET /clinics/:id/patients` (server-side pagination, owner bilgisi dahil)
-- Klinik staff artık hasta ekleyip düzenleyebiliyor (Erol backend'i güncelledi)
-- Mobile artık dosyaları temizlendi (9 dosya)
+`portal/src/services/uploads.service.ts` — portal için
+`mobile/services/uploads.service.ts` — mobil için
+Her ikisi hazır, doğrudan import edilip kullanılabilir.
 
 ---
 
@@ -142,22 +169,83 @@ GET /notifications, PATCH /notifications/:id/read, POST /notifications/preferenc
 
 1. **Sadece `feature/portal` branch'ine push et** — main veya dev/backend'e dokunma
 2. **`e-pati-api/` klasörüne dokunma** — Erol'un kodu
-3. **Push öncesi build:** `cd /Users/gemici/Documents/e-pati/portal && npm run build`
-4. **Mobilde Zod:** `import { z } from 'zod/v4'`
+3. **Push öncesi build kontrol:** `cd portal && npm run build`
+4. **Mobilde Zod:** `import { z } from 'zod/v4'` (v4, standart değil)
 5. **`Notification` type çakışması:** `import type { Notification as AppNotification }`
-6. **shadcn Select onValueChange:** `v => { if (v) setValue(...) }` pattern
-7. **Vercel deploy:** `cd portal && vercel --yes`
+6. **shadcn Select onValueChange:** `v => { if (v) setValue(...) }` — null check şart
+7. **Vercel deploy:** `cd portal && vercel --prod`
+8. **Merge öncesi:** `git fetch origin && git merge origin/main` — Erol sık commit atıyor
+9. **ESLint kuralı:** `@eslint-react/hooks-extra/no-direct-set-state-in-use-effect` — useEffect içinde setState yasak, event handler'a taşı
+10. **Ürün adı:** Proje adı **VetCep** olarak değişti (eski: e-Pati) — yeni dosyalarda VetCep kullan
 
 ---
 
-## Git
+## Tasarım Sistemi
+
+### Portal
+- **Arka plan:** `bg-[#F8FAFC]` (slate-50) — sayfa arkaplanı
+- **Kartlar:** `bg-white rounded-2xl shadow-sm border-0`
+- **Primary renk:** teal `oklch(0.580 0.110 182)`
+- **Sidebar:** beyaz, `border-r border-gray-100`, aktif item `bg-primary/10 rounded-xl`
+- **Radius:** `0.75rem` (globals.css'de tanımlı)
+
+### Mobile
+- **Arka plan:** `#F0FDF4` (mint yeşil)
+- **Primary:** `#10B981` (emerald-500)
+- **Font:** Nunito (`@expo-google-fonts/nunito`)
+- **İkonlar:** Ionicons (`@expo/vector-icons`)
+- **Tema sabitleri:** `mobile/constants/theme.ts`
+
+---
+
+## Sonraki Öncelikler (Sıralı)
+
+### 🔴 Kritik — Gelir için şart
+1. **Abonelik/ödeme sistemi** — iyzico entegrasyonu, `/billing` sayfası, 14 gün deneme akışı
+2. **Admin paneli** — `/admin/dashboard` MRR/klinik/churn takibi (Burak için)
+
+### 🟠 Klinik satışı için kritik
+3. **Randevu sistemi** — portal takvim görünümü + mobil randevu talebi (Erol'dan backend lazım)
+4. **WhatsApp entegrasyonu** — Meta Business API, muayene/aşı bildirimi
+
+### 🟡 Rekabet avantajı
+5. **Klinik analitiği** — kayıp hasta, en çok kullanılan ilaç, yoğun saatler
+6. **Kayıp hasta kampanyası** — toplu WhatsApp/SMS gönderimi
+7. **Klinik keşif** (mobil) — yakınımdaki VetCep kullanan klinikler haritası
+8. **Sahip premium** (mobil) — 29₺/ay, sınırsız hayvan, diyet takibi
+
+### Erol'dan beklenecekler
+- Resend özel domain kurulumu (OTP tüm kullanıcılara gitsin)
+- Randevu modülü backend'i
+- Admin endpoint'leri (`/admin/dashboard`, `/admin/clinics`)
+
+---
+
+## Git Komutları
 
 ```bash
-# Başlamadan önce
-git fetch origin && git pull origin feature/portal
+# Başlamadan önce — Erol sık commit atıyor, önce çek
+git fetch origin && git pull origin feature/portal --rebase
 
-# Push
+# Erol'un son değişikliklerini al
+git merge origin/main
+
+# Commit + push
 git add portal/ mobile/
 git commit -m "feat(portal): ..."
 git push origin feature/portal
+
+# Vercel deploy
+cd portal && vercel --prod
 ```
+
+---
+
+## Referans Dosyalar
+
+| Dosya | Ne İşe Yarar |
+|---|---|
+| `FRONTEND-IMPLEMENTATION.md` | Detaylı frontend yol haritası (P0→P3) |
+| `BACKEND-IMPLEMENTATION.md` | Erol için detaylı backend yol haritası |
+| `GELISTIRICI-2-FRONTEND-MOBIL.md` | Orijinal geliştirici planı |
+| `epati-gelistirme-plani.md` | Kapsamlı proje planı (pazar analizi dahil) |
