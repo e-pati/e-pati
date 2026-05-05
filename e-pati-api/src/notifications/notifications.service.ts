@@ -92,19 +92,51 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
+  async getPreferences(user: TokenPayload) {
+    this.ensureOwner(user);
+    const owner = await this.prisma.owner.findUnique({
+      where: { id: user.sub },
+      select: {
+        pushEnabled: true,
+        pushToken: true,
+        notificationPreferences: true,
+      },
+    });
+    const preferences = this.defaultPreferences(owner?.notificationPreferences);
+
+    return {
+      ...preferences,
+      enabled: owner?.pushEnabled ?? preferences.enabled,
+      pushToken: owner?.pushToken ?? undefined,
+    };
+  }
+
   updatePreferences(dto: UpdateNotificationPreferencesDto, user: TokenPayload) {
     this.ensureOwner(user);
+    const enabled = dto.enabled ?? dto.push ?? true;
+    const preferences = {
+      enabled,
+      vaccinationAlerts: dto.vaccinationAlerts ?? true,
+      medicationReminders: dto.medicationReminders ?? true,
+      appointmentReminders: dto.appointmentReminders ?? true,
+      campaignMessages: dto.campaignMessages ?? true,
+      email: dto.email ?? true,
+      sms: dto.sms ?? false,
+      platform: dto.platform,
+    };
 
     return this.prisma.owner.update({
       where: { id: user.sub },
       data: {
-        pushEnabled: dto.push ?? true,
+        pushEnabled: enabled,
         pushToken: dto.pushToken,
+        notificationPreferences: preferences,
       },
       select: {
         id: true,
         pushEnabled: true,
         pushToken: true,
+        notificationPreferences: true,
       },
     });
   }
@@ -122,6 +154,10 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
       data: {
         pushEnabled: true,
         pushToken,
+        notificationPreferences: {
+          ...this.defaultPreferences(undefined),
+          platform: dto.platform,
+        },
       },
       select: {
         id: true,
@@ -218,6 +254,43 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     }
 
     return payload as Record<string, unknown>;
+  }
+
+  private defaultPreferences(value: unknown) {
+    const preferences =
+      value && typeof value === 'object' && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : {};
+
+    return {
+      enabled: this.booleanPreference(preferences.enabled, true),
+      vaccinationAlerts: this.booleanPreference(
+        preferences.vaccinationAlerts,
+        true,
+      ),
+      medicationReminders: this.booleanPreference(
+        preferences.medicationReminders,
+        true,
+      ),
+      appointmentReminders: this.booleanPreference(
+        preferences.appointmentReminders,
+        true,
+      ),
+      campaignMessages: this.booleanPreference(
+        preferences.campaignMessages,
+        true,
+      ),
+      email: this.booleanPreference(preferences.email, true),
+      sms: this.booleanPreference(preferences.sms, false),
+      platform:
+        typeof preferences.platform === 'string'
+          ? preferences.platform
+          : undefined,
+    };
+  }
+
+  private booleanPreference(value: unknown, fallback: boolean) {
+    return typeof value === 'boolean' ? value : fallback;
   }
 
   private ensureOwner(user: TokenPayload): void {

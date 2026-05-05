@@ -8,6 +8,66 @@ import { ListClinicPatientsQueryDto } from './dto/list-clinic-patients-query.dto
 export class ClinicsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async discovery(query: {
+    latitude?: string;
+    longitude?: string;
+    city?: string;
+  }) {
+    const latitude = query.latitude ? Number(query.latitude) : undefined;
+    const longitude = query.longitude ? Number(query.longitude) : undefined;
+    const clinics = await this.prisma.clinic.findMany({
+      where: {
+        deletedAt: null,
+        isApproved: true,
+        ...(query.city
+          ? { city: { equals: query.city, mode: 'insensitive' } }
+          : {}),
+      },
+      orderBy: { name: 'asc' },
+      take: 50,
+    });
+
+    return clinics.map((clinic) => ({
+      id: clinic.id,
+      name: clinic.name,
+      city: clinic.city ?? undefined,
+      district: clinic.district ?? undefined,
+      address: clinic.address ?? undefined,
+      phone: clinic.phone ?? undefined,
+      distanceKm: this.distanceKm(
+        latitude,
+        longitude,
+        clinic.latitude,
+        clinic.longitude,
+      ),
+      rating: clinic.rating ?? undefined,
+      isOpen: undefined,
+      isVetCepPartner: true,
+    }));
+  }
+
+  async publicProfile(id: string) {
+    const clinic = await this.prisma.clinic.findFirstOrThrow({
+      where: { id, deletedAt: null, isApproved: true },
+    });
+
+    return {
+      id: clinic.id,
+      name: clinic.name,
+      city: clinic.city ?? undefined,
+      district: clinic.district ?? undefined,
+      address: clinic.address ?? undefined,
+      phone: clinic.phone ?? undefined,
+      website: clinic.website ?? undefined,
+      description: clinic.description ?? undefined,
+      workingHours: clinic.workingHours ?? undefined,
+      rating: clinic.rating ?? undefined,
+      services: clinic.services,
+      appointmentRequestEnabled: true,
+      isVetCepPartner: true,
+    };
+  }
+
   async findPatients(
     clinicId: string,
     query: ListClinicPatientsQueryDto,
@@ -168,5 +228,42 @@ export class ClinicsService {
     }
 
     throw new ForbiddenException('You cannot access this clinic.');
+  }
+
+  private distanceKm(
+    fromLat?: number,
+    fromLon?: number,
+    toLat?: number | null,
+    toLon?: number | null,
+  ) {
+    if (
+      fromLat === undefined ||
+      fromLon === undefined ||
+      toLat === null ||
+      toLon === null ||
+      toLat === undefined ||
+      toLon === undefined
+    ) {
+      return undefined;
+    }
+
+    const earthKm = 6371;
+    const dLat = this.toRad(toLat - fromLat);
+    const dLon = this.toRad(toLon - fromLon);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(this.toRad(fromLat)) *
+        Math.cos(this.toRad(toLat)) *
+        Math.sin(dLon / 2) ** 2;
+
+    return (
+      Math.round(
+        earthKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10,
+      ) / 10
+    );
+  }
+
+  private toRad(value: number) {
+    return (value * Math.PI) / 180;
   }
 }

@@ -33,6 +33,12 @@ export class NotificationsController {
     return this.notificationsService.findAll(query, user);
   }
 
+  @Get('preferences')
+  @ApiOkResponse({ description: 'Owner notification preferences.' })
+  getPreferences(@CurrentUser() user: TokenPayload) {
+    return this.notificationsService.getPreferences(user);
+  }
+
   @Patch(':id/read')
   @ApiOkResponse({ description: 'Notification marked as read.' })
   markRead(@Param('id') id: string, @CurrentUser() user: TokenPayload) {
@@ -51,6 +57,15 @@ export class NotificationsController {
   @Post('push-token')
   @ApiOkResponse({ description: 'Owner push token registered.' })
   registerPushToken(
+    @Body() dto: RegisterPushTokenDto,
+    @CurrentUser() user: TokenPayload,
+  ) {
+    return this.notificationsService.registerPushToken(dto, user);
+  }
+
+  @Post('register-token')
+  @ApiOkResponse({ description: 'Owner push token registered.' })
+  registerToken(
     @Body() dto: RegisterPushTokenDto,
     @CurrentUser() user: TokenPayload,
   ) {
