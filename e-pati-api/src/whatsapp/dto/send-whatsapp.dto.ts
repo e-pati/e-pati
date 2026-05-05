@@ -7,6 +7,10 @@ export class SendWhatsAppDto {
 
   @IsOptional()
   @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
   ownerPhone?: string;
 
   @IsOptional()
