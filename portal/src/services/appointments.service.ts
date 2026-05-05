@@ -52,6 +52,11 @@ export const appointmentsService = {
     return unwrapList(data)
   },
 
+  async getOne(id: string): Promise<Appointment> {
+    const { data } = await api.get<Appointment>(`/appointments/${id}`)
+    return data
+  },
+
   async create(payload: CreateAppointmentPayload): Promise<Appointment> {
     const { data } = await api.post<Appointment>('/appointments', payload)
     return data

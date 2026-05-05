@@ -181,14 +181,14 @@ export default function AppointmentsPage() {
                             {slotAppointments.length > 0 ? (
                               <div className="space-y-1">
                                 {slotAppointments.map(appointment => (
-                                  <div key={appointment.id} className="rounded-xl border border-primary/20 bg-primary/10 px-2 py-1.5">
+                                  <Link key={appointment.id} href={`/appointments/${appointment.id}`} className="block rounded-xl border border-primary/20 bg-primary/10 px-2 py-1.5 transition-colors hover:bg-primary/15">
                                     <p className="truncate text-xs font-semibold text-primary">
                                       {appointment.pet?.name ?? appointment.reason}
                                     </p>
                                     <p className="truncate text-[11px] text-muted-foreground">
                                       {formatTime(getAppointmentDate(appointment))} · {statusLabel[appointment.status] ?? appointment.status}
                                     </p>
-                                  </div>
+                                  </Link>
                                 ))}
                               </div>
                             ) : (
@@ -240,6 +240,9 @@ export default function AppointmentsPage() {
                       >
                         Tamamlandı İşaretle
                       </Button>
+                      <Button render={<Link href={`/appointments/${appointment.id}`} />} size="sm" variant="outline" className="mt-2 h-7 w-full">
+                        Detay
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -287,6 +290,9 @@ export default function AppointmentsPage() {
                           İptal
                         </Button>
                       </div>
+                      <Button render={<Link href={`/appointments/${appointment.id}`} />} size="sm" variant="ghost" className="mt-2 h-7 w-full">
+                        Detay
+                      </Button>
                     </div>
                   ))}
                 </div>
