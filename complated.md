@@ -98,3 +98,6 @@
 - Hayvan detay saglik takip gecisi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.
 - CI Playwright auth testi guncellendi: `/` artik public VetCep landing oldugu icin `auth.spec.ts` icindeki ana sayfa testi `/login` redirect beklemek yerine landing'in yuklendigini ve login linkinin bulundugunu dogrular. Dashboard ve patients auth redirect testleri korunur.
 - CI auth testi sonrasi dogrulama tamamlandi: `portal` icin `npx playwright test tests/auth.spec.ts` 7/7 basarili, `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili; `mobile` icin `npx tsc --noEmit` basarili.
+- Portal test artifact ignore ayari eklendi: `portal/.gitignore` icine `/playwright-report` ve `/test-results` eklendi, lokal Playwright ciktilari artik git status'u kirletmez.
+- Mobil randevu talep basari geri bildirimi eklendi: genel Randevular ekraninda ve Klinik Profili icindeki randevu talep formunda basarili talep sonrasi yesil bilgi bandi gosterilir.
+- Randevu talep geri bildirimi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.

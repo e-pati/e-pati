@@ -20,6 +20,7 @@ export default function ClinicPublicProfileScreen() {
   const [preferredDate, setPreferredDate] = useState(new Date().toISOString().split('T')[0])
   const [preferredTime, setPreferredTime] = useState(TIME_OPTIONS[0])
   const [reason, setReason] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   const clinicQuery = useQuery({
     queryKey: ['clinic-public-profile', id],
@@ -37,6 +38,7 @@ export default function ClinicPublicProfileScreen() {
     onSuccess: () => {
       setRequestOpen(false)
       setReason('')
+      setSuccessMessage('Randevu talebiniz kliniğe iletildi. Klinik onayladığında randevularınızda görünecek.')
     },
   })
 
@@ -115,6 +117,13 @@ export default function ClinicPublicProfileScreen() {
               <Text style={styles.primaryActionText}>Randevu Talep Et</Text>
             </TouchableOpacity>
           </View>
+
+          {successMessage && (
+            <View style={styles.successBanner}>
+              <Ionicons name="checkmark-circle-outline" size={18} color={Colors.primary} />
+              <Text style={styles.successText}>{successMessage}</Text>
+            </View>
+          )}
 
           {requestOpen && (
             <View style={styles.requestCard}>
@@ -286,6 +295,8 @@ const styles = StyleSheet.create({
   timeText: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
   timeTextActive: { color: '#fff' },
   requestError: { color: Colors.danger, fontSize: FontSize.sm, marginTop: Spacing.sm },
+  successBanner: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, backgroundColor: Colors.primaryBg, borderColor: Colors.primaryBorder, borderWidth: 1, borderRadius: Radius.lg, padding: Spacing.md, marginTop: Spacing.lg },
+  successText: { flex: 1, fontSize: FontSize.sm, color: Colors.primaryDark, lineHeight: 19 },
   submitButton: { height: 50, borderRadius: Radius.lg, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
   submitButtonDisabled: { opacity: 0.55 },
   submitButtonText: { color: '#fff', fontSize: FontSize.base, fontWeight: FontWeight.bold },
