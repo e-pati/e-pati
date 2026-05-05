@@ -6,7 +6,6 @@ import {
 import { useLocalSearchParams, router } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import QRCode from 'react-native-qrcode-svg'
-import { mockPets, mockExaminations, mockVaccinations, mockPrescriptions, mockLabResults } from '@/lib/mock-data'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import { examinationsService, type ApiExamination } from '@/services/examinations.service'
 import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
@@ -75,8 +74,7 @@ export default function PetDetailScreen() {
     retry: 1,
   })
 
-  const fallbackPet = mockPets.find(p => p.id === id)
-  const pet = petQuery.data ? mapApiPet(petQuery.data) : petQuery.isError && fallbackPet ? fallbackPet : undefined
+  const pet = petQuery.data ? mapApiPet(petQuery.data) : undefined
 
   if (petQuery.isLoading) return (
     <View style={styles.center}>
@@ -93,23 +91,23 @@ export default function PetDetailScreen() {
 
   const exams = (examinationsQuery.data
     ? examinationsQuery.data.map(mapApiExamination)
-    : examinationsQuery.isError ? mockExaminations.filter(e => e.petId === id) : []
+    : []
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   const vaccines = vaccinationsQuery.data
     ? vaccinationsQuery.data.map(mapApiVaccination)
-    : vaccinationsQuery.isError ? mockVaccinations.filter(v => v.petId === id) : []
+    : []
   const prescriptions = prescriptionsQuery.data
     ? prescriptionsQuery.data.map(mapApiPrescription)
-    : prescriptionsQuery.isError ? mockPrescriptions.filter(p => p.petId === id) : []
+    : []
   const labs = labResultsQuery.data
     ? labResultsQuery.data.map(mapApiLabResult)
-    : labResultsQuery.isError ? mockLabResults.filter(l => l.petId === id) : []
+    : []
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
   // Aktif ilaçlar: son reçetedeki ilaçlar
   const activeMedications = prescriptions.length > 0 ? prescriptions[0].medications : []
-  const hasFallbackData = petQuery.isError || examinationsQuery.isError || vaccinationsQuery.isError ||
+  const hasApiError = examinationsQuery.isError || vaccinationsQuery.isError ||
     prescriptionsQuery.isError || labResultsQuery.isError
 
   const openQr = async () => {
@@ -194,9 +192,9 @@ export default function PetDetailScreen() {
 
       {/* İçerik */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-        {hasFallbackData && (
+        {hasApiError && (
           <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>⚠️ API kayıtları alınamadı — örnek veriler gösteriliyor</Text>
+            <Text style={styles.errorText}>Bazı kayıtlar alınamadı. Lütfen tekrar deneyin.</Text>
           </View>
         )}
 

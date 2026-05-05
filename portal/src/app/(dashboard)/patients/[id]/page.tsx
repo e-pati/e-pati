@@ -3,6 +3,7 @@
 import { use, useState } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { Header } from '@/components/layout/header'
 import { Badge } from '@/components/ui/badge'
@@ -19,25 +20,21 @@ import { useExaminations } from '@/hooks/use-examinations'
 import { useVaccinations } from '@/hooks/use-vaccinations'
 import { usePrescriptions } from '@/hooks/use-prescriptions'
 import { useLabResults } from '@/hooks/use-lab-results'
-import type { ApiPet } from '@/services/pets.service'
 import type { ApiExamination } from '@/services/examinations.service'
-import type { ApiVaccination } from '@/services/vaccinations.service'
 import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
 import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
 import { AddVaccinationDialog } from '@/components/patients/add-vaccination-dialog'
 import { AddPrescriptionDialog } from '@/components/patients/add-prescription-dialog'
 import { AddLabResultDialog } from '@/components/patients/add-lab-result-dialog'
 import { EditPatientDialog } from '@/components/patients/edit-patient-dialog'
+import { SendWhatsAppDialog } from '@/components/patients/send-whatsapp-dialog'
 import type { PetSpecies } from '@/types'
-import {
-  mockPets, mockExaminations, mockVaccinations, mockPrescriptions, mockLabResults,
-} from '@/lib/mock-data'
 import {
   formatDate, formatDateShort, calculateAge, speciesEmoji, speciesLabel,
   isVaccinationDueSoon, isVaccinationOverdue,
 } from '@/lib/utils'
 import {
-  Phone, Mail, MapPin, Calendar, Cpu, Plus, Pencil, Trash2,
+  Phone, Mail, MapPin, Plus, Pencil, Trash2, MessageCircle,
   AlertTriangle, CheckCircle2, Clock, FileText, FlaskConical,
   Stethoscope, Syringe, Pill,
 } from 'lucide-react'
@@ -49,6 +46,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(false)
   const [labDialogOpen, setLabDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const deletePet = useDeletePet()
 
@@ -64,8 +62,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const prescriptionsQuery = usePrescriptions({ petId: id })
   const labResultsQuery = useLabResults({ petId: id })
 
-  const fallbackPet = mockPets.find(p => p.id === id)
-  const pet = petQuery.data ?? (petQuery.isError && fallbackPet ? mapMockPet(fallbackPet) : undefined)
+  const pet = petQuery.data
 
   if (petQuery.isLoading) return <PatientDetailSkeleton />
   if (!pet) notFound()
@@ -75,27 +72,18 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const ownerPhone = pet.owner?.phone
   const ownerEmail = pet.owner?.email
 
-  const examinations = (examinationsQuery.data ?? (
-    examinationsQuery.isError ? mockExaminations.filter(e => e.petId === id).map(mapMockExamination) : []
-  )).sort((a, b) => new Date(examinationDate(b)).getTime() - new Date(examinationDate(a)).getTime())
+  const examinations = (examinationsQuery.data ?? [])
+    .sort((a, b) => new Date(examinationDate(b)).getTime() - new Date(examinationDate(a)).getTime())
 
-  const vaccinations = (vaccinationsQuery.data ?? (
-    vaccinationsQuery.isError ? mockVaccinations.filter(v => v.petId === id).map(mapMockVaccination) : []
-  )).sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime())
+  const vaccinations = (vaccinationsQuery.data ?? [])
+    .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime())
 
-  const prescriptions = (prescriptionsQuery.data ?? (
-    prescriptionsQuery.isError
-      ? mockPrescriptions
-        .filter(p => examinations.some(e => e.id === p.examinationId))
-        .map(mapMockPrescription)
-      : []
-  ))
+  const prescriptions = prescriptionsQuery.data ?? []
 
-  const labResults = (labResultsQuery.data ?? (
-    labResultsQuery.isError ? mockLabResults.filter(l => l.petId === id).map(mapMockLabResult) : []
-  )).sort((a, b) => new Date(labDate(b)).getTime() - new Date(labDate(a)).getTime())
+  const labResults = (labResultsQuery.data ?? [])
+    .sort((a, b) => new Date(labDate(b)).getTime() - new Date(labDate(a)).getTime())
 
-  const hasFallbackData = petQuery.isError || examinationsQuery.isError || vaccinationsQuery.isError ||
+  const hasApiError = examinationsQuery.isError || vaccinationsQuery.isError ||
     prescriptionsQuery.isError || labResultsQuery.isError
 
   return (
@@ -125,9 +113,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="p-6 space-y-6">
-        {hasFallbackData && (
+        {hasApiError && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            Bazı API kayıtları alınamadı; ilgili alanlarda örnek veriler gösteriliyor.
+            Bazı hasta kayıtları alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
           </div>
         )}
 
@@ -146,7 +134,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex items-end gap-5 -mt-10 mb-5">
               <div className="w-20 h-20 rounded-2xl bg-white shadow-md border-4 border-white flex items-center justify-center text-5xl overflow-hidden flex-shrink-0">
                 {pet.photoUrl
-                  ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
+                  ? <Image src={pet.photoUrl} alt={pet.name} width={80} height={80} className="w-full h-full object-cover" unoptimized />
                   : speciesEmoji(petSpecies)
                 }
               </div>
@@ -211,6 +199,16 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                     <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <span>{ownerPhone}</span>
                   </a>
+                )}
+                {ownerPhone && (
+                  <button
+                    type="button"
+                    onClick={() => setWhatsappDialogOpen(true)}
+                    className="flex w-full items-center gap-3 text-sm text-left hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50"
+                  >
+                    <MessageCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span>WhatsApp Gönder</span>
+                  </button>
                 )}
                 {ownerEmail && (
                   <a href={`mailto:${ownerEmail}`} className="flex items-center gap-3 text-sm hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50">
@@ -467,16 +465,25 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
       <AddVaccinationDialog
         petId={id}
+        petName={pet.name}
+        ownerName={ownerName}
+        ownerPhone={ownerPhone}
         open={vaccinationDialogOpen}
         onClose={() => setVaccinationDialogOpen(false)}
       />
       <AddPrescriptionDialog
         petId={id}
+        petName={pet.name}
+        ownerName={ownerName}
+        ownerPhone={ownerPhone}
         open={prescriptionDialogOpen}
         onClose={() => setPrescriptionDialogOpen(false)}
       />
       <AddLabResultDialog
         petId={id}
+        petName={pet.name}
+        ownerName={ownerName}
+        ownerPhone={ownerPhone}
         open={labDialogOpen}
         onClose={() => setLabDialogOpen(false)}
       />
@@ -487,6 +494,14 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           onClose={() => setEditDialogOpen(false)}
         />
       )}
+      <SendWhatsAppDialog
+        open={whatsappDialogOpen}
+        onOpenChange={setWhatsappDialogOpen}
+        petId={pet.id}
+        petName={pet.name}
+        ownerName={ownerName}
+        ownerPhone={ownerPhone}
+      />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -517,86 +532,6 @@ function normalizeSpecies(species: string): PetSpecies {
     return normalized
   }
   return 'other'
-}
-
-function mapMockPet(pet: (typeof mockPets)[number]): ApiPet {
-  return {
-    id: pet.id,
-    ownerId: pet.ownerId,
-    name: pet.name,
-    species: pet.species,
-    breed: pet.breed,
-    sex: pet.gender,
-    birthDate: pet.birthDate,
-    microchipNo: pet.microchipNo,
-    createdAt: pet.createdAt,
-    updatedAt: pet.createdAt,
-    owner: {
-      id: pet.ownerId,
-      fullName: `${pet.owner.firstName} ${pet.owner.lastName}`,
-      email: pet.owner.email,
-      phone: pet.owner.phone,
-    },
-  }
-}
-
-function mapMockExamination(exam: (typeof mockExaminations)[number]): ApiExamination {
-  return {
-    id: exam.id,
-    petId: exam.petId,
-    vetId: exam.vetId,
-    complaint: exam.complaint,
-    findings: exam.findings,
-    assessment: exam.assessment,
-    plan: exam.plan,
-    followUpDate: exam.followUpDate,
-    createdAt: exam.createdAt,
-    date: exam.date,
-    vet: exam.vet,
-  }
-}
-
-function mapMockVaccination(vac: (typeof mockVaccinations)[number]): ApiVaccination {
-  return {
-    id: vac.id,
-    petId: vac.petId,
-    vetId: vac.vetId,
-    name: vac.vaccineName,
-    lotNumber: vac.serialNo,
-    appliedAt: vac.appliedDate,
-    dueAt: vac.nextDate,
-    notes: vac.manufacturer,
-  }
-}
-
-function mapMockPrescription(rx: (typeof mockPrescriptions)[number]): ApiPrescription {
-  return {
-    id: rx.id,
-    examinationId: rx.examinationId,
-    vetId: rx.vetId,
-    medications: rx.medications.map(med => ({
-      id: med.id,
-      name: med.drugName,
-      dose: med.dose,
-      frequency: med.frequency,
-      duration: med.duration,
-      instructions: med.instructions,
-    })),
-    notes: rx.notes,
-    date: rx.date,
-  }
-}
-
-function mapMockLabResult(lab: (typeof mockLabResults)[number]): ApiLabResult {
-  return {
-    id: lab.id,
-    petId: lab.petId,
-    vetId: lab.vetId,
-    testType: lab.testType,
-    date: lab.date,
-    fileUrl: lab.fileUrl,
-    comment: lab.comment,
-  }
 }
 
 function examinationDate(exam: ApiExamination): string {

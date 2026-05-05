@@ -2,16 +2,10 @@
 
 import { useState } from 'react'
 import { Header } from '@/components/layout/header'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useMarkNotificationRead, useNotifications } from '@/hooks/use-notifications'
 import type { ApiNotification } from '@/services/notifications.service'
 
-const mockNotifications: ApiNotification[] = [
-  { id: 'n1', petId: '1', ownerId: 'o1', type: 'examination', title: 'Muayene Kaydedildi', message: "Pamuk'un muayene notları eklendi", sentAt: '2026-04-20T14:30:00', isRead: false },
-  { id: 'n2', petId: '2', ownerId: 'o2', type: 'vaccination', title: 'Aşı Hatırlatması', message: "Karabaş'ın kuduz aşısı 10 gün içinde yapılmalı", sentAt: '2026-04-28T09:00:00', isRead: false },
-  { id: 'n3', petId: '1', ownerId: 'o1', type: 'prescription', title: 'Yeni Reçete', message: "Pamuk için reçete oluşturuldu", sentAt: '2026-04-20T14:31:00', isRead: true },
-]
 import { formatDate } from '@/lib/utils'
 import { Bell, Check, Stethoscope, Syringe, FlaskConical, Clock } from 'lucide-react'
 const typeConfig: Record<ApiNotification['type'], { icon: typeof Bell; color: string; bg: string }> = {
@@ -23,26 +17,21 @@ const typeConfig: Record<ApiNotification['type'], { icon: typeof Bell; color: st
 }
 
 export default function NotificationsPage() {
-  const [fallbackNotifications, setFallbackNotifications] = useState(mockNotifications)
+  const [localReadIds, setLocalReadIds] = useState<Set<string>>(() => new Set())
   const notificationsQuery = useNotifications()
   const markRead = useMarkNotificationRead()
-  const notifications = notificationsQuery.data ?? (notificationsQuery.isError ? fallbackNotifications : [])
+  const notifications = (notificationsQuery.data ?? []).map(notification => (
+    localReadIds.has(notification.id) ? { ...notification, isRead: true } : notification
+  ))
 
   const unreadCount = notifications.filter(n => !isNotificationRead(n)).length
 
   const markAll = async () => {
-    if (notificationsQuery.isError) {
-      setFallbackNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
-      return
-    }
     await Promise.all(notifications.filter(n => !isNotificationRead(n)).map(n => markRead.mutateAsync(n.id)))
   }
 
   const markOne = async (id: string) => {
-    if (notificationsQuery.isError) {
-      setFallbackNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
-      return
-    }
+    setLocalReadIds(prev => new Set(prev).add(id))
     await markRead.mutateAsync(id)
   }
 
@@ -56,7 +45,7 @@ export default function NotificationsPage() {
       <div className="p-6 space-y-4 max-w-3xl">
         {notificationsQuery.isError && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            API bildirimleri alınamadı; örnek bildirimler gösteriliyor.
+            Bildirimler alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
           </div>
         )}
 

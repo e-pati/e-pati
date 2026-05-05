@@ -17,6 +17,7 @@ import { formatDate, calculateAge, speciesEmoji, speciesLabel } from '@/lib/util
 import type { PetSpecies } from '@/types'
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const PAGE_SIZE = 12
 
@@ -144,7 +145,7 @@ function PatientsContent() {
                       <div className="flex items-start gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
                           {pet.photoUrl
-                            ? <img src={pet.photoUrl} alt={pet.name} className="w-full h-full object-cover" />
+                            ? <Image src={pet.photoUrl} alt={pet.name} width={56} height={56} className="w-full h-full object-cover" unoptimized />
                             : speciesEmoji(species)
                           }
                         </div>

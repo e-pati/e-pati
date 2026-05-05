@@ -9,7 +9,6 @@ import { haptic } from '@/lib/haptics'
 import { useQuery } from '@tanstack/react-query'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import { useAuthStore } from '@/stores/auth.store'
-import { mockPets } from '@/lib/mock-data'
 import { speciesEmoji, speciesLabel, calculateAge } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import type { PetSpecies } from '@/types'
@@ -33,11 +32,7 @@ export default function PetsScreen() {
     retry: 1,
   })
 
-  const rawPets: ApiPet[] = data ?? mockPets.map(p => ({
-    id: p.id, ownerId: p.ownerId, name: p.name, species: p.species,
-    breed: p.breed, sex: p.gender, birthDate: p.birthDate,
-    microchipNo: p.microchipNo, createdAt: new Date().toISOString(),
-  } as ApiPet))
+  const rawPets: ApiPet[] = data ?? []
 
   const filtered = rawPets.filter(pet => {
     const matchQuery = !query || pet.name.toLowerCase().includes(query.toLowerCase())
@@ -133,7 +128,7 @@ export default function PetsScreen() {
 
       {isError && (
         <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>⚠️ API bağlantısı kurulamadı — örnek veriler gösteriliyor</Text>
+          <Text style={styles.errorText}>API bağlantısı kurulamadı. Lütfen tekrar deneyin.</Text>
         </View>
       )}
 

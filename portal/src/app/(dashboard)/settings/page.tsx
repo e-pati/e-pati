@@ -3,14 +3,14 @@
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { Header } from '@/components/layout/header'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
 import {
   User, Lock, Bell, Shield, FileText, LogOut,
-  ChevronRight, Building2, Info, Sun, Moon, Monitor,
+  ChevronRight, Building2, Info, Sun, Moon, Monitor, MessageCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -66,8 +66,14 @@ export default function SettingsPage() {
       ],
     },
     {
-      title: 'Bildirimler',
+      title: 'Entegrasyonlar',
       rows: [
+        {
+          icon: MessageCircle,
+          label: 'WhatsApp Business',
+          description: 'Template, test mesajı ve gönderim ayarları',
+          onClick: () => router.push('/settings/whatsapp'),
+        },
         {
           icon: Bell,
           label: 'Bildirim Tercihleri',

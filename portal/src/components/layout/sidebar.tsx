@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, Stethoscope, Syringe, FlaskConical,
-  Bell, Settings, LogOut, PawPrint, Pill,
+  Bell, Settings, LogOut, PawPrint, Pill, CreditCard, ShieldCheck, CalendarDays, ChartNoAxesCombined, Megaphone,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -15,11 +15,15 @@ import { useNotifications } from '@/hooks/use-notifications'
 const navItems = [
   { href: '/dashboard', label: 'Pano', icon: LayoutDashboard },
   { href: '/patients', label: 'Hastalar', icon: Users },
+  { href: '/appointments', label: 'Randevular', icon: CalendarDays },
   { href: '/examinations', label: 'Muayeneler', icon: Stethoscope },
   { href: '/vaccinations', label: 'Aşılar', icon: Syringe },
   { href: '/prescriptions', label: 'Reçeteler', icon: Pill },
   { href: '/lab-results', label: 'Lab Sonuçları', icon: FlaskConical },
+  { href: '/analytics', label: 'Analitik', icon: ChartNoAxesCombined },
+  { href: '/campaigns/lost-patients', label: 'Kampanyalar', icon: Megaphone },
   { href: '/notifications', label: 'Bildirimler', icon: Bell },
+  { href: '/billing', label: 'Abonelik', icon: CreditCard },
 ]
 
 const bottomItems = [
@@ -36,6 +40,7 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
   const { user, clearUser } = useAuthStore()
   const notificationsQuery = useNotifications()
   const unreadCount = notificationsQuery.data?.filter(n => !n.isRead && !n.readAt).length ?? 0
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN'
 
   const handleLogout = async () => {
     await authService.logout()
@@ -99,6 +104,16 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
         <div>
           <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-wider px-3 mb-2">Sistem</p>
           <div className="space-y-0.5">
+            {isSuperAdmin && (
+              <Link
+                href="/admin/dashboard"
+                onClick={onClose}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-muted-foreground hover:bg-gray-50 hover:text-foreground"
+              >
+                <ShieldCheck className="w-4.5 h-4.5 flex-shrink-0" />
+                Admin
+              </Link>
+            )}
             {bottomItems.map(item => {
               const active = pathname === item.href
               return (

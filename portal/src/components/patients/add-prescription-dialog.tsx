@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useQueryClient } from '@tanstack/react-query'
 import { prescriptionsService } from '@/services/prescriptions.service'
+import { whatsappService } from '@/services/whatsapp.service'
 import { toast } from 'sonner'
 import { Pill, X, Plus, Trash2 } from 'lucide-react'
 
@@ -23,6 +24,7 @@ const medicationSchema = z.object({
 const schema = z.object({
   medications: z.array(medicationSchema).min(1, 'En az bir ilaç ekleyin'),
   notes: z.string().optional(),
+  sendWhatsappInstructions: z.boolean(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -37,18 +39,25 @@ const DURATION_OPTIONS = ['3 gün', '5 gün', '7 gün', '10 gün', '14 gün', '3
 
 interface Props {
   petId: string
+  petName: string
+  ownerName: string
+  ownerPhone?: string
   open: boolean
   onClose: () => void
 }
 
-export function AddPrescriptionDialog({ petId, open, onClose }: Props) {
+export function AddPrescriptionDialog({ petId, petName, ownerName, ownerPhone, open, onClose }: Props) {
   const qc = useQueryClient()
   const [submitting, setSubmitting] = useState(false)
 
-  const { register, handleSubmit, control, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { medications: [{ name: '', dose: '', frequency: '', duration: '', instructions: '' }] },
+    defaultValues: {
+      medications: [{ name: '', dose: '', frequency: '', duration: '', instructions: '' }],
+      sendWhatsappInstructions: true,
+    },
   })
+  const sendWhatsappInstructions = useWatch({ control, name: 'sendWhatsappInstructions' })
 
   const { fields, append, remove } = useFieldArray({ control, name: 'medications' })
 
@@ -56,6 +65,27 @@ export function AddPrescriptionDialog({ petId, open, onClose }: Props) {
     setSubmitting(true)
     try {
       const rx = await prescriptionsService.create({ petId, medications: data.medications, notes: data.notes })
+      if (data.sendWhatsappInstructions && ownerPhone) {
+        try {
+          await whatsappService.send({
+            petId,
+            ownerPhone,
+            type: 'custom',
+            message: [
+              `Merhaba ${ownerName}`,
+              `${petName} için reçete talimatları:`,
+              ...data.medications.map((med, index) => (
+                `${index + 1}. ${med.name}: ${med.dose}, ${med.frequency}, ${med.duration}${med.instructions ? ` (${med.instructions})` : ''}`
+              )),
+              data.notes ? `Not: ${data.notes}` : '',
+            ].filter(Boolean).join('\n'),
+          })
+        } catch {
+          toast.error('WhatsApp reçete talimatı gönderilemedi', {
+            description: 'Reçete kaydedildi; WhatsApp servisi hazır olduğunda talimat mesajı kuyruğa alınacak.',
+          })
+        }
+      }
       toast.success('Reçete kaydedildi', {
         action: {
           label: 'PDF İndir',
@@ -215,6 +245,26 @@ export function AddPrescriptionDialog({ petId, open, onClose }: Props) {
               <Label>Reçete Notu</Label>
               <Input placeholder="Genel talimat veya not..." {...register('notes')} />
             </div>
+
+            <label className="flex items-start gap-3 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 cursor-pointer">
+              <input
+                type="checkbox"
+                {...register('sendWhatsappInstructions')}
+                disabled={!ownerPhone}
+                className="mt-1 h-4 w-4 rounded border-gray-300 accent-primary"
+              />
+              <span>
+                <span className="text-sm font-semibold text-foreground">İlaç talimatlarını WhatsApp ile gönder</span>
+                <span className="block text-xs text-muted-foreground mt-1">
+                  {ownerPhone
+                    ? `${ownerPhone} numarasına reçete talimat mesajı hazırlanır.`
+                    : 'Sahip telefonu olmadığı için WhatsApp talimatı gönderilemez.'}
+                </span>
+              </span>
+            </label>
+            {sendWhatsappInstructions && !ownerPhone && (
+              <p className="text-xs text-amber-700">WhatsApp talimatı için sahip telefon bilgisi olmalı.</p>
+            )}
           </div>
 
           {/* Footer */}
