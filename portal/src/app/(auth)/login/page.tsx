@@ -41,7 +41,7 @@ export default function LoginPage() {
     try {
       const res = await authService.loginClinic(data.email, data.password)
       setUser(res.user)
-      router.push('/dashboard')
+      router.push(res.user.role === 'SUPER_ADMIN' ? '/admin/dashboard' : '/dashboard')
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)
         ? err.response?.data?.message
