@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { appointmentsService, type Appointment } from '@/services/appointments.service'
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, PawPrint, Phone, Stethoscope, UserRound, XCircle } from 'lucide-react'
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, PawPrint, Pencil, Phone, Stethoscope, UserRound, XCircle } from 'lucide-react'
 
 const statusLabel: Record<string, string> = {
   pending: 'Bekliyor',
@@ -156,6 +156,10 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                 <CardContent className="p-5">
                   <h2 className="text-sm font-semibold text-foreground">Durum aksiyonları</h2>
                   <div className="mt-4 space-y-2">
+                    <Button render={<Link href={`/appointments/${appointment.id}/edit`} />} className="w-full gap-2" variant="outline">
+                      <Pencil className="w-4 h-4" />
+                      Randevuyu Düzenle
+                    </Button>
                     {appointment.status === 'pending' && (
                       <Button
                         className="w-full gap-2"

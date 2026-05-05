@@ -38,6 +38,16 @@ export interface CreateAppointmentPayload {
   notifyOwner?: boolean
 }
 
+export interface UpdateAppointmentPayload {
+  scheduledAt?: string
+  durationMinutes?: number
+  reason?: string
+  notes?: string
+  veterinarianId?: string
+  notifyOwner?: boolean
+  status?: AppointmentStatus
+}
+
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }
 
 function unwrapList<T>(response: ListResponse<T>): T[] {
@@ -62,18 +72,21 @@ export const appointmentsService = {
     return data
   },
 
+  async update(id: string, payload: UpdateAppointmentPayload): Promise<Appointment> {
+    const { data } = await api.patch<Appointment>(`/appointments/${id}`, payload)
+    return data
+  },
+
   async confirm(id: string): Promise<Appointment> {
     const { data } = await api.post<Appointment>(`/appointments/${id}/confirm`)
     return data
   },
 
   async cancel(id: string): Promise<Appointment> {
-    const { data } = await api.patch<Appointment>(`/appointments/${id}`, { status: 'cancelled' })
-    return data
+    return this.update(id, { status: 'cancelled' })
   },
 
   async complete(id: string): Promise<Appointment> {
-    const { data } = await api.patch<Appointment>(`/appointments/${id}`, { status: 'completed' })
-    return data
+    return this.update(id, { status: 'completed' })
   },
 }
