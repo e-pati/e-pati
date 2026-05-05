@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Header } from '@/components/layout/header'
@@ -28,6 +28,13 @@ const statusLabel: Record<string, string> = {
   cancelled: 'İptal',
   completed: 'Tamamlandı',
 }
+
+const statusFilters = [
+  { label: 'Tümü', value: 'all' },
+  { label: 'Bekleyen', value: 'pending' },
+  { label: 'Onaylı', value: 'confirmed' },
+  { label: 'Tamamlanan', value: 'completed' },
+] as const
 
 function getAppointmentDate(appointment: Appointment) {
   return appointment.scheduledAt ?? appointment.startsAt ?? appointment.createdAt ?? ''
@@ -59,6 +66,7 @@ function hourForAppointment(value: string) {
 
 export default function AppointmentsPage() {
   const queryClient = useQueryClient()
+  const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]['value']>('all')
   const appointmentsQuery = useQuery({
     queryKey: ['appointments'],
     queryFn: () => appointmentsService.getAll(),
@@ -101,6 +109,9 @@ export default function AppointmentsPage() {
     )),
     [appointmentsQuery.data]
   )
+  const visibleAppointments = useMemo(() => (
+    appointments.filter(appointment => statusFilter === 'all' || appointment.status === statusFilter)
+  ), [appointments, statusFilter])
 
   const pendingAppointments = appointments.filter(appointment => appointment.status === 'pending')
   const todaysActiveAppointments = appointments.filter(appointment => (
@@ -144,17 +155,35 @@ export default function AppointmentsPage() {
         <section className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5">
           <Card className="bg-white border-0 shadow-sm rounded-2xl">
             <CardContent className="p-0">
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <div className="p-5 border-b border-gray-100 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h2 className="text-sm font-semibold text-foreground">Haftalık Takvim</h2>
                   <p className="text-xs text-muted-foreground mt-1">
                     {appointmentsQuery.isLoading ? 'Randevular yükleniyor...' : 'Randevu slotları API verisiyle doldurulur.'}
                   </p>
                 </div>
-                <Button render={<Link href="/appointments/new" />} className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Yeni Randevu
-                </Button>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="flex flex-wrap gap-2">
+                    {statusFilters.map(filter => (
+                      <button
+                        key={filter.value}
+                        type="button"
+                        onClick={() => setStatusFilter(filter.value)}
+                        className={`rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
+                          statusFilter === filter.value
+                            ? 'border-primary/20 bg-primary/10 text-primary'
+                            : 'border-gray-100 bg-gray-50 text-muted-foreground hover:bg-white hover:text-foreground'
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                  <Button render={<Link href="/appointments/new" />} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Yeni Randevu
+                  </Button>
+                </div>
               </div>
 
               <div className="overflow-x-auto">
@@ -171,7 +200,7 @@ export default function AppointmentsPage() {
                     <div key={hour} className="grid grid-cols-[76px_repeat(7,1fr)] min-h-16 border-b border-gray-50 last:border-b-0">
                       <div className="p-3 text-xs text-muted-foreground">{hour}</div>
                       {weekDays.map((day, dayIndex) => {
-                        const slotAppointments = appointments.filter(appointment => (
+                        const slotAppointments = visibleAppointments.filter(appointment => (
                           dayIndexForAppointment(getAppointmentDate(appointment)) === dayIndex
                           && hourForAppointment(getAppointmentDate(appointment)) === hour
                         ))
