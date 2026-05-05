@@ -23,6 +23,9 @@ function useMobilePets() {
 
 const clinicDiscoveryRoute = '/profile/clinics' as Href
 const premiumRoute = '/profile/premium' as Href
+const personalInfoRoute = '/profile/personal-info' as Href
+const securityRoute = '/profile/security' as Href
+const privacyRoute = '/profile/privacy' as Href
 
 type IconName = React.ComponentProps<typeof Ionicons>['name']
 type ToggleKey = 'enabled' | 'vaccinationAlerts' | 'medicationReminders' | 'appointmentReminders' | 'campaignMessages'
@@ -109,9 +112,9 @@ export default function ProfileScreen() {
     {
       title: 'Hesap',
       rows: [
-        { label: 'Kişisel Bilgiler', icon: 'person-outline' as const, color: Colors.primary, onPress: () => Alert.alert('Yakında', 'Kişisel bilgi düzenleme özelliği yakında eklenecek.') },
-        { label: 'Güvenlik', icon: 'lock-closed-outline' as const, color: '#6366f1', onPress: () => Alert.alert('Güvenlik', 'Şifre değiştirmek için sistem yöneticinizle iletişime geçin.') },
-        { label: 'KVKK Ayarları', icon: 'document-text-outline' as const, color: '#f59e0b', onPress: () => Alert.alert('KVKK', 'Kişisel verilerinize ilişkin talepler için destek@epati.com adresine yazabilirsiniz.') },
+        { label: 'Kişisel Bilgiler', icon: 'person-outline' as const, color: Colors.primary, onPress: () => router.push(personalInfoRoute) },
+        { label: 'Güvenlik', icon: 'lock-closed-outline' as const, color: '#6366f1', onPress: () => router.push(securityRoute) },
+        { label: 'KVKK Ayarları', icon: 'document-text-outline' as const, color: '#f59e0b', onPress: () => router.push(privacyRoute) },
         { label: 'Klinik Keşif', icon: 'map-outline' as const, color: '#0ea5e9', onPress: () => router.push(clinicDiscoveryRoute) },
       ],
     },

@@ -59,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <nav className="hidden md:flex items-center gap-1.5">
             {adminNav.map(item => {
-              const active = pathname === item.href
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
               return (
                 <Link
                   key={item.href}
@@ -88,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="px-6 py-4 md:hidden flex gap-2 overflow-x-auto">
         {adminNav.map(item => {
-          const active = pathname === item.href
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
           return (
             <Link
               key={item.href}

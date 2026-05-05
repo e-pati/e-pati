@@ -40,14 +40,34 @@ export default function ClinicDiscoveryScreen() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={clinicsQuery.isRefetching} onRefresh={clinicsQuery.refetch} tintColor={Colors.primary} />}
       >
-        <View style={styles.heroCard}>
-          <View style={styles.heroIcon}>
-            <Ionicons name="map" size={24} color={Colors.primary} />
+        <View style={styles.mapPreviewCard}>
+          <View style={styles.mapGrid}>
+            <View style={[styles.mapPin, styles.mapPinPrimary]}>
+              <Ionicons name="paw" size={14} color="#fff" />
+            </View>
+            <View style={[styles.mapPin, styles.mapPinSecondary]}>
+              <Ionicons name="medical" size={13} color="#fff" />
+            </View>
+            <View style={[styles.mapPin, styles.mapPinMuted]}>
+              <Ionicons name="location" size={13} color="#fff" />
+            </View>
           </View>
-          <Text style={styles.heroTitle}>Harita entegrasyonu için hazır</Text>
-          <Text style={styles.heroText}>
-            Konum izni ve harita SDK entegrasyonu geldiğinde VetCep kullanan klinikler mesafe ve uygunluk durumuyla listelenecek.
-          </Text>
+          <View style={styles.mapContent}>
+            <Text style={styles.heroTitle}>Konum tabanlı keşif hazır</Text>
+            <Text style={styles.heroText}>
+              Harita SDK ve konum izni bağlandığında klinikler mesafe, açık/kapalı durumu ve randevu uygunluğuyla sıralanacak.
+            </Text>
+            <View style={styles.locationChips}>
+              <View style={styles.locationChip}>
+                <Ionicons name="navigate-outline" size={14} color={Colors.primary} />
+                <Text style={styles.locationChipText}>Konum izni</Text>
+              </View>
+              <View style={styles.locationChip}>
+                <Ionicons name="map-outline" size={14} color={Colors.primary} />
+                <Text style={styles.locationChipText}>Harita görünümü</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
         <View style={styles.contractCard}>
@@ -123,10 +143,18 @@ const styles = StyleSheet.create({
   errorBanner: { margin: Spacing.lg, marginBottom: 0, backgroundColor: '#fffbeb', borderColor: '#fde68a', borderWidth: 1, borderRadius: Radius.md, padding: Spacing.md },
   errorText: { color: '#92400e', fontSize: FontSize.sm },
   content: { padding: Spacing.lg, paddingBottom: 40 },
-  heroCard: { backgroundColor: '#fff', borderRadius: Radius.xl, padding: Spacing.lg, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
-  heroIcon: { width: 52, height: 52, borderRadius: Radius.xl, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.md },
+  mapPreviewCard: { backgroundColor: '#fff', borderRadius: Radius.xl, padding: Spacing.lg, flexDirection: 'row', gap: Spacing.md, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
+  mapGrid: { width: 108, height: 112, borderRadius: Radius.xl, backgroundColor: Colors.primaryBg, position: 'relative', overflow: 'hidden', borderWidth: 1, borderColor: Colors.primaryBorder },
+  mapPin: { position: 'absolute', width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
+  mapPinPrimary: { left: 18, top: 20, backgroundColor: Colors.primary },
+  mapPinSecondary: { right: 16, top: 44, backgroundColor: Colors.info },
+  mapPinMuted: { left: 42, bottom: 16, backgroundColor: Colors.warning },
+  mapContent: { flex: 1 },
   heroTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
-  heroText: { fontSize: FontSize.sm, color: Colors.textMuted, textAlign: 'center', marginTop: Spacing.sm, lineHeight: 20 },
+  heroText: { fontSize: FontSize.sm, color: Colors.textMuted, marginTop: Spacing.sm, lineHeight: 20 },
+  locationChips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginTop: Spacing.md },
+  locationChip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: Radius.full, backgroundColor: Colors.primaryBg, paddingHorizontal: Spacing.sm, paddingVertical: 6 },
+  locationChipText: { fontSize: FontSize.xs, fontWeight: FontWeight.bold, color: Colors.primary },
   contractCard: { backgroundColor: '#fff', borderRadius: Radius.xl, padding: Spacing.lg, marginTop: Spacing.lg, marginBottom: Spacing.lg },
   sectionTitle: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: Spacing.md },
   codeText: { fontSize: FontSize.xs, color: Colors.textMuted, backgroundColor: Colors.surface, borderRadius: Radius.md, padding: Spacing.sm, marginBottom: Spacing.sm },

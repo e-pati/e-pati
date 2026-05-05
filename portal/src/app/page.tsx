@@ -1,226 +1,383 @@
 'use client'
 
 import Link from 'next/link'
-import { PawPrint, Stethoscope, Syringe, FlaskConical, Bell, BarChart3, Users, ArrowRight, Star } from 'lucide-react'
+import {
+  ArrowRight,
+  BarChart3,
+  BellRing,
+  CalendarCheck2,
+  CheckCircle2,
+  Clock3,
+  FileText,
+  HeartPulse,
+  MessageCircle,
+  PawPrint,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Stethoscope,
+  Syringe,
+  UsersRound,
+} from 'lucide-react'
+
+const navItems = [
+  { label: 'Özellikler', href: '#features' },
+  { label: 'İş Akışı', href: '#workflow' },
+  { label: 'Klinikler', href: '#clinics' },
+  { label: 'İletişim', href: '/clinic-onboarding' },
+]
 
 const features = [
   {
-    icon: Users,
-    title: 'Hasta Yönetimi',
-    desc: 'Tüm evcil hayvan kayıtları, sahip bilgileri ve tıbbi geçmiş tek ekranda. Mikro çip ile hızlı arama.',
+    icon: UsersRound,
+    title: 'Hasta ve sahip yönetimi',
+    text: 'Mikro çip, sahip bilgisi, tıbbi geçmiş ve dosyalar tek hasta kartında düzenli kalır.',
+  },
+  {
+    icon: CalendarCheck2,
+    title: 'Randevu ve yoğunluk takibi',
+    text: 'Günlük plan, bekleyen mobil talepler ve tamamlanan randevular tek takvimde görünür.',
   },
   {
     icon: Syringe,
-    title: 'Aşı Takibi',
-    desc: 'Otomatik aşı hatırlatmaları, gecikmiş aşı uyarıları ve 30 günlük takvim görünümü.',
+    title: 'Aşı ve hatırlatma sistemi',
+    text: 'Geciken aşılar, yaklaşan kontroller ve sahip bildirimleri otomatik takip edilir.',
   },
   {
-    icon: Stethoscope,
-    title: 'Muayene Arşivi',
-    desc: 'SOAP formatında muayene kayıtları, takip tarihleri ve veteriner notları. Geçmişe anında erişim.',
-  },
-  {
-    icon: FlaskConical,
-    title: 'Lab Sonuçları',
-    desc: 'Kan tahlili, röntgen ve diğer tetkik sonuçlarını dijital arşivde saklayın, PDF olarak indirin.',
-  },
-  {
-    icon: Bell,
-    title: 'Akıllı Bildirimler',
-    desc: 'Aşı tarihleri, takip randevuları ve ilaç hatırlatmaları hem klinik portalına hem sahibin telefonuna.',
+    icon: MessageCircle,
+    title: 'WhatsApp iletişimi',
+    text: 'Muayene özeti, aşı hatırlatması ve lab sonucu mesajları klinik akışına bağlanır.',
   },
   {
     icon: BarChart3,
-    title: 'Klinik Raporu',
-    desc: 'Günlük muayene sayısı, yaklaşan aşılar ve hasta istatistiklerini tek bakışta görün.',
+    title: 'Klinik analitiği',
+    text: 'Kayıp hasta riski, yoğun saatler ve gelir görünümü satış sonrası kararları güçlendirir.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Bulut tabanlı güvenli kayıt',
+    text: 'Klinik ekibiniz web portalından, hayvan sahipleri mobil uygulamadan erişir.',
   },
 ]
 
-const steps = [
-  { num: '01', title: 'Kliniğinizi kaydedin', desc: 'Birkaç dakikada klinik hesabı oluşturun, sistemin kullanıma hazır olur.' },
-  { num: '02', title: 'Ekibinizi ekleyin', desc: 'Veterinerler ve klinik çalışanları kendi hesaplarıyla giriş yapar.' },
-  { num: '03', title: 'Hastaları yönetin', desc: 'Hayvan sahipleri mobil uygulamadan kayıt olur, siz portaldan takip edersiniz.' },
+const workflow = [
+  { title: 'Klinik hesabı açılır', text: '14 günlük deneme hesabı hazırlanır, ekip girişi aktif edilir.' },
+  { title: 'Hastalar dijitale taşınır', text: 'Hayvan kayıtları, sahip bilgileri, aşılar ve muayene geçmişi portala alınır.' },
+  { title: 'Sahipler mobilde kalır', text: 'Randevu talepleri, bildirimler ve sağlık kayıtları mobil uygulamaya bağlanır.' },
 ]
 
 const stats = [
-  { value: 'Beta', label: 'Aktif Süreç' },
-  { value: '7/24', label: 'Teknik Destek' },
-  { value: '100%', label: 'Bulut Tabanlı' },
-  { value: '14 gün', label: 'Ücretsiz Deneme' },
+  { value: '14 gün', label: 'Ücretsiz deneme' },
+  { value: '7/24', label: 'Bulut erişimi' },
+  { value: '5 dk', label: 'Hasta kartı kurulumu' },
+  { value: '360°', label: 'Klinik görünümü' },
+]
+
+const trustItems = [
+  'Klinik satış görüşmelerinde demo akışı hazır',
+  'Web portal + mobil sahip deneyimi birlikte çalışır',
+  'Backend endpointleri geldikçe canlı veriye geçmeye hazır',
 ]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Nav */}
-      <nav className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <PawPrint className="w-4 h-4 text-primary-foreground" />
+    <main className="min-h-screen bg-white text-slate-950">
+      <div className="bg-[#2f6fa8] text-white">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-5 text-xs md:px-8">
+          <span className="flex items-center gap-2">
+            <Clock3 className="h-3.5 w-3.5" />
+            Pazartesi-Cuma 09:00-18:00 demo görüşmesi
+          </span>
+          <span className="hidden items-center gap-2 sm:flex">
+            <MessageCircle className="h-3.5 w-3.5" />
+            Klinikler için VetCep tanıtımı
+          </span>
+        </div>
+      </div>
+
+      <header className="sticky top-0 z-50 border-b border-sky-100 bg-white/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2f6fa8] text-white shadow-sm">
+              <PawPrint className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold text-foreground">VetCep</span>
-          </div>
+            <div>
+              <div className="text-xl font-black tracking-tight text-[#2f6fa8]">VetCep</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-400">Klinik Portalı</div>
+            </div>
+          </Link>
+
+          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 lg:flex">
+            {navItems.map(item => (
+              <Link key={item.label} href={item.href} className="transition-colors hover:text-[#2f6fa8]">
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link
+              href="/login"
+              className="rounded-xl border border-sky-200 px-4 py-2.5 text-sm font-bold text-[#2f6fa8] transition-colors hover:bg-sky-50"
+            >
               Giriş Yap
             </Link>
             <Link
               href="/clinic-onboarding"
-              className="text-sm bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
+              className="hidden rounded-xl bg-[#2f6fa8] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 sm:inline-flex"
             >
-              Ücretsiz Başla
+              Demo İste
             </Link>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-          <Star className="w-3 h-3" />
-          Veteriner klinikleri için tasarlandı
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#ffffff_58%,#eaf6ff_100%)]">
+        <div className="absolute inset-0 opacity-70">
+          <div className="absolute left-[-8%] top-24 h-72 w-72 rounded-full bg-sky-100 blur-3xl" />
+          <div className="absolute right-[-5%] top-16 h-96 w-96 rounded-full bg-blue-100 blur-3xl" />
+          <div className="absolute bottom-0 left-1/3 h-48 w-48 rounded-full bg-cyan-100 blur-3xl" />
         </div>
-        <h1 className="text-5xl md:text-6xl font-bold text-foreground tracking-tight mb-6 leading-tight">
-          Kliniğinizin tüm
-          <br />
-          <span className="text-primary">sağlık kayıtları</span> dijitalde
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          Hasta takibi, aşı planı, muayene arşivi ve lab sonuçları — hepsi tek platformda.
-          Hayvan sahipleri mobil uygulamadan, klinik ekibiniz web portalından erişir.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/clinic-onboarding"
-            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity text-base"
-          >
-            14 Gün Ücretsiz Başla
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center justify-center gap-2 border border-border text-foreground px-6 py-3 rounded-xl font-medium hover:bg-muted/50 transition-colors text-base"
-          >
-            Klinik Girişi
-          </Link>
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section className="border-y border-border/50 bg-muted/30">
-        <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map(s => (
-            <div key={s.label} className="text-center">
-              <div className="text-3xl font-bold text-primary">{s.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{s.label}</div>
+        <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-10 px-5 py-16 md:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:py-20">
+          <div className="max-w-2xl">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-xs font-bold text-[#2f6fa8] shadow-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              Veteriner klinikleri için modern dijital işletim sistemi
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Features */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Kliniğinize özel her şey</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Kağıt dosyaya ve Excel tablolarına son. VetCep ile klinik iş akışınız tamamen dijitale taşınır.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map(f => (
-            <div key={f.title} className="p-6 rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-sm transition-all group">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
-                <f.icon className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-semibold text-foreground mb-2">{f.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="bg-muted/30 border-y border-border/50">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">3 adımda başlayın</h2>
-            <p className="text-muted-foreground">Kurulum gerektirmez, teknik bilgi gerekmez.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((s, i) => (
-              <div key={s.num} className="relative text-center">
-                {i < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-border" />
-                )}
-                <div className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground text-xl font-bold flex items-center justify-center mx-auto mb-4">
-                  {s.num}
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">{s.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="max-w-6xl mx-auto px-6 py-20 text-center">
-        <div className="bg-primary rounded-3xl p-12 text-primary-foreground relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <PawPrint
-                key={i}
-                className="absolute"
-                style={{
-                  top: `${(i * 43 + 11) % 100}%`,
-                  left: `${(i * 61 + 7) % 100}%`,
-                  width: `${20 + (i * 7) % 30}px`,
-                  transform: `rotate(${(i * 67) % 360}deg)`,
-                }}
-              />
-            ))}
-          </div>
-          <div className="relative z-10">
-            <h2 className="text-3xl font-bold mb-4">Kliniğinizi dijitalleştirmeye hazır mısınız?</h2>
-            <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-            Kart bilgisi gerekmeden ön kayıt bırakın, ekibimiz 24 saat içinde kliniğinizin deneme hesabını başlatsın.
+            <h1 className="text-5xl font-black leading-[1.02] tracking-tight text-slate-950 md:text-7xl">
+              Kliniğinizi
+              <span className="block text-[#2f6fa8]">tek ekrandan</span>
+              yönetin.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
+              VetCep; hasta kayıtlarını, randevuları, aşı takibini, WhatsApp bilgilendirmelerini ve klinik analitiğini
+              web portalı ile mobil sahip uygulamasında birleştirir.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/clinic-onboarding"
-                className="inline-flex items-center justify-center gap-2 bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-[#2f6fa8] px-6 text-base font-black text-white shadow-lg shadow-blue-900/15 transition-transform hover:-translate-y-0.5"
               >
                 14 Gün Ücretsiz Başla
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 border border-primary-foreground/30 text-primary-foreground px-6 py-3 rounded-xl font-medium hover:bg-primary-foreground/10 transition-colors"
+                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-white px-6 text-base font-black text-[#2f6fa8] shadow-sm transition-colors hover:bg-sky-50"
               >
-                Hesabım var, giriş yap
+                Klinik Girişi
               </Link>
+            </div>
+
+            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+              {trustItems.map(item => (
+                <div key={item} className="flex items-start gap-2 text-sm font-medium text-slate-600">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#2f6fa8]" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative min-h-[520px]">
+            <div className="absolute right-0 top-4 h-[420px] w-[78%] rounded-[48px] bg-[#2f6fa8]" />
+            <div className="absolute right-12 top-2 h-28 w-28 rounded-full bg-sky-100" />
+            <div className="absolute bottom-16 left-8 h-24 w-24 rounded-full bg-sky-200" />
+
+            <div className="absolute right-4 top-16 w-[82%] overflow-hidden rounded-[34px] border border-white/70 bg-white shadow-2xl shadow-blue-900/15">
+              <div className="flex items-center justify-between border-b border-sky-100 bg-sky-50 px-5 py-4">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                </div>
+                <span className="text-xs font-bold text-sky-700">VetCep Klinik Portalı</span>
+              </div>
+
+              <div className="grid gap-4 p-5">
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { label: 'Bugün', value: '18', icon: CalendarCheck2 },
+                    { label: 'Bekleyen', value: '7', icon: BellRing },
+                    { label: 'Hasta', value: '486', icon: PawPrint },
+                  ].map(item => (
+                    <div key={item.label} className="rounded-2xl bg-sky-50 p-4">
+                      <item.icon className="h-4 w-4 text-[#2f6fa8]" />
+                      <div className="mt-3 text-2xl font-black text-slate-950">{item.value}</div>
+                      <div className="text-xs font-semibold text-slate-500">{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-3xl border border-sky-100 p-4">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-black text-slate-950">Bugünün randevuları</div>
+                      <div className="text-xs text-slate-500">Klinik ekip görünümü</div>
+                    </div>
+                    <span className="rounded-full bg-[#2f6fa8]/10 px-3 py-1 text-xs font-bold text-[#2f6fa8]">Canlı</span>
+                  </div>
+                  {[
+                    ['09:30', 'Mia', 'Aşı kontrolü'],
+                    ['11:00', 'Oscar', 'Muayene'],
+                    ['14:30', 'Pamuk', 'Lab sonucu'],
+                  ].map(([time, pet, note]) => (
+                    <div key={`${time}-${pet}`} className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 last:mb-0">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#2f6fa8]">
+                        <PawPrint className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-black text-slate-900">{pet}</div>
+                        <div className="text-xs text-slate-500">{note}</div>
+                      </div>
+                      <div className="text-xs font-black text-slate-500">{time}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-10 left-0 w-64 rounded-[30px] border border-sky-100 bg-white p-5 shadow-2xl shadow-blue-900/10">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2f6fa8] text-white">
+                  <HeartPulse className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-slate-950">Sahip mobilde</div>
+                  <div className="text-xs text-slate-500">Bildirim aldı</div>
+                </div>
+              </div>
+              <div className="rounded-2xl bg-sky-50 p-3 text-sm font-semibold text-slate-600">
+                “Pamuk’un aşı tarihi yaklaşıyor. Randevu talep edebilirsiniz.”
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50">
-        <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
-              <PawPrint className="w-3 h-3 text-primary-foreground" />
+      <section className="bg-[#eaf6ff] py-10">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-5 md:grid-cols-4 md:px-8">
+          {stats.map(item => (
+            <div key={item.label} className="rounded-3xl bg-white p-6 text-center shadow-sm">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sky-50 text-[#2f6fa8]">
+                <Star className="h-5 w-5" />
+              </div>
+              <div className="text-3xl font-black text-[#2f6fa8]">{item.value}</div>
+              <div className="mt-1 text-sm font-bold text-slate-600">{item.label}</div>
             </div>
-            <span className="text-sm font-semibold text-foreground">VetCep</span>
-            <span className="text-xs text-muted-foreground ml-2">© 2026</span>
+          ))}
+        </div>
+      </section>
+
+      <section id="features" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">Kliniklere Ne Sağlar?</div>
+          <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Kağıt dosyadan premium klinik deneyimine</h2>
+          <p className="mt-5 text-lg leading-8 text-slate-600">
+            VetCep, kliniklerin ilk görüşmede göstermek isteyeceği sade, hızlı ve güven veren bir dijital altyapı sunar.
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {features.map(item => (
+            <article key={item.title} className="rounded-3xl border border-sky-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/10">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#2f6fa8]">
+                <item.icon className="h-5 w-5" />
+              </div>
+              <h3 className="text-lg font-black text-slate-950">{item.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="workflow" className="bg-[#f7fbff] py-20">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 md:px-8 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <div className="text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">İş Akışı</div>
+            <h2 className="mt-3 text-4xl font-black tracking-tight text-slate-950 md:text-5xl">
+              Kliniğe anlatması kolay, kullanması hızlı.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-slate-600">
+              Satış görüşmesinde net bir hikaye: kayıtları toparla, ekibi aynı ekrana al, sahipleri mobilde tut.
+            </p>
+            <Link href="/clinic-onboarding" className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-[#2f6fa8] px-5 py-3 font-black text-white">
+              Klinik demo talep et
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <Link href="/login" className="hover:text-foreground transition-colors">Klinik Girişi</Link>
-            <Link href="/clinic-onboarding" className="hover:text-foreground transition-colors">Ücretsiz Başla</Link>
+
+          <div className="grid gap-4">
+            {workflow.map((item, index) => (
+              <div key={item.title} className="flex gap-5 rounded-3xl bg-white p-6 shadow-sm">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#2f6fa8] text-lg font-black text-white">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-950">{item.title}</h3>
+                  <p className="mt-2 leading-7 text-slate-600">{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="clinics" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+        <div className="overflow-hidden rounded-[40px] bg-[#2f6fa8] text-white shadow-2xl shadow-blue-900/15">
+          <div className="grid gap-8 p-8 md:p-12 lg:grid-cols-[1fr_0.9fr]">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-black">
+                <Stethoscope className="h-3.5 w-3.5" />
+                Anlaşmak istediğiniz klinikler için
+              </div>
+              <h2 className="text-4xl font-black tracking-tight md:text-5xl">İlk bakışta güven veren bir klinik portalı.</h2>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-white/78">
+                Demo sırasında hasta kartını, randevu takvimini, WhatsApp akışını ve mobil sahip deneyimini aynı ürün hikayesinde gösterebilirsiniz.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link href="/clinic-onboarding" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3 font-black text-[#2f6fa8]">
+                  Demo İste
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/login" className="inline-flex items-center justify-center rounded-2xl border border-white/25 px-6 py-3 font-black text-white hover:bg-white/10">
+                  Giriş Yap
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              {[
+                { icon: FileText, label: 'SOAP muayene kayıtları' },
+                { icon: BellRing, label: 'Aşı ve ilaç hatırlatmaları' },
+                { icon: MessageCircle, label: 'WhatsApp hasta iletişimi' },
+                { icon: BarChart3, label: 'Kayıp hasta ve yoğunluk analitiği' },
+              ].map(item => (
+                <div key={item.label} className="flex items-center gap-3 rounded-2xl bg-white/10 p-4">
+                  <item.icon className="h-5 w-5" />
+                  <span className="font-bold">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-sky-100 bg-white">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 md:flex-row md:px-8">
+          <div className="flex items-center gap-2 font-bold text-slate-700">
+            <PawPrint className="h-4 w-4 text-[#2f6fa8]" />
+            VetCep © 2026
+          </div>
+          <div className="flex items-center gap-6">
+            <Link href="/login" className="font-bold text-[#2f6fa8]">Giriş Yap</Link>
+            <Link href="/clinic-onboarding" className="font-bold text-slate-600 hover:text-[#2f6fa8]">Demo İste</Link>
           </div>
         </div>
       </footer>
-    </div>
+    </main>
   )
 }

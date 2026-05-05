@@ -219,6 +219,26 @@ Her ikisi hazır, doğrudan import edilip kullanılabilir.
 - Randevu modülü backend'i
 - Admin endpoint'leri (`/admin/dashboard`, `/admin/clinics`)
 
+## Frontend Hazır / Backend Gelince Bağlanacak Checklist
+
+> Bu bölüm 5 Mayıs 2026'da frontend-mobile durumunu net görmek için eklendi. Erol endpointleri tamamladıkça ilgili satırlar gerçek veriyle test edilecek.
+
+### Portal
+- [x] Public landing ve auth guard akışı hazır; `/` public, dashboard sayfaları login ister.
+- [x] Billing ve checkout ekranları hazır; `GET /subscription/current`, `POST /billing/checkout`, cancel/resume endpointleri beklenir.
+- [x] Admin dashboard/gelir/klinik liste/detay ekranları hazır; `GET /admin/dashboard`, `GET /admin/clinics`, `GET /admin/clinics/:id`, gelir endpointleri beklenir.
+- [x] Randevu liste/yeni/detay/düzenle/tamamla/iptal/onay akışları hazır; randevu backend'i tamamlanınca canlı çalışır.
+- [x] WhatsApp ayarları, hasta aksiyonları ve muayene/aşı/reçete/lab/randevu sonrası mesaj akışları hazır; Meta gönderim endpointleri beklenir.
+- [x] Analitik ve kayıp hasta kampanya ekranları hazır; kampanya preview/send/results endpointleri beklenir.
+- [x] Portal E2E smoke kapsamı auth, temel hasta/muayene ve ürün sayfalarını kapsayacak şekilde genişletildi.
+
+### Mobile
+- [x] Owner auth, hayvan listesi/detay/yeni/düzenle, takvim, bildirim ve profil akışları hazır.
+- [x] Randevu talebi ve klinik profilinden randevu talebi hazır; `POST /appointments/request` beklenir.
+- [x] Klinik keşif ve klinik public profil ekranları hazır; konum/harita SDK bağlanınca gerçek harita görünümü açılır.
+- [x] Sahip Premium, abonelik yönetimi, diyet/kilo takibi ve hayvan detayından sağlık takibine geçiş hazır.
+- [x] Profil içindeki kişisel bilgiler, güvenlik ve KVKK ekranları alert yerine gerçek ekran olarak hazır.
+
 ---
 
 ## Git Komutları
