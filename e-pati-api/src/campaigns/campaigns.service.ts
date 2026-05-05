@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -84,12 +85,20 @@ export class CampaignsService {
     dto: LostPatientCampaignDto,
     user: TokenPayload,
   ) {
+    if (!dto.candidateIds.length) {
+      throw new BadRequestException('At least one candidate must be selected.');
+    }
+
     const candidates = await this.analytics.lostPatients(user);
     const selected = candidates.filter((candidate) =>
       dto.candidateIds.includes(candidate.id),
     );
 
-    return selected.length ? selected : candidates;
+    if (selected.length !== dto.candidateIds.length) {
+      throw new BadRequestException('One or more candidates are not valid.');
+    }
+
+    return selected;
   }
 
   private renderMessage(
