@@ -118,3 +118,5 @@
 - Frontend/mobile tamamlama paketi baslatildi: portal product-flow E2E smoke testleri eklendi; randevu takvimine durum filtresi getirildi; mobil profil Kisisel Bilgiler, Guvenlik ve KVKK ekranlari alert yerine gercek route olarak hazirlandi; klinik kesif ekranina konum/harita hazirlik paneli eklendi.
 - Handoff checklist netlestirildi: `HANDOFF-PROMPT.md` icine frontend hazir ve backend gelince baglanacak portal/mobile maddeleri eklendi.
 - Frontend/mobile tamamlama paketi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint`, `npm run build`, `npx playwright test tests/product-flows.spec.ts` ve `npx playwright test tests/auth.spec.ts` basarili.
+- VetCep public landing yenilendi: `/` sayfasi klinik satis gorusmelerinde kullanilacak modern mavi-beyaz tanitim sayfasina cevrildi; `Giris Yap` aksiyonu `/login`, demo/deneme aksiyonlari `/clinic-onboarding` rotasina bagli kaldi.
+- Landing yenilemesi sonrasi dogrulama tamamlandi: `portal` icin `npm run lint`, `npm run build` ve `npx playwright test tests/auth.spec.ts` basarili; `mobile` icin `npx tsc --noEmit` basarili. Desktop ve mobil screenshot kontrolu yapildi.
