@@ -13,6 +13,7 @@ export interface OwnerPremiumStatus {
   isActive: boolean
   plan?: OwnerPremiumPlan
   currentPeriodEnd?: string
+  cancelAtPeriodEnd?: boolean
 }
 
 export interface OwnerPremiumCheckout {
@@ -29,6 +30,16 @@ export const ownerPremiumService = {
 
   async createCheckout(planId = 'owner-premium-monthly'): Promise<OwnerPremiumCheckout> {
     const { data } = await api.post<OwnerPremiumCheckout>('/owner-subscriptions/checkout', { planId })
+    return data
+  },
+
+  async cancelAtPeriodEnd(): Promise<OwnerPremiumStatus> {
+    const { data } = await api.post<OwnerPremiumStatus>('/owner-subscriptions/cancel')
+    return data
+  },
+
+  async resume(): Promise<OwnerPremiumStatus> {
+    const { data } = await api.post<OwnerPremiumStatus>('/owner-subscriptions/resume')
     return data
   },
 }

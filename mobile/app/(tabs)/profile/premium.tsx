@@ -4,7 +4,7 @@ import {
   ActivityIndicator, Linking, Alert,
 } from 'react-native'
 import { router, type Href } from 'expo-router'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Ionicons } from '@expo/vector-icons'
 import { ownerPremiumService } from '@/services/premium.service'
 import { Colors, Fonts, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme'
@@ -20,12 +20,15 @@ const features = [
 const endpointContracts = [
   'GET /owner-subscriptions/current',
   'POST /owner-subscriptions/checkout',
+  'POST /owner-subscriptions/cancel',
+  'POST /owner-subscriptions/resume',
   'POST /owner-subscriptions/webhook/iyzico',
 ]
 
 const healthTrackingRoute = '/profile/health-tracking' as Href
 
 export default function PremiumScreen() {
+  const qc = useQueryClient()
   const [isStartingCheckout, setIsStartingCheckout] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
@@ -33,6 +36,22 @@ export default function PremiumScreen() {
     queryKey: ['owner-premium-status'],
     queryFn: () => ownerPremiumService.getStatus(),
     retry: 1,
+  })
+  const cancelPremium = useMutation({
+    mutationFn: ownerPremiumService.cancelAtPeriodEnd,
+    onSuccess: status => {
+      qc.setQueryData(['owner-premium-status'], status)
+      Alert.alert('Premium', 'Premium yenilemeniz dönem sonunda duracak.')
+    },
+    onError: () => setCheckoutError('Premium iptal servisi henüz hazır değil. Endpoint bekleniyor.'),
+  })
+  const resumePremium = useMutation({
+    mutationFn: ownerPremiumService.resume,
+    onSuccess: status => {
+      qc.setQueryData(['owner-premium-status'], status)
+      Alert.alert('Premium', 'Premium yenilemeniz tekrar aktif edildi.')
+    },
+    onError: () => setCheckoutError('Premium sürdürme servisi henüz hazır değil. Endpoint bekleniyor.'),
   })
 
   const startCheckout = async () => {
@@ -53,6 +72,15 @@ export default function PremiumScreen() {
   }
 
   const isActive = statusQuery.data?.isActive ?? false
+  const cancelAtPeriodEnd = statusQuery.data?.cancelAtPeriodEnd ?? false
+  const currentPeriodEnd = statusQuery.data?.currentPeriodEnd
+
+  const requestCancelPremium = () => {
+    Alert.alert('Premium iptal', 'Premium yenilemesini dönem sonunda durdurmak istiyor musunuz?', [
+      { text: 'Vazgeç', style: 'cancel' },
+      { text: 'Dönem Sonunda İptal Et', style: 'destructive', onPress: () => cancelPremium.mutate() },
+    ])
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -107,6 +135,42 @@ export default function PremiumScreen() {
           </View>
           <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
         </TouchableOpacity>
+
+        {isActive && (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Premium yönetimi</Text>
+            <View style={styles.statusRow}>
+              <View style={[styles.statusDot, { backgroundColor: cancelAtPeriodEnd ? Colors.warning : Colors.primary }]} />
+              <Text style={styles.statusText}>
+                {cancelAtPeriodEnd ? 'Yenileme dönem sonunda duracak' : 'Yenileme aktif'}
+              </Text>
+            </View>
+            {currentPeriodEnd && (
+              <Text style={styles.bodyText}>
+                Dönem bitişi: {new Date(currentPeriodEnd).toLocaleDateString('tr-TR')}
+              </Text>
+            )}
+            {cancelAtPeriodEnd ? (
+              <TouchableOpacity
+                style={[styles.secondaryButton, resumePremium.isPending && styles.ctaButtonDisabled]}
+                onPress={() => resumePremium.mutate()}
+                disabled={resumePremium.isPending}
+                activeOpacity={0.86}
+              >
+                {resumePremium.isPending ? <ActivityIndicator color={Colors.primary} /> : <Text style={styles.secondaryButtonText}>Yenilemeyi Sürdür</Text>}
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.dangerButton, cancelPremium.isPending && styles.ctaButtonDisabled]}
+                onPress={requestCancelPremium}
+                disabled={cancelPremium.isPending}
+                activeOpacity={0.86}
+              >
+                {cancelPremium.isPending ? <ActivityIndicator color="#991b1b" /> : <Text style={styles.dangerButtonText}>Dönem Sonunda İptal Et</Text>}
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Ödeme altyapısı</Text>
@@ -178,6 +242,9 @@ const styles = StyleSheet.create({
   trackingTitle: { fontSize: FontSize.base, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
   trackingText: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 3, lineHeight: 17 },
   bodyText: { fontSize: FontSize.sm, color: Colors.textMuted, lineHeight: 20 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
+  statusDot: { width: 9, height: 9, borderRadius: Radius.full },
+  statusText: { flex: 1, fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.semibold },
   contractList: { gap: Spacing.sm, marginTop: Spacing.md },
   codeText: { fontSize: FontSize.xs, color: Colors.textMuted, backgroundColor: Colors.surface, borderRadius: Radius.md, padding: Spacing.sm },
   errorBox: { backgroundColor: '#fef2f2', borderColor: '#fecaca', borderWidth: 1, borderRadius: Radius.md, padding: Spacing.md, marginTop: Spacing.lg },
@@ -185,4 +252,8 @@ const styles = StyleSheet.create({
   ctaButton: { height: 52, borderRadius: Radius.lg, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
   ctaButtonDisabled: { opacity: 0.72 },
   ctaText: { color: '#fff', fontSize: FontSize.base, fontWeight: FontWeight.bold, fontFamily: Fonts.bold },
+  secondaryButton: { height: 46, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.primaryBorder, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
+  secondaryButtonText: { color: Colors.primary, fontSize: FontSize.sm, fontWeight: FontWeight.bold, fontFamily: Fonts.bold },
+  dangerButton: { height: 46, borderRadius: Radius.lg, borderWidth: 1, borderColor: '#fecaca', backgroundColor: '#fef2f2', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
+  dangerButtonText: { color: '#991b1b', fontSize: FontSize.sm, fontWeight: FontWeight.bold, fontFamily: Fonts.bold },
 })

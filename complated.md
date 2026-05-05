@@ -105,3 +105,5 @@
 - Randevu tamamlama akisi sonrasi dogrulama tamamlandi: `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili; `mobile` icin `npx tsc --noEmit` basarili.
 - Mobil bildirim tercihleri genisletildi: Profil > Bildirimler alanina `Randevu Hatirlaticilari` ve `Kampanya Mesajlari` toggle'lari eklendi; `Tüm Bildirimler` kapatildiginda asi, ilac, randevu ve kampanya tercihleri birlikte kapatilir.
 - Bildirim tercihleri genisletmesi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.
+- Mobil Premium yonetimi eklendi: `premium.service.ts` icine `POST /owner-subscriptions/cancel` ve `POST /owner-subscriptions/resume` fonksiyonlari eklendi; Premium ekraninda aktif abonelikte yenileme durumu, donem bitisi, donem sonunda iptal ve yenilemeyi surdurme aksiyonlari hazirlandi.
+- Mobil Premium yonetimi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.
