@@ -18,6 +18,8 @@ export interface OwnerPremiumStatus {
 
 export interface OwnerPremiumCheckout {
   checkoutUrl?: string
+  hostedUrl?: string
+  formToken?: string
   token?: string
   expiresAt?: string
 }

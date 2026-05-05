@@ -6,6 +6,8 @@ export interface AuthUser {
   email: string
   fullName: string
   role: string
+  phone?: string
+  clinicId?: string
 }
 
 interface AuthStore {

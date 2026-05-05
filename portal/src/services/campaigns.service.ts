@@ -21,20 +21,26 @@ export interface CampaignPreviewPayload {
 }
 
 export interface CampaignPreview {
-  recipientCount: number
+  recipientCount?: number
+  estimatedRecipients?: number
   estimatedCost?: number
-  message: string
+  message?: string
+  previewText?: string
 }
 
 export interface CampaignSendResponse {
   campaignId: string
-  queuedCount: number
+  queuedCount?: number
+  sentCount?: number
 }
 
 export interface CampaignResults {
   candidateCount: number
   sentCount: number
+  deliveredCount?: number
+  openedCount?: number
   returnedPatientCount: number
+  appointmentRequestCount?: number
 }
 
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }
@@ -52,11 +58,13 @@ export const campaignsService = {
   },
 
   async previewLostPatients(payload: CampaignPreviewPayload): Promise<CampaignPreview> {
+    assertSelectedCandidates(payload.candidateIds)
     const { data } = await api.post<CampaignPreview>('/campaigns/lost-patients/preview', payload)
     return data
   },
 
   async sendLostPatients(payload: CampaignPreviewPayload): Promise<CampaignSendResponse> {
+    assertSelectedCandidates(payload.candidateIds)
     const { data } = await api.post<CampaignSendResponse>('/campaigns/lost-patients/send', payload)
     return data
   },
@@ -65,4 +73,10 @@ export const campaignsService = {
     const { data } = await api.get<CampaignResults>(`/campaigns/${campaignId}/results`)
     return data
   },
+}
+
+function assertSelectedCandidates(candidateIds: string[]) {
+  if (candidateIds.length === 0) {
+    throw new Error('Kampanya göndermek için en az bir hasta seçilmelidir.')
+  }
 }

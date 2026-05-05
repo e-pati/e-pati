@@ -6,6 +6,8 @@ export interface AuthUser {
   email: string
   fullName: string
   role: string
+  phone?: string
+  clinicId?: string
 }
 
 export interface AuthResponse {
@@ -20,6 +22,23 @@ export interface RegisterResponse {
 }
 
 export const authService = {
+  async me(): Promise<AuthUser> {
+    const { data } = await api.get<AuthUser>('/auth/me')
+    await secureStorage.setItem('auth-user', JSON.stringify(data))
+    return data
+  },
+
+  async updateOwner(payload: { fullName?: string; phone?: string }): Promise<AuthUser> {
+    const { data } = await api.patch<AuthUser>('/owners/me', payload)
+    await secureStorage.setItem('auth-user', JSON.stringify(data))
+    return data
+  },
+
+  async changePassword(payload: { currentPassword: string; newPassword: string }): Promise<{ success?: boolean }> {
+    const { data } = await api.patch('/auth/password', payload)
+    return data
+  },
+
   async login(email: string, password: string): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
     await secureStorage.setItem('accessToken', data.accessToken)

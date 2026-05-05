@@ -21,6 +21,14 @@ export interface NotificationPreferences {
   campaignMessages?: boolean
 }
 
+type OwnerPreferencesResponse = {
+  pushToken?: string
+  pushEnabled?: boolean
+  notificationPreferences?: Partial<NotificationPreferences>
+}
+
+type PreferencesResponse = NotificationPreferences | OwnerPreferencesResponse
+
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }
 
 function unwrapList<T>(response: ListResponse<T>): T[] {
@@ -45,12 +53,40 @@ export const notificationsService = {
   },
 
   async getPreferences(): Promise<NotificationPreferences> {
-    const { data } = await api.get<NotificationPreferences>('/notifications/preferences')
-    return data
+    const { data } = await api.get<PreferencesResponse>('/notifications/preferences')
+    return normalizePreferences(data)
   },
 
   async updatePreferences(payload: Partial<NotificationPreferences>): Promise<NotificationPreferences> {
-    const { data } = await api.post<NotificationPreferences>('/notifications/preferences', payload)
-    return data
+    const { data } = await api.post<PreferencesResponse>('/notifications/preferences', payload)
+    return normalizePreferences(data)
   },
+}
+
+function normalizePreferences(response: PreferencesResponse): NotificationPreferences {
+  if (isOwnerPreferencesResponse(response)) {
+    const preferences = response.notificationPreferences ?? {}
+    return {
+      pushToken: response.pushToken ?? preferences.pushToken,
+      enabled: response.pushEnabled ?? preferences.enabled ?? true,
+      vaccinationAlerts: preferences.vaccinationAlerts ?? true,
+      medicationReminders: preferences.medicationReminders ?? true,
+      appointmentReminders: preferences.appointmentReminders ?? true,
+      campaignMessages: preferences.campaignMessages ?? true,
+    }
+  }
+
+  const preferences = response as NotificationPreferences
+  return {
+    enabled: preferences.enabled ?? true,
+    vaccinationAlerts: preferences.vaccinationAlerts ?? true,
+    medicationReminders: preferences.medicationReminders ?? true,
+    appointmentReminders: preferences.appointmentReminders ?? true,
+    campaignMessages: preferences.campaignMessages ?? true,
+    pushToken: preferences.pushToken,
+  }
+}
+
+function isOwnerPreferencesResponse(response: PreferencesResponse): response is OwnerPreferencesResponse {
+  return 'notificationPreferences' in response || 'pushEnabled' in response
 }
