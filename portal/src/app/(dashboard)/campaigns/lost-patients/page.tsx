@@ -26,6 +26,7 @@ const campaignContracts = [
 export default function LostPatientsCampaignPage() {
   const [channel, setChannel] = useState<CampaignChannel>('whatsapp')
   const [activeCampaignId, setActiveCampaignId] = useState<string | null>(null)
+  const [excludedCandidateIds, setExcludedCandidateIds] = useState<Set<string>>(new Set())
   const [message, setMessage] = useState(
     'Merhaba, VetCep kayıtlarımıza göre dostunuzun kontrol zamanı yaklaşmış olabilir. Uygun olduğunuzda kliniğimizden randevu alabilirsiniz.'
   )
@@ -61,7 +62,12 @@ export default function LostPatientsCampaignPage() {
   })
 
   const candidates = useMemo(() => candidatesQuery.data ?? [], [candidatesQuery.data])
-  const candidateIds = useMemo(() => candidates.map(candidate => candidate.id), [candidates])
+  const candidateIds = useMemo(
+    () => candidates
+      .filter(candidate => !excludedCandidateIds.has(candidate.id))
+      .map(candidate => candidate.id),
+    [candidates, excludedCandidateIds]
+  )
   const campaignResults = campaignResultsQuery.data
   const stats = [
     { label: 'Aday Hasta', value: campaignResults?.candidateCount ?? (candidates.length || '—'), icon: UsersRound },
@@ -70,6 +76,14 @@ export default function LostPatientsCampaignPage() {
   ]
 
   const campaignPayload = { candidateIds, channel, message }
+  const toggleCandidate = (candidateId: string) => {
+    setExcludedCandidateIds(current => {
+      const next = new Set(current)
+      if (next.has(candidateId)) next.delete(candidateId)
+      else next.add(candidateId)
+      return next
+    })
+  }
 
   return (
     <div>
@@ -99,7 +113,9 @@ export default function LostPatientsCampaignPage() {
                   <h2 className="text-sm font-semibold text-foreground">Kampanya adayları</h2>
                   <p className="text-xs text-muted-foreground mt-1">Risk listesi backend analitiğinden gelecek.</p>
                 </div>
-                <Badge variant="outline">{candidates.length} aday</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{candidateIds.length}/{candidates.length} seçili</Badge>
+                </div>
               </div>
               {candidatesQuery.isLoading ? (
                 <div className="px-5 py-16 text-center text-sm text-muted-foreground">Kampanya adayları yükleniyor...</div>
@@ -115,20 +131,49 @@ export default function LostPatientsCampaignPage() {
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
-                  {candidates.map(candidate => (
-                    <div key={candidate.id} className="grid grid-cols-[1fr_auto] gap-4 px-5 py-4">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{candidate.petName}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {candidate.ownerName ?? 'Sahip bilgisi yok'} · {candidate.daysSinceLastVisit ?? '—'} gün
-                        </p>
-                      </div>
-                      <Badge className="bg-amber-100 text-amber-700 border-0">
-                        Risk {candidate.riskScore ?? '—'}
-                      </Badge>
+                <div>
+                  <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-3">
+                    <p className="text-xs text-muted-foreground">Kampanya gönderilecek alıcıları seçin.</p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => setExcludedCandidateIds(new Set())}
+                      >
+                        Tümünü Seç
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => setExcludedCandidateIds(new Set(candidates.map(candidate => candidate.id)))}
+                      >
+                        Temizle
+                      </Button>
                     </div>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                  {candidates.map(candidate => (
+                    <label key={candidate.id} className="grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        checked={!excludedCandidateIds.has(candidate.id)}
+                        onChange={() => toggleCandidate(candidate.id)}
+                        className="h-4 w-4 rounded border-gray-300 accent-primary"
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-foreground">{candidate.petName}</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          {candidate.ownerName ?? 'Sahip bilgisi yok'} · {candidate.daysSinceLastVisit ?? '—'} gün
+                        </span>
+                      </span>
+                      <Badge className="bg-amber-100 text-amber-700 border-0">Risk {candidate.riskScore ?? '—'}</Badge>
+                    </label>
                   ))}
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -138,6 +183,7 @@ export default function LostPatientsCampaignPage() {
             <Card className="bg-white border-0 shadow-sm rounded-2xl">
               <CardContent className="p-5">
                 <h2 className="text-sm font-semibold text-foreground">Kampanya mesajı</h2>
+                <p className="mt-1 text-xs text-muted-foreground">{candidateIds.length} alıcı seçili</p>
                 <textarea
                   value={message}
                   onChange={event => setMessage(event.target.value)}
