@@ -40,6 +40,31 @@ test.describe('Auth', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 })
   })
 
+  test('super admin login sonrası admin panoya yönlendirmeli', async ({ page }) => {
+    await page.route('**/auth/clinic/login', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          accessToken: 'mock-access-token',
+          refreshToken: 'mock-refresh-token',
+          user: {
+            id: 'super-admin-test',
+            email: 'admin@vetcep.test',
+            fullName: 'VetCep Admin',
+            role: 'SUPER_ADMIN',
+          },
+        }),
+      })
+    })
+
+    await page.goto('/login')
+    await page.locator('input[type="email"]').fill('admin@vetcep.test')
+    await page.locator('input[type="password"]').fill('secret-pass')
+    await page.locator('button[type="submit"]').click()
+    await expect(page).toHaveURL(/\/admin\/dashboard/, { timeout: 10000 })
+  })
+
   test('VetCep başlığı görünür olmalı', async ({ page }) => {
     await page.goto('/login')
     await expect(page.locator('text=VetCep').first()).toBeVisible()
