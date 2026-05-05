@@ -1,11 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Building2, Mail, MapPin, Search, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Building2, Mail, MapPin, Search, ShieldCheck } from 'lucide-react'
 import { adminService, type AdminClinic } from '@/services/admin.service'
 
 const expectedColumns = [
@@ -158,8 +159,15 @@ export default function AdminClinicsPage() {
           ) : (
             <div className="divide-y divide-gray-100">
               {clinics.map(clinic => (
-                <div key={clinic.id} className="grid grid-cols-6 gap-4 px-5 py-4 text-sm">
-                  <div className="font-semibold text-foreground truncate">{clinic.name}</div>
+                <Link
+                  key={clinic.id}
+                  href={`/admin/clinics/${clinic.id}`}
+                  className="grid grid-cols-6 gap-4 px-5 py-4 text-sm transition-colors hover:bg-gray-50"
+                >
+                  <div className="font-semibold text-foreground truncate flex items-center gap-2">
+                    <span className="truncate">{clinic.name}</span>
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  </div>
                   <div className="text-muted-foreground truncate">
                     {clinic.ownerName ?? '—'}
                     {clinic.ownerEmail && <div className="text-[11px] truncate">{clinic.ownerEmail}</div>}
@@ -172,7 +180,7 @@ export default function AdminClinicsPage() {
                   </div>
                   <div className="text-muted-foreground">{formatDate(clinic.trialEndsAt)}</div>
                   <div className="font-semibold text-foreground">{formatCurrency(clinic.mrr)}</div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
