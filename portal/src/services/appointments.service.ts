@@ -66,4 +66,9 @@ export const appointmentsService = {
     const { data } = await api.patch<Appointment>(`/appointments/${id}`, { status: 'cancelled' })
     return data
   },
+
+  async complete(id: string): Promise<Appointment> {
+    const { data } = await api.patch<Appointment>(`/appointments/${id}`, { status: 'completed' })
+    return data
+  },
 }

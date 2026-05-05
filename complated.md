@@ -101,3 +101,5 @@
 - Portal test artifact ignore ayari eklendi: `portal/.gitignore` icine `/playwright-report` ve `/test-results` eklendi, lokal Playwright ciktilari artik git status'u kirletmez.
 - Mobil randevu talep basari geri bildirimi eklendi: genel Randevular ekraninda ve Klinik Profili icindeki randevu talep formunda basarili talep sonrasi yesil bilgi bandi gosterilir.
 - Randevu talep geri bildirimi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.
+- Portal randevu tamamlama akisi eklendi: `appointments.service.ts` icine `complete` fonksiyonu eklendi ve `/appointments` sag paneline bugunku onayli randevular karti kondu; klinik randevuyu `Tamamlandi Isaretle` aksiyonuyla `PATCH /appointments/:id { status: completed }` kontratina gonderebilir.
+- Randevu tamamlama akisi sonrasi dogrulama tamamlandi: `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili; `mobile` icin `npx tsc --noEmit` basarili.

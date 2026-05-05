@@ -19,6 +19,7 @@ const appointmentContracts = [
   'POST /appointments',
   'PATCH /appointments/:id',
   'POST /appointments/:id/confirm',
+  'PATCH /appointments/:id { status: completed }',
 ]
 
 const statusLabel: Record<string, string> = {
@@ -83,6 +84,16 @@ export default function AppointmentsPage() {
       toast.error('Randevu iptal servisi henüz hazır değil')
     },
   })
+  const completeAppointment = useMutation({
+    mutationFn: appointmentsService.complete,
+    onSuccess: () => {
+      toast.success('Randevu tamamlandı')
+      queryClient.invalidateQueries({ queryKey: ['appointments'] })
+    },
+    onError: () => {
+      toast.error('Randevu tamamlama servisi henüz hazır değil')
+    },
+  })
 
   const appointments = useMemo(
     () => (appointmentsQuery.data ?? []).sort((a, b) => (
@@ -92,6 +103,12 @@ export default function AppointmentsPage() {
   )
 
   const pendingAppointments = appointments.filter(appointment => appointment.status === 'pending')
+  const todaysActiveAppointments = appointments.filter(appointment => (
+    isToday(getAppointmentDate(appointment))
+    && appointment.status !== 'pending'
+    && appointment.status !== 'cancelled'
+    && appointment.status !== 'completed'
+  ))
   const activePetCount = new Set(appointments.map(appointment => appointment.petId).filter(Boolean)).size
   const stats = [
     { label: 'Bugünkü Randevu', value: appointments.filter(appointment => isToday(getAppointmentDate(appointment))).length, icon: CalendarDays, color: 'text-primary', bg: 'bg-primary/10' },
@@ -188,6 +205,47 @@ export default function AppointmentsPage() {
           </Card>
 
           <div className="space-y-5">
+            <Card className="bg-white border-0 shadow-sm rounded-2xl">
+              <CardContent className="p-5">
+                <Badge className="bg-blue-500/10 text-blue-600 border-0 mb-4">Bugün</Badge>
+                <h2 className="text-sm font-semibold text-foreground">Bugünkü onaylı randevular</h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Muayene tamamlandığında randevuyu kapatıp listeyi güncel tutun.
+                </p>
+                <div className="mt-5 space-y-3">
+                  {todaysActiveAppointments.length === 0 ? (
+                    <div className="rounded-2xl bg-gray-50 border border-dashed border-gray-200 p-6 text-center">
+                      <CalendarDays className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground">Bugün tamamlanacak onaylı randevu yok</p>
+                    </div>
+                  ) : todaysActiveAppointments.slice(0, 5).map(appointment => (
+                    <div key={appointment.id} className="rounded-2xl border border-gray-100 bg-gray-50 p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{appointment.pet?.name ?? appointment.reason}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatTime(getAppointmentDate(appointment))} · {appointment.pet?.owner?.fullName ?? 'Sahip bilgisi bekleniyor'}
+                          </p>
+                        </div>
+                        <Badge variant="outline">{statusLabel[appointment.status] ?? appointment.status}</Badge>
+                      </div>
+                      {appointment.reason && (
+                        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{appointment.reason}</p>
+                      )}
+                      <Button
+                        size="sm"
+                        className="mt-3 h-7 w-full"
+                        onClick={() => completeAppointment.mutate(appointment.id)}
+                        disabled={completeAppointment.isPending}
+                      >
+                        Tamamlandı İşaretle
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="bg-white border-0 shadow-sm rounded-2xl">
               <CardContent className="p-5">
                 <Badge className="bg-primary/10 text-primary border-0 mb-4">Mobil talepler</Badge>
