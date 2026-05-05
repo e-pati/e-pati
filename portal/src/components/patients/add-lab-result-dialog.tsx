@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -10,12 +10,14 @@ import { Label } from '@/components/ui/label'
 import { useQueryClient } from '@tanstack/react-query'
 import { labResultsService } from '@/services/lab-results.service'
 import { uploadsService } from '@/services/uploads.service'
+import { whatsappService } from '@/services/whatsapp.service'
 import { toast } from 'sonner'
 import { FlaskConical, X, Upload, FileText, Loader2 } from 'lucide-react'
 
 const schema = z.object({
   testType: z.string().min(2, 'Test türü gerekli'),
   comment: z.string().optional(),
+  sendWhatsappNotice: z.boolean(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -29,20 +31,25 @@ const ACCEPTED = '.pdf,.jpg,.jpeg,.png,.webp'
 
 interface Props {
   petId: string
+  petName: string
+  ownerName: string
+  ownerPhone?: string
   open: boolean
   onClose: () => void
 }
 
-export function AddLabResultDialog({ petId, open, onClose }: Props) {
+export function AddLabResultDialog({ petId, petName, ownerName, ownerPhone, open, onClose }: Props) {
   const qc = useQueryClient()
   const fileRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, reset, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: { sendWhatsappNotice: true },
   })
+  const sendWhatsappNotice = useWatch({ control, name: 'sendWhatsappNotice' })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -71,6 +78,25 @@ export function AddLabResultDialog({ petId, open, onClose }: Props) {
         fileUrl,
         comment: data.comment || undefined,
       })
+      if (data.sendWhatsappNotice && ownerPhone) {
+        try {
+          await whatsappService.send({
+            petId,
+            ownerPhone,
+            type: 'custom',
+            message: [
+              `Merhaba ${ownerName}`,
+              `${petName} için ${data.testType} sonucu VetCep'e yüklendi.`,
+              data.comment ? `Kısa not: ${data.comment}` : '',
+              fileUrl ? 'Dosyayı VetCep uygulamasından görüntüleyebilirsiniz.' : 'Detayları VetCep uygulamasından görüntüleyebilirsiniz.',
+            ].filter(Boolean).join('\n'),
+          })
+        } catch {
+          toast.error('WhatsApp lab bildirimi gönderilemedi', {
+            description: 'Lab sonucu kaydedildi; WhatsApp servisi hazır olduğunda bildirim kuyruğa alınacak.',
+          })
+        }
+      }
 
       toast.success('Lab sonucu kaydedildi')
       qc.invalidateQueries({ queryKey: ['lab-results', { petId }] })
@@ -177,6 +203,26 @@ export function AddLabResultDialog({ petId, open, onClose }: Props) {
               className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
             />
           </div>
+
+          <label className="flex items-start gap-3 rounded-xl border border-rose-500/20 bg-rose-500/5 p-3 cursor-pointer">
+            <input
+              type="checkbox"
+              {...register('sendWhatsappNotice')}
+              disabled={!ownerPhone}
+              className="mt-1 h-4 w-4 rounded border-gray-300 accent-primary"
+            />
+            <span>
+              <span className="text-sm font-semibold text-foreground">Sonucun hazır olduğunu WhatsApp ile bildir</span>
+              <span className="block text-xs text-muted-foreground mt-1">
+                {ownerPhone
+                  ? `${ownerPhone} numarasına lab sonucu hazır mesajı hazırlanır.`
+                  : 'Sahip telefonu olmadığı için WhatsApp bildirimi gönderilemez.'}
+              </span>
+            </span>
+          </label>
+          {sendWhatsappNotice && !ownerPhone && (
+            <p className="text-xs text-amber-700">WhatsApp bildirimi için sahip telefon bilgisi olmalı.</p>
+          )}
 
           <div className="flex gap-3 pt-1">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={busy}>

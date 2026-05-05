@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/auth.store'
 import { toast } from 'sonner'
+import axios from 'axios'
 
 const loginSchema = z.object({
   email: z.string().email('Geçerli bir e-posta giriniz'),
@@ -30,17 +31,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [apiError, setApiError] = useState('')
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const [pawPositions] = useState(() =>
-    Array.from({ length: 20 }, (_, i) => ({
-      top: `${(i * 37 + 13) % 100}%`,
-      left: `${(i * 53 + 7) % 100}%`,
-      width: `${20 + (i * 7) % 40}px`,
-      transform: `rotate(${(i * 73) % 360}deg)`,
-      opacity: 0.3 + (i % 5) * 0.08,
-    }))
-  )
-
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   })
@@ -52,8 +42,11 @@ export default function LoginPage() {
       const res = await authService.loginClinic(data.email, data.password)
       setUser(res.user)
       router.push('/dashboard')
-    } catch (err: any) {
-      setApiError(err?.response?.data?.message ?? 'Giriş başarısız. Bilgilerinizi kontrol edin.')
+    } catch (err: unknown) {
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : undefined
+      setApiError(typeof message === 'string' ? message : 'Giriş başarısız. Bilgilerinizi kontrol edin.')
     } finally {
       setIsLoading(false)
     }

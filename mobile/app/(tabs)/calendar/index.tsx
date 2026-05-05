@@ -5,8 +5,7 @@ import {
 } from 'react-native'
 import { Calendar, LocaleConfig } from 'react-native-calendars'
 import { useQuery } from '@tanstack/react-query'
-import { mockVaccinations, mockPets, mockExaminations } from '@/lib/mock-data'
-import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
+import { vaccinationsService } from '@/services/vaccinations.service'
 import { examinationsService } from '@/services/examinations.service'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import type { PetSpecies } from '@/types'
@@ -39,8 +38,8 @@ export default function CalendarScreen() {
   const petsQuery = useQuery({ queryKey: ['pets'], queryFn: petsService.getAll, retry: 1 })
 
   const pets = petsQuery.data ?? []
-  const vaccines = vaccinationsQuery.data ?? mockVaccinations.map(v => ({ id: v.id, petId: v.petId, name: v.vaccineName, appliedAt: v.appliedDate, dueAt: v.nextDate } as ApiVaccination))
-  const examinations = examinationsQuery.data ?? mockExaminations.map(e => ({ id: e.id, petId: e.petId, complaint: e.complaint, findings: e.findings, assessment: e.assessment, plan: e.plan, createdAt: e.date, followUpDate: e.followUpDate }))
+  const vaccines = vaccinationsQuery.data ?? []
+  const examinations = examinationsQuery.data ?? []
 
   const markedDates = useMemo(() => {
     const marks: Record<string, any> = {}

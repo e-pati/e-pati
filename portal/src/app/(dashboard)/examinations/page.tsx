@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useExaminations } from '@/hooks/use-examinations'
 import { useAllClinicPatients } from '@/hooks/use-clinic'
-import { mockExaminations } from '@/lib/mock-data'
 import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, Stethoscope, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -32,17 +31,8 @@ function ExaminationsContent() {
   const examinationsQuery = useExaminations({ limit: 200 })
   const petsQuery = useAllClinicPatients()
 
-  const examinations = examinationsQuery.data ?? (
-    examinationsQuery.isError
-      ? mockExaminations.map(e => ({
-          id: e.id, petId: e.petId, complaint: e.complaint,
-          findings: e.findings, assessment: e.assessment, plan: e.plan,
-          createdAt: e.date, followUpDate: e.followUpDate,
-        }))
-      : []
-  )
-
-  const pets = petsQuery.data?.items ?? []
+  const examinations = useMemo(() => examinationsQuery.data ?? [], [examinationsQuery.data])
+  const pets = useMemo(() => petsQuery.data?.items ?? [], [petsQuery.data?.items])
 
   const enriched = useMemo(() => examinations.map(e => ({
     ...e,
@@ -87,7 +77,7 @@ function ExaminationsContent() {
 
         {examinationsQuery.isError && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            API bağlantısı kurulamadı — örnek veriler gösteriliyor.
+            Muayene kayıtları alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
           </div>
         )}
 

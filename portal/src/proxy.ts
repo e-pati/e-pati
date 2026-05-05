@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login']
+const PUBLIC_PATHS = ['/', '/login', '/clinic-onboarding', '/get-app']
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const isPublic = PUBLIC_PATHS.some(p => pathname.startsWith(p))
+  const isPublic = PUBLIC_PATHS.some(p => p === '/' ? pathname === '/' : pathname.startsWith(p))
 
   // localStorage'a middleware'den erişemeyiz — cookie kontrolü yaparız
   // Token cookie'ye de yazılmıyor şu an, bu yüzden basit bir kontrol:

@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useLabResults } from '@/hooks/use-lab-results'
 import { useAllClinicPatients } from '@/hooks/use-clinic'
-import { mockLabResults } from '@/lib/mock-data'
 import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, FlaskConical, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
@@ -33,16 +32,8 @@ function LabResultsContent() {
   const labQuery = useLabResults()
   const petsQuery = useAllClinicPatients()
 
-  const labResults = labQuery.data ?? (
-    labQuery.isError
-      ? mockLabResults.map(l => ({
-          id: l.id, petId: l.petId, testType: l.testType,
-          comment: l.comment, createdAt: l.date, fileUrl: l.fileUrl,
-        }))
-      : []
-  )
-
-  const pets = petsQuery.data?.items ?? []
+  const labResults = useMemo(() => labQuery.data ?? [], [labQuery.data])
+  const pets = useMemo(() => petsQuery.data?.items ?? [], [petsQuery.data?.items])
 
   const enriched = useMemo(() => labResults.map(l => ({
     ...l,
@@ -86,7 +77,7 @@ function LabResultsContent() {
 
         {labQuery.isError && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            API bağlantısı kurulamadı — örnek veriler gösteriliyor.
+            Lab sonuçları alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
           </div>
         )}
 

@@ -5,12 +5,10 @@ import { Header } from '@/components/layout/header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { useVaccinations, useUpcomingVaccinations } from '@/hooks/use-vaccinations'
+import { useVaccinations } from '@/hooks/use-vaccinations'
 import { useAllClinicPatients } from '@/hooks/use-clinic'
-import { mockVaccinations } from '@/lib/mock-data'
 import { formatDateShort, isVaccinationOverdue, isVaccinationDueSoon, speciesEmoji } from '@/lib/utils'
-import { AlertTriangle, Clock, CheckCircle2, Syringe, Filter } from 'lucide-react'
+import { AlertTriangle, Clock, CheckCircle2, Syringe } from 'lucide-react'
 import type { PetSpecies } from '@/types'
 import Link from 'next/link'
 import type { ApiVaccination } from '@/services/vaccinations.service'
@@ -28,17 +26,8 @@ export default function VaccinationsPage() {
   const vaccinationsQuery = useVaccinations()
   const petsQuery = useAllClinicPatients()
 
-  const vaccinations: ApiVaccination[] = vaccinationsQuery.data ?? (
-    vaccinationsQuery.isError
-      ? mockVaccinations.map(v => ({
-          id: v.id, petId: v.petId, name: v.vaccineName,
-          appliedAt: v.appliedDate, dueAt: v.nextDate,
-          notes: v.manufacturer,
-        }))
-      : []
-  )
-
-  const pets = petsQuery.data?.items ?? []
+  const vaccinations: ApiVaccination[] = useMemo(() => vaccinationsQuery.data ?? [], [vaccinationsQuery.data])
+  const pets = useMemo(() => petsQuery.data?.items ?? [], [petsQuery.data?.items])
 
   const enriched = useMemo(() => vaccinations.map(v => {
     const dueAt = v.dueAt ?? v.appliedAt
@@ -111,7 +100,7 @@ export default function VaccinationsPage() {
 
         {vaccinationsQuery.isError && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            API bağlantısı kurulamadı — örnek veriler gösteriliyor.
+            Aşı kayıtları alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
           </div>
         )}
 

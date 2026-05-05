@@ -3,9 +3,11 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   SafeAreaView, Switch, Alert, Platform,
 } from 'react-native'
-import { router } from 'expo-router'
+import { router, type Href } from 'expo-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/stores/auth.store'
 import { authService } from '@/services/auth.service'
+import { notificationsService, type NotificationPreferences } from '@/services/notifications.service'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -19,14 +21,52 @@ function useMobilePets() {
   return count
 }
 
-type PetSex = 'MALE' | 'FEMALE' | 'UNKNOWN'
+const clinicDiscoveryRoute = '/profile/clinics' as Href
+const premiumRoute = '/profile/premium' as Href
+const personalInfoRoute = '/profile/personal-info' as Href
+const securityRoute = '/profile/security' as Href
+const privacyRoute = '/profile/privacy' as Href
+
+type IconName = React.ComponentProps<typeof Ionicons>['name']
+type ToggleKey = 'enabled' | 'vaccinationAlerts' | 'medicationReminders' | 'appointmentReminders' | 'campaignMessages'
+
+type SettingsRow =
+  | { label: string; icon: IconName; color: string; onPress: () => void; toggle?: false }
+  | { label: string; icon: IconName; color: string; toggle: true; value: boolean; onToggle: (value: boolean) => void; disabled?: boolean }
+
+interface SettingsSection {
+  title: string
+  rows: SettingsRow[]
+}
+
+const defaultNotificationPreferences: NotificationPreferences = {
+  enabled: true,
+  vaccinationAlerts: true,
+  medicationReminders: false,
+  appointmentReminders: true,
+  campaignMessages: false,
+}
 
 export default function ProfileScreen() {
+  const qc = useQueryClient()
   const { user, loadUser } = useAuthStore()
   const petCount = useMobilePets()
-  const [notifications, setNotifications] = useState(true)
-  const [vaccinationAlerts, setVaccinationAlerts] = useState(true)
-  const [medicationReminders, setMedicationReminders] = useState(false)
+
+  const preferencesQuery = useQuery({
+    queryKey: ['notification-preferences'],
+    queryFn: notificationsService.getPreferences,
+    retry: 1,
+  })
+
+  const updatePreferences = useMutation({
+    mutationFn: notificationsService.updatePreferences,
+    onSuccess: preferences => {
+      qc.setQueryData(['notification-preferences'], preferences)
+    },
+    onError: () => {
+      Alert.alert('Bildirim Ayarları', 'Bildirim tercihleri kaydedilemedi. Endpoint bekleniyor.')
+    },
+  })
 
   useEffect(() => { if (!user) loadUser() }, [])
 
@@ -52,22 +92,40 @@ export default function ProfileScreen() {
     if (role === 'OWNER') return 'Evcil Hayvan Sahibi'
     return 'Kullanıcı'
   }
+  const currentPreferences = {
+    ...defaultNotificationPreferences,
+    ...preferencesQuery.data,
+    ...updatePreferences.variables,
+  }
+  const updatePreference = (key: ToggleKey, value: boolean) => {
+    const nextPreferences = { ...currentPreferences, [key]: value }
+    if (key === 'enabled' && !value) {
+      nextPreferences.vaccinationAlerts = false
+      nextPreferences.medicationReminders = false
+      nextPreferences.appointmentReminders = false
+      nextPreferences.campaignMessages = false
+    }
+    updatePreferences.mutate(nextPreferences)
+  }
 
-  const sections = [
+  const sections: SettingsSection[] = [
     {
       title: 'Hesap',
       rows: [
-        { label: 'Kişisel Bilgiler', icon: 'person-outline' as const, color: Colors.primary, onPress: () => Alert.alert('Yakında', 'Kişisel bilgi düzenleme özelliği yakında eklenecek.') },
-        { label: 'Güvenlik', icon: 'lock-closed-outline' as const, color: '#6366f1', onPress: () => Alert.alert('Güvenlik', 'Şifre değiştirmek için sistem yöneticinizle iletişime geçin.') },
-        { label: 'KVKK Ayarları', icon: 'document-text-outline' as const, color: '#f59e0b', onPress: () => Alert.alert('KVKK', 'Kişisel verilerinize ilişkin talepler için destek@epati.com adresine yazabilirsiniz.') },
+        { label: 'Kişisel Bilgiler', icon: 'person-outline' as const, color: Colors.primary, onPress: () => router.push(personalInfoRoute) },
+        { label: 'Güvenlik', icon: 'lock-closed-outline' as const, color: '#6366f1', onPress: () => router.push(securityRoute) },
+        { label: 'KVKK Ayarları', icon: 'document-text-outline' as const, color: '#f59e0b', onPress: () => router.push(privacyRoute) },
+        { label: 'Klinik Keşif', icon: 'map-outline' as const, color: '#0ea5e9', onPress: () => router.push(clinicDiscoveryRoute) },
       ],
     },
     {
       title: 'Bildirimler',
       rows: [
-        { label: 'Tüm Bildirimler', icon: 'notifications-outline' as const, color: Colors.primary, toggle: true, value: notifications, onToggle: setNotifications },
-        { label: 'Aşı Uyarıları', icon: 'medical-outline' as const, color: '#3b82f6', toggle: true, value: vaccinationAlerts, onToggle: setVaccinationAlerts },
-        { label: 'İlaç Hatırlatıcısı', icon: 'alarm-outline' as const, color: '#8b5cf6', toggle: true, value: medicationReminders, onToggle: setMedicationReminders },
+        { label: 'Tüm Bildirimler', icon: 'notifications-outline' as const, color: Colors.primary, toggle: true, value: currentPreferences.enabled, onToggle: value => updatePreference('enabled', value), disabled: updatePreferences.isPending },
+        { label: 'Aşı Uyarıları', icon: 'medical-outline' as const, color: '#3b82f6', toggle: true, value: currentPreferences.vaccinationAlerts, onToggle: value => updatePreference('vaccinationAlerts', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
+        { label: 'İlaç Hatırlatıcısı', icon: 'alarm-outline' as const, color: '#8b5cf6', toggle: true, value: currentPreferences.medicationReminders, onToggle: value => updatePreference('medicationReminders', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
+        { label: 'Randevu Hatırlatıcıları', icon: 'calendar-outline' as const, color: '#0ea5e9', toggle: true, value: currentPreferences.appointmentReminders ?? true, onToggle: value => updatePreference('appointmentReminders', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
+        { label: 'Kampanya Mesajları', icon: 'megaphone-outline' as const, color: '#f59e0b', toggle: true, value: currentPreferences.campaignMessages ?? false, onToggle: value => updatePreference('campaignMessages', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
       ],
     },
     {
@@ -121,11 +179,42 @@ export default function ProfileScreen() {
 
         {/* Ayarlar */}
         <View style={styles.content}>
+          <View style={styles.premiumCard}>
+            <View style={styles.premiumHeader}>
+              <View style={styles.premiumIcon}>
+                <Ionicons name="sparkles" size={20} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.premiumTitle}>VetCep Premium</Text>
+                <Text style={styles.premiumSubtitle}>Diyet, sınırsız kayıt ve gelişmiş hatırlatıcılar</Text>
+              </View>
+              <Text style={styles.premiumPrice}>₺29/ay</Text>
+            </View>
+            <View style={styles.premiumFeatures}>
+              {['Sınırsız hayvan profili', 'Diyet ve kilo takibi', 'Gelişmiş ilaç hatırlatıcısı'].map(feature => (
+                <View key={feature} style={styles.premiumFeature}>
+                  <Ionicons name="checkmark-circle" size={15} color={Colors.primary} />
+                  <Text style={styles.premiumFeatureText}>{feature}</Text>
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.premiumButton}
+              onPress={() => router.push(premiumRoute)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.premiumButtonText}>Premium Akışını Gör</Text>
+            </TouchableOpacity>
+          </View>
+
           {sections.map(section => (
             <View key={section.title} style={styles.section}>
               <Text style={styles.sectionTitle}>{section.title}</Text>
+              {section.title === 'Bildirimler' && preferencesQuery.isError && (
+                <Text style={styles.sectionWarning}>Bildirim tercih servisi henüz hazır değil. Endpoint bekleniyor.</Text>
+              )}
               <View style={styles.sectionCard}>
-                {section.rows.map((row: any, i: number) => (
+                {section.rows.map((row, i) => (
                   <TouchableOpacity
                     key={row.label}
                     style={[styles.row, i < section.rows.length - 1 && styles.rowBorder]}
@@ -142,6 +231,7 @@ export default function ProfileScreen() {
                       <Switch
                         value={row.value}
                         onValueChange={row.onToggle}
+                        disabled={row.disabled}
                         trackColor={{ false: Colors.border, true: Colors.primaryBorder }}
                         thumbColor={row.value ? Colors.primary : Colors.textMuted}
                       />
@@ -214,11 +304,28 @@ const styles = StyleSheet.create({
 
   // Content
   content: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl },
+  premiumCard: {
+    backgroundColor: '#fff', borderRadius: Radius.xl, padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    shadowColor: '#059669', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 3,
+    borderWidth: 1, borderColor: Colors.primaryBorder,
+  },
+  premiumHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  premiumIcon: { width: 40, height: 40, borderRadius: Radius.lg, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
+  premiumTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
+  premiumSubtitle: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
+  premiumPrice: { fontSize: FontSize.base, fontWeight: FontWeight.bold, color: Colors.primary },
+  premiumFeatures: { gap: 8, marginTop: Spacing.lg },
+  premiumFeature: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  premiumFeatureText: { fontSize: FontSize.sm, color: Colors.textSecondary },
+  premiumButton: { height: 44, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
+  premiumButtonText: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, color: Colors.primary },
   section: { marginBottom: Spacing.lg },
   sectionTitle: {
     fontSize: FontSize.xs, fontWeight: FontWeight.semibold, color: Colors.textMuted,
     textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, paddingLeft: 4,
   },
+  sectionWarning: { fontSize: FontSize.xs, color: '#92400e', backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fde68a', borderRadius: Radius.md, padding: Spacing.sm, marginBottom: Spacing.sm },
   sectionCard: {
     backgroundColor: '#fff', borderRadius: Radius.xl, overflow: 'hidden',
     shadowColor: '#059669', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,

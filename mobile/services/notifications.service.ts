@@ -12,6 +12,15 @@ export interface ApiNotification {
   readAt?: string | null
 }
 
+export interface NotificationPreferences {
+  pushToken?: string
+  enabled: boolean
+  vaccinationAlerts: boolean
+  medicationReminders: boolean
+  appointmentReminders?: boolean
+  campaignMessages?: boolean
+}
+
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }
 
 function unwrapList<T>(response: ListResponse<T>): T[] {
@@ -33,5 +42,15 @@ export const notificationsService = {
 
   async registerPushToken(token: string): Promise<void> {
     await api.post('/notifications/preferences', { pushToken: token })
+  },
+
+  async getPreferences(): Promise<NotificationPreferences> {
+    const { data } = await api.get<NotificationPreferences>('/notifications/preferences')
+    return data
+  },
+
+  async updatePreferences(payload: Partial<NotificationPreferences>): Promise<NotificationPreferences> {
+    const { data } = await api.post<NotificationPreferences>('/notifications/preferences', payload)
+    return data
   },
 }
