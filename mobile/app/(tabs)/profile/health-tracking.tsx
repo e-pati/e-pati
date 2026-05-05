@@ -3,7 +3,7 @@ import {
   ActivityIndicator, Alert, RefreshControl, SafeAreaView, ScrollView,
   StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Colors, Fonts, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme'
@@ -15,8 +15,9 @@ import type { PetSpecies } from '@/types'
 const BCS_OPTIONS = [1, 2, 3, 4, 5]
 
 export default function HealthTrackingScreen() {
+  const { petId } = useLocalSearchParams<{ petId?: string }>()
   const qc = useQueryClient()
-  const [selectedPetId, setSelectedPetId] = useState('')
+  const [selectedPetId, setSelectedPetId] = useState(petId ?? '')
   const [weightKg, setWeightKg] = useState('')
   const [bodyConditionScore, setBodyConditionScore] = useState(3)
   const [weightNotes, setWeightNotes] = useState('')

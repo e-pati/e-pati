@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   SafeAreaView, ActivityIndicator, Modal, Share, Image,
 } from 'react-native'
-import { useLocalSearchParams, router } from 'expo-router'
+import { useLocalSearchParams, router, type Href } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import QRCode from 'react-native-qrcode-svg'
 import { petsService, type ApiPet } from '@/services/pets.service'
@@ -258,6 +258,21 @@ export default function PetDetailScreen() {
               </View>
             )}
 
+            <TouchableOpacity
+              style={styles.healthTrackingCard}
+              onPress={() => router.push(`/(tabs)/profile/health-tracking?petId=${pet.id}` as Href)}
+              activeOpacity={0.86}
+            >
+              <View style={styles.healthTrackingIcon}>
+                <Ionicons name="analytics-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.healthTrackingTitle}>Diyet ve kilo takibi</Text>
+                <Text style={styles.healthTrackingText}>Bu hayvan için kilo kaydı ve beslenme planı oluşturun.</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+            </TouchableOpacity>
+
             {/* Mikro çip */}
             {pet.microchipNo && (
               <View style={styles.infoCard}>
@@ -490,6 +505,7 @@ function mapApiPet(pet: ApiPet): Pet {
     gender: pet.sex === 'female' ? 'female' : 'male',
     birthDate: pet.birthDate ?? pet.createdAt,
     microchipNo: pet.microchipNo,
+    photoUrl: pet.photoUrl,
   }
 }
 
@@ -667,6 +683,17 @@ const styles = StyleSheet.create({
   medicationDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary, marginTop: 5 },
   medicationName: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.text },
   medicationDetail: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
+  healthTrackingCard: {
+    backgroundColor: Colors.background, borderRadius: Radius.xl,
+    padding: Spacing.lg,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    borderWidth: 1, borderColor: Colors.primaryBorder,
+  },
+  healthTrackingIcon: { width: 44, height: 44, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center' },
+  healthTrackingTitle: { fontSize: FontSize.base, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
+  healthTrackingText: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 3, lineHeight: 17 },
   recordCard: {
     backgroundColor: Colors.background, borderRadius: Radius.xl,
     padding: Spacing.lg,
