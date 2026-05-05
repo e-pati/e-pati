@@ -1,31 +1,59 @@
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native'
+import { useState } from 'react'
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native'
 import { router } from 'expo-router'
+import { useMutation } from '@tanstack/react-query'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuthStore } from '@/stores/auth.store'
+import { authService } from '@/services/auth.service'
 import { Colors, Fonts, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme'
 
 export default function PersonalInfoScreen() {
   const user = useAuthStore(s => s.user)
-  const nameParts = user?.fullName?.split(' ') ?? []
-  const firstName = nameParts.slice(0, -1).join(' ') || user?.fullName || ''
-  const lastName = nameParts.length > 1 ? nameParts.at(-1) ?? '' : ''
+  const setUser = useAuthStore(s => s.setUser)
+  const [fullName, setFullName] = useState(user?.fullName ?? '')
+  const [phone, setPhone] = useState(user?.phone ?? '')
+
+  const updateProfile = useMutation({
+    mutationFn: () => authService.updateOwner({
+      fullName: fullName.trim(),
+      phone: phone.trim() || undefined,
+    }),
+    onSuccess: updatedUser => {
+      setUser(updatedUser)
+      Alert.alert('Profil', 'Bilgileriniz güncellendi.')
+    },
+    onError: () => {
+      Alert.alert('Profil', 'Bilgiler güncellenemedi. Lütfen tekrar deneyin.')
+    },
+  })
+
+  const canSubmit = fullName.trim().length > 1 && !updateProfile.isPending
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Kişisel Bilgiler" subtitle="Hesap profilinizi görüntüleyin" />
+      <Header title="Kişisel Bilgiler" subtitle="Hesap profilinizi güncelleyin" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Profil</Text>
-          <ReadonlyField label="Ad" value={firstName || 'Ad bilgisi bekleniyor'} />
-          <ReadonlyField label="Soyad" value={lastName || 'Soyad bilgisi bekleniyor'} />
+          <EditableField label="Ad Soyad" value={fullName} onChangeText={setFullName} placeholder="Ad Soyad" />
+          <EditableField label="Telefon" value={phone} onChangeText={setPhone} placeholder="05xx xxx xx xx" keyboardType="phone-pad" />
           <ReadonlyField label="E-posta" value={user?.email || 'E-posta bekleniyor'} />
           <ReadonlyField label="Rol" value={roleLabel(user?.role)} />
+
+          <TouchableOpacity
+            style={[styles.saveButton, !canSubmit && styles.saveButtonDisabled]}
+            onPress={() => updateProfile.mutate()}
+            disabled={!canSubmit}
+            activeOpacity={0.86}
+          >
+            {updateProfile.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>Bilgileri Güncelle</Text>}
+          </TouchableOpacity>
         </View>
 
         <View style={styles.infoCard}>
-          <Ionicons name="information-circle-outline" size={20} color={Colors.info} />
+          <Ionicons name="shield-checkmark-outline" size={20} color={Colors.info} />
           <Text style={styles.infoText}>
-            Profil güncelleme endpointi hazır olduğunda bu alanlar düzenlenebilir hale gelecek.
+            Profil bilgileriniz güvenli oturumunuz üzerinden kaydedilir.
           </Text>
         </View>
 
@@ -36,6 +64,34 @@ export default function PersonalInfoScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+  )
+}
+
+function EditableField({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType,
+}: {
+  label: string
+  value: string
+  onChangeText: (value: string) => void
+  placeholder: string
+  keyboardType?: 'default' | 'phone-pad'
+}) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={Colors.textMuted}
+        style={[styles.input, styles.editableInput]}
+        keyboardType={keyboardType ?? 'default'}
+      />
+    </View>
   )
 }
 
@@ -82,6 +138,10 @@ const styles = StyleSheet.create({
   field: { marginBottom: Spacing.md },
   label: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.textSecondary, marginBottom: 6 },
   input: { minHeight: 46, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: Spacing.md, color: Colors.textSecondary, backgroundColor: Colors.surface, fontSize: FontSize.base },
+  editableInput: { color: Colors.text, backgroundColor: '#fff' },
+  saveButton: { minHeight: 48, borderRadius: Radius.md, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm },
+  saveButtonDisabled: { opacity: 0.55 },
+  saveButtonText: { color: '#fff', fontSize: FontSize.base, fontWeight: FontWeight.bold },
   infoCard: { flexDirection: 'row', gap: Spacing.sm, backgroundColor: '#eff6ff', borderColor: '#bfdbfe', borderWidth: 1, borderRadius: Radius.lg, padding: Spacing.md, marginTop: Spacing.lg },
   infoText: { flex: 1, fontSize: FontSize.sm, color: '#1d4ed8', lineHeight: 19 },
   contractCard: { backgroundColor: '#fff', borderRadius: Radius.xl, padding: Spacing.lg, marginTop: Spacing.lg },
