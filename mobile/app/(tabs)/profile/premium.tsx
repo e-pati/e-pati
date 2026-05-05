@@ -59,11 +59,16 @@ export default function PremiumScreen() {
     setCheckoutError(null)
     try {
       const checkout = await ownerPremiumService.createCheckout()
-      if (checkout.checkoutUrl) {
-        await Linking.openURL(checkout.checkoutUrl)
+      const checkoutUrl = checkout.checkoutUrl ?? checkout.hostedUrl
+      if (checkoutUrl) {
+        await Linking.openURL(checkoutUrl)
         return
       }
-      Alert.alert('Premium', 'Checkout oturumu oluşturuldu. Ödeme ekranı backend yanıt formatı netleşince açılacak.')
+      if (checkout.formToken || checkout.token) {
+        Alert.alert('Premium', 'Checkout oturumu oluşturuldu. Gömülü ödeme formu için token alındı.')
+        return
+      }
+      Alert.alert('Premium', 'Checkout oturumu oluşturuldu, ödeme bağlantısı yanıt içinde bulunamadı.')
     } catch {
       setCheckoutError('Sahip premium ödeme servisi henüz hazır değil. Endpoint bekleniyor.')
     } finally {
@@ -175,7 +180,7 @@ export default function PremiumScreen() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Ödeme altyapısı</Text>
           <Text style={styles.bodyText}>
-            iyzico checkout endpointi geldiğinde bu ekrandaki aksiyon kullanıcıyı güvenli ödeme sayfasına yönlendirecek.
+            iyzico checkout yanıtında ödeme bağlantısı varsa bu ekrandaki aksiyon kullanıcıyı güvenli ödeme sayfasına yönlendirir.
           </Text>
           <View style={styles.contractList}>
             {endpointContracts.map(endpoint => (

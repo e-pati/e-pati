@@ -38,8 +38,9 @@ export default function LostPatientsCampaignPage() {
   const previewCampaign = useMutation({
     mutationFn: campaignsService.previewLostPatients,
     onSuccess: preview => {
+      const recipientCount = preview.recipientCount ?? preview.estimatedRecipients ?? 0
       toast.success('Kampanya önizlemesi hazır', {
-        description: `${preview.recipientCount} alıcı için mesaj hazırlandı.`,
+        description: `${recipientCount} alıcı için mesaj hazırlandı.`,
       })
     },
     onError: () => toast.error('Kampanya önizleme endpointi henüz hazır değil'),
@@ -47,9 +48,10 @@ export default function LostPatientsCampaignPage() {
   const sendCampaign = useMutation({
     mutationFn: campaignsService.sendLostPatients,
     onSuccess: response => {
+      const queuedCount = response.queuedCount ?? response.sentCount ?? 0
       setActiveCampaignId(response.campaignId)
       toast.success('Kampanya kuyruğa alındı', {
-        description: `${response.queuedCount} mesaj gönderim kuyruğuna alındı.`,
+        description: `${queuedCount} mesaj gönderim kuyruğuna alındı.`,
       })
     },
     onError: () => toast.error('Kampanya gönderim endpointi henüz hazır değil'),
@@ -69,9 +71,10 @@ export default function LostPatientsCampaignPage() {
     [candidates, excludedCandidateIds]
   )
   const campaignResults = campaignResultsQuery.data
+  const sentCount = sendCampaign.data?.sentCount ?? sendCampaign.data?.queuedCount
   const stats = [
     { label: 'Aday Hasta', value: campaignResults?.candidateCount ?? (candidates.length || '—'), icon: UsersRound },
-    { label: 'Gönderilen Mesaj', value: campaignResults?.sentCount ?? sendCampaign.data?.queuedCount ?? '—', icon: Send },
+    { label: 'Gönderilen Mesaj', value: campaignResults?.sentCount ?? sentCount ?? '—', icon: Send },
     { label: 'Geri Dönen Hasta', value: campaignResults?.returnedPatientCount ?? '—', icon: CheckCircle2 },
   ]
 
