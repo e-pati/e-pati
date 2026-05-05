@@ -2,12 +2,10 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft, Building2, CheckCircle2, PawPrint } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -42,7 +40,6 @@ const fields: Array<{
 ]
 
 export default function ClinicOnboardingPage() {
-  const router = useRouter()
   const [submitted, setSubmitted] = useState(false)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<OnboardingFormInput, unknown, OnboardingForm>({
     resolver: zodResolver(onboardingSchema),
@@ -51,7 +48,7 @@ export default function ClinicOnboardingPage() {
 
   const onSubmit = async (data: OnboardingForm) => {
     await new Promise(resolve => setTimeout(resolve, 400))
-    const subject = encodeURIComponent(`VetCep Klinik Başvurusu — ${data.clinicName}`)
+    const subject = encodeURIComponent(`VetCep 14 Gün Deneme Başvurusu — ${data.clinicName}`)
     const body = encodeURIComponent(
       `Klinik Adı: ${data.clinicName}\n` +
       `Yetkili: ${data.authorizedName}\n` +
@@ -73,9 +70,9 @@ export default function ClinicOnboardingPage() {
             <CheckCircle2 className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Başvuru Alındı</h1>
+            <h1 className="text-2xl font-bold text-foreground">Deneme Başvurusu Alındı</h1>
             <p className="text-sm text-muted-foreground mt-2">
-              Klinik hesabı onaylandığında giriş bilgileri e-posta ile paylaşılacak.
+              Klinik hesabı onaylandığında 14 günlük ücretsiz deneme giriş bilgileri e-posta ile paylaşılacak.
             </p>
           </div>
         </div>
@@ -110,9 +107,9 @@ export default function ClinicOnboardingPage() {
           <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center mb-6">
             <Building2 className="w-7 h-7" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight">Klinik Ön Kayıt</h1>
+          <h1 className="text-4xl font-bold tracking-tight">14 Gün Ücretsiz Başla</h1>
           <p className="text-primary-foreground/80 mt-4 text-lg leading-relaxed">
-            Klinik ekibiniz için VetCep portal hesabı başlatın.
+            Kart bilgisi gerektirmeden VetCep klinik portalı deneme hesabınızı başlatın.
           </p>
         </div>
         <div className="relative z-10 grid grid-cols-3 gap-3">
@@ -134,7 +131,7 @@ export default function ClinicOnboardingPage() {
           <Card className="border-border/50 shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl">Klinik Bilgileri</CardTitle>
-              <CardDescription>Başvuru sonrası hesap onayı klinik yöneticisine iletilir.</CardDescription>
+              <CardDescription>Başvuru sonrası deneme hesabı klinik yöneticisine iletilir.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -172,7 +169,7 @@ export default function ClinicOnboardingPage() {
                 </div>
 
                 <Button type="submit" className="w-full h-11 text-base" disabled={isSubmitting}>
-                  {isSubmitting ? 'Gönderiliyor...' : 'Başvuruyu Gönder'}
+                  {isSubmitting ? 'Gönderiliyor...' : '14 Gün Denemeyi Başlat'}
                 </Button>
               </form>
             </CardContent>

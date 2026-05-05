@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useQueryClient } from '@tanstack/react-query'
 import { vaccinationsService } from '@/services/vaccinations.service'
+import { whatsappService } from '@/services/whatsapp.service'
 import { toast } from 'sonner'
 import { Syringe, X } from 'lucide-react'
 
@@ -18,6 +19,7 @@ const schema = z.object({
   dueAt: z.string().optional(),
   lotNumber: z.string().optional(),
   notes: z.string().optional(),
+  sendWhatsappReminder: z.boolean(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -29,18 +31,25 @@ const COMMON_VACCINES = [
 
 interface Props {
   petId: string
+  petName: string
+  ownerName: string
+  ownerPhone?: string
   open: boolean
   onClose: () => void
 }
 
-export function AddVaccinationDialog({ petId, open, onClose }: Props) {
+export function AddVaccinationDialog({ petId, petName, ownerName, ownerPhone, open, onClose }: Props) {
   const qc = useQueryClient()
   const [submitting, setSubmitting] = useState(false)
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, reset, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { appliedAt: new Date().toISOString().split('T')[0] },
+    defaultValues: {
+      appliedAt: new Date().toISOString().split('T')[0],
+      sendWhatsappReminder: true,
+    },
   })
+  const sendWhatsappReminder = useWatch({ control, name: 'sendWhatsappReminder' })
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true)
@@ -53,6 +62,24 @@ export function AddVaccinationDialog({ petId, open, onClose }: Props) {
         lotNumber: data.lotNumber || undefined,
         notes: data.notes || undefined,
       })
+      if (data.sendWhatsappReminder && ownerPhone) {
+        try {
+          await whatsappService.send({
+            petId,
+            ownerPhone,
+            type: 'vaccine_reminder',
+            message: [
+              `Merhaba ${ownerName}`,
+              `${petName} için ${data.name} aşı kaydı oluşturuldu.`,
+              data.dueAt ? `Sonraki doz tarihi: ${new Date(data.dueAt).toLocaleDateString('tr-TR')}` : 'Sonraki doz tarihi klinik tarafından ayrıca paylaşılacaktır.',
+            ].join('\n'),
+          })
+        } catch {
+          toast.error('WhatsApp aşı bildirimi gönderilemedi', {
+            description: 'Aşı kaydedildi; WhatsApp servisi hazır olduğunda bildirim kuyruğa alınacak.',
+          })
+        }
+      }
       toast.success('Aşı kaydedildi')
       qc.invalidateQueries({ queryKey: ['vaccinations', { petId }] })
       qc.invalidateQueries({ queryKey: ['vaccinations'] })
@@ -139,6 +166,26 @@ export function AddVaccinationDialog({ petId, open, onClose }: Props) {
             <Label>Notlar</Label>
             <Input placeholder="Üretici, yan etki vb." {...register('notes')} />
           </div>
+
+          <label className="flex items-start gap-3 rounded-xl border border-blue-500/20 bg-blue-500/5 p-3 cursor-pointer">
+            <input
+              type="checkbox"
+              {...register('sendWhatsappReminder')}
+              disabled={!ownerPhone}
+              className="mt-1 h-4 w-4 rounded border-gray-300 accent-primary"
+            />
+            <span>
+              <span className="text-sm font-semibold text-foreground">Sahibe WhatsApp bildirimi gönder</span>
+              <span className="block text-xs text-muted-foreground mt-1">
+                {ownerPhone
+                  ? `${ownerPhone} numarasına vaccine_reminder template hazırlığı yapılır.`
+                  : 'Sahip telefonu olmadığı için WhatsApp bildirimi gönderilemez.'}
+              </span>
+            </span>
+          </label>
+          {sendWhatsappReminder && !ownerPhone && (
+            <p className="text-xs text-amber-700">WhatsApp bildirimi için sahip telefon bilgisi olmalı.</p>
+          )}
 
           {/* Butonlar */}
           <div className="flex gap-3 pt-2">

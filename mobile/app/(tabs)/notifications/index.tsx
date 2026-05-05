@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   SafeAreaView, ActivityIndicator, RefreshControl, Platform,
@@ -6,7 +5,6 @@ import {
 import { router } from 'expo-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notificationsService, type ApiNotification } from '@/services/notifications.service'
-import { mockNotifications } from '@/lib/mock-data'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -33,14 +31,6 @@ function formatRelative(dateStr?: string): string {
   return `${Math.floor(hours / 24)} gün önce`
 }
 
-function mapMockNotification(n: (typeof mockNotifications)[number]): ApiNotification {
-  return {
-    id: n.id,
-    type: n.type as 'examination' | 'vaccination' | 'prescription' | 'lab' | 'reminder',
-    title: n.title, message: n.message, sentAt: n.sentAt, isRead: n.isRead,
-  }
-}
-
 export default function NotificationsScreen() {
   const qc = useQueryClient()
 
@@ -53,7 +43,7 @@ export default function NotificationsScreen() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
   })
 
-  const notifications: ApiNotification[] = data ?? (isError ? mockNotifications.map(mapMockNotification) : [])
+  const notifications: ApiNotification[] = data ?? []
   const unreadCount = notifications.filter(n => !n.isRead && !n.readAt).length
 
   const handleMarkAll = async () => {
@@ -88,7 +78,7 @@ export default function NotificationsScreen() {
 
       {isError && (
         <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>⚠️ API bağlantısı kurulamadı — örnek veriler gösteriliyor</Text>
+          <Text style={styles.errorText}>Bildirimler alınamadı. Lütfen tekrar deneyin.</Text>
         </View>
       )}
 

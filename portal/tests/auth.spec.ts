@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Auth', () => {
-  test('ana sayfa /login\'e yönlendirmeli', async ({ page }) => {
+  test('ana sayfa public landing olarak yüklenmeli', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveURL(/\/login/, { timeout: 10000 })
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.locator('text=VetCep').first()).toBeVisible()
+    await expect(page.getByRole('link', { name: /Klinik Girişi|Giriş Yap/ }).first()).toHaveAttribute('href', '/login')
   })
 
   test('login sayfası yüklenmeli ve form elemanları mevcut', async ({ page }) => {

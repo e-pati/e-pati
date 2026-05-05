@@ -10,10 +10,9 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePrescriptions } from '@/hooks/use-prescriptions'
 import { useAllClinicPatients } from '@/hooks/use-clinic'
-import { prescriptionsService } from '@/services/prescriptions.service'
-import { mockPrescriptions } from '@/lib/mock-data'
+import { prescriptionsService, type ApiMedication } from '@/services/prescriptions.service'
 import { formatDate, speciesEmoji } from '@/lib/utils'
-import { Search, Pill, FileText, Download } from 'lucide-react'
+import { Search, Pill, Download } from 'lucide-react'
 import Link from 'next/link'
 import { Pagination } from '@/components/shared/pagination'
 
@@ -33,20 +32,12 @@ function PrescriptionsContent() {
   const prescriptionsQuery = usePrescriptions()
   const petsQuery = useAllClinicPatients()
 
-  const prescriptions = prescriptionsQuery.data ?? (
-    prescriptionsQuery.isError
-      ? mockPrescriptions.map(p => ({
-          id: p.id, petId: undefined, medications: p.medications,
-          notes: p.notes, createdAt: p.date,
-        }))
-      : []
-  )
-
-  const pets = petsQuery.data?.items ?? []
+  const prescriptions = useMemo(() => prescriptionsQuery.data ?? [], [prescriptionsQuery.data])
+  const pets = useMemo(() => petsQuery.data?.items ?? [], [petsQuery.data?.items])
 
   const enriched = useMemo(() => prescriptions.map(rx => ({
     ...rx,
-    pet: pets.find((p: any) => p.id === rx.petId),
+    pet: pets.find(p => p.id === rx.petId),
     dateStr: rx.createdAt ?? '',
   })).sort((a, b) => new Date(b.dateStr).getTime() - new Date(a.dateStr).getTime()),
   [prescriptions, pets])
@@ -57,7 +48,7 @@ function PrescriptionsContent() {
     return enriched.filter(rx =>
       rx.pet?.name?.toLowerCase().includes(q) ||
       rx.pet?.owner?.fullName?.toLowerCase().includes(q) ||
-      rx.medications?.some((m: any) => m.name?.toLowerCase().includes(q))
+      rx.medications?.some(m => m.name?.toLowerCase().includes(q))
     )
   }, [enriched, debouncedQuery])
 
@@ -85,7 +76,7 @@ function PrescriptionsContent() {
 
         {prescriptionsQuery.isError && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-            API bağlantısı kurulamadı — örnek veriler gösteriliyor.
+            Reçete kayıtları alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
           </div>
         )}
 
@@ -134,7 +125,7 @@ function PrescriptionsContent() {
                   {/* İlaçlar */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap gap-1.5">
-                      {rx.medications?.slice(0, 3).map((med: any, i: number) => (
+                      {rx.medications?.slice(0, 3).map((med: ApiMedication, i: number) => (
                         <span key={i} className="text-xs bg-violet-50 text-violet-700 border border-violet-200 rounded-full px-2 py-0.5">
                           {med.name} {med.dose}
                         </span>

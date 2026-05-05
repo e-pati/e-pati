@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Header } from '@/components/layout/header'
@@ -13,9 +13,8 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { useAllClinicPatients } from '@/hooks/use-clinic'
 import { useCreateExamination } from '@/hooks/use-examinations'
-import type { ApiPet } from '@/services/pets.service'
+import { whatsappService } from '@/services/whatsapp.service'
 import type { PetSpecies } from '@/types'
-import { mockPets } from '@/lib/mock-data'
 import { speciesEmoji, speciesLabel, calculateAge } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -28,6 +27,7 @@ const examinationSchema = z.object({
   assessment: z.string().min(5, 'Değerlendirme giriniz'),
   plan: z.string().min(5, 'Tedavi planı giriniz'),
   followUpDate: z.string().optional(),
+  sendWhatsappSummary: z.boolean(),
 })
 
 type ExaminationForm = z.infer<typeof examinationSchema>
@@ -48,15 +48,17 @@ function NewExaminationForm() {
   const [petSearch, setPetSearch] = useState('')
   const [selectedPetId, setSelectedPetId] = useState(preselectedPetId)
   const [submitted, setSubmitted] = useState(false)
+  const [summaryQueued, setSummaryQueued] = useState(false)
   const petsQuery = useAllClinicPatients()
   const createExamination = useCreateExamination()
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<ExaminationForm>({
+  const { register, handleSubmit, setValue, control, formState: { errors } } = useForm<ExaminationForm>({
     resolver: zodResolver(examinationSchema),
-    defaultValues: { petId: preselectedPetId },
+    defaultValues: { petId: preselectedPetId, sendWhatsappSummary: true },
   })
+  const sendWhatsappSummary = useWatch({ control, name: 'sendWhatsappSummary' })
 
-  const pets = petsQuery.data?.items ?? (petsQuery.isError ? mockPets.map(mapMockPet) : [])
+  const pets = petsQuery.data?.items ?? []
   const selectedPet = pets.find(p => p.id === selectedPetId)
 
   const filteredPets = pets.filter(pet => {
@@ -80,6 +82,27 @@ function NewExaminationForm() {
         assessment: data.assessment,
         plan: data.plan,
       })
+      if (data.sendWhatsappSummary && selectedPet?.owner?.phone) {
+        try {
+          await whatsappService.send({
+            petId: data.petId,
+            ownerPhone: selectedPet.owner.phone,
+            type: 'exam_summary',
+            message: [
+              `Merhaba ${selectedPet.owner.fullName ?? ''}`.trim(),
+              `${selectedPet.name} için muayene özeti:`,
+              `Şikayet: ${data.complaint}`,
+              `Değerlendirme: ${data.assessment}`,
+              `Plan: ${data.plan}`,
+            ].join('\n'),
+          })
+          setSummaryQueued(true)
+        } catch {
+          toast.error('WhatsApp özeti gönderilemedi', {
+            description: 'Muayene kaydedildi; WhatsApp servisi hazır olduğunda özet kuyruğa alınacak.',
+          })
+        }
+      }
       setSubmitted(true)
       setTimeout(() => router.push(`/patients/${data.petId}`), 1200)
     } catch {
@@ -97,7 +120,9 @@ function NewExaminationForm() {
             <CheckCircle2 className="w-8 h-8 text-primary" />
           </div>
           <h2 className="text-xl font-bold">Muayene Kaydedildi!</h2>
-          <p className="text-muted-foreground text-sm">Sahibe bildirim gönderildi. Hasta profiline yönlendiriliyorsunuz...</p>
+          <p className="text-muted-foreground text-sm">
+            {summaryQueued ? 'WhatsApp özeti kuyruğa alındı.' : 'Hasta profiline yönlendiriliyorsunuz...'}
+          </p>
         </div>
       </div>
     )
@@ -111,7 +136,7 @@ function NewExaminationForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {petsQuery.isError && (
             <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700">
-              API hasta listesi alınamadı; örnek hasta verileri gösteriliyor.
+              Hasta listesi alınamadı. Lütfen API bağlantısını kontrol edip tekrar deneyin.
             </div>
           )}
 
@@ -255,6 +280,26 @@ function NewExaminationForm() {
                   className="w-48"
                 />
               </div>
+
+              <label className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  {...register('sendWhatsappSummary')}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 accent-primary"
+                  disabled={!selectedPet?.owner?.phone}
+                />
+                <span>
+                  <span className="text-sm font-semibold text-foreground">Muayene özetini WhatsApp ile sahibine gönder</span>
+                  <span className="block text-xs text-muted-foreground mt-1">
+                    {selectedPet?.owner?.phone
+                      ? `${selectedPet.owner.phone} numarasına exam_summary template hazırlığı yapılır.`
+                      : 'Sahip telefonu olmadığı için WhatsApp özeti gönderilemez.'}
+                  </span>
+                </span>
+              </label>
+              {sendWhatsappSummary && !selectedPet?.owner?.phone && (
+                <p className="text-xs text-amber-700">WhatsApp gönderimi için hasta sahibinde telefon bilgisi olmalı.</p>
+              )}
             </CardContent>
           </Card>
 
@@ -288,25 +333,4 @@ function normalizeSpecies(species: string): PetSpecies {
     return normalized
   }
   return 'other'
-}
-
-function mapMockPet(pet: (typeof mockPets)[number]): ApiPet {
-  return {
-    id: pet.id,
-    ownerId: pet.ownerId,
-    name: pet.name,
-    species: pet.species,
-    breed: pet.breed,
-    sex: pet.gender,
-    birthDate: pet.birthDate,
-    microchipNo: pet.microchipNo,
-    createdAt: pet.createdAt,
-    updatedAt: pet.createdAt,
-    owner: {
-      id: pet.ownerId,
-      fullName: `${pet.owner.firstName} ${pet.owner.lastName}`,
-      email: pet.owner.email,
-      phone: pet.owner.phone,
-    },
-  }
 }

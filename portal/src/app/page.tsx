@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { PawPrint, Stethoscope, Syringe, FlaskConical, Bell, Shield, BarChart3, Users, CheckCircle2, ArrowRight, Star } from 'lucide-react'
+import { PawPrint, Stethoscope, Syringe, FlaskConical, Bell, BarChart3, Users, ArrowRight, Star } from 'lucide-react'
 
 const features = [
   {
@@ -46,7 +46,7 @@ const stats = [
   { value: 'Beta', label: 'Aktif Süreç' },
   { value: '7/24', label: 'Teknik Destek' },
   { value: '100%', label: 'Bulut Tabanlı' },
-  { value: 'Ücretsiz', label: 'Demo Dönemi' },
+  { value: '14 gün', label: 'Ücretsiz Deneme' },
 ]
 
 export default function LandingPage() {
@@ -69,7 +69,7 @@ export default function LandingPage() {
               href="/clinic-onboarding"
               className="text-sm bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
             >
-              Demo İste
+              Ücretsiz Başla
             </Link>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function LandingPage() {
             href="/clinic-onboarding"
             className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity text-base"
           >
-            Ücretsiz Demo İste
+            14 Gün Ücretsiz Başla
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
@@ -184,14 +184,14 @@ export default function LandingPage() {
           <div className="relative z-10">
             <h2 className="text-3xl font-bold mb-4">Kliniğinizi dijitalleştirmeye hazır mısınız?</h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Demo talebi bırakın, ekibimiz 24 saat içinde sizinle iletişime geçsin.
+            Kart bilgisi gerekmeden ön kayıt bırakın, ekibimiz 24 saat içinde kliniğinizin deneme hesabını başlatsın.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/clinic-onboarding"
                 className="inline-flex items-center justify-center gap-2 bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
               >
-                Ücretsiz Demo İste
+                14 Gün Ücretsiz Başla
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
@@ -217,7 +217,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <Link href="/login" className="hover:text-foreground transition-colors">Klinik Girişi</Link>
-            <Link href="/clinic-onboarding" className="hover:text-foreground transition-colors">Demo İste</Link>
+            <Link href="/clinic-onboarding" className="hover:text-foreground transition-colors">Ücretsiz Başla</Link>
           </div>
         </div>
       </footer>

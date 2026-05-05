@@ -3,10 +3,9 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   SafeAreaView, ActivityIndicator, Modal, Share, Image,
 } from 'react-native'
-import { useLocalSearchParams, router } from 'expo-router'
+import { useLocalSearchParams, router, type Href } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import QRCode from 'react-native-qrcode-svg'
-import { mockPets, mockExaminations, mockVaccinations, mockPrescriptions, mockLabResults } from '@/lib/mock-data'
 import { petsService, type ApiPet } from '@/services/pets.service'
 import { examinationsService, type ApiExamination } from '@/services/examinations.service'
 import { vaccinationsService, type ApiVaccination } from '@/services/vaccinations.service'
@@ -75,8 +74,7 @@ export default function PetDetailScreen() {
     retry: 1,
   })
 
-  const fallbackPet = mockPets.find(p => p.id === id)
-  const pet = petQuery.data ? mapApiPet(petQuery.data) : petQuery.isError && fallbackPet ? fallbackPet : undefined
+  const pet = petQuery.data ? mapApiPet(petQuery.data) : undefined
 
   if (petQuery.isLoading) return (
     <View style={styles.center}>
@@ -93,23 +91,23 @@ export default function PetDetailScreen() {
 
   const exams = (examinationsQuery.data
     ? examinationsQuery.data.map(mapApiExamination)
-    : examinationsQuery.isError ? mockExaminations.filter(e => e.petId === id) : []
+    : []
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   const vaccines = vaccinationsQuery.data
     ? vaccinationsQuery.data.map(mapApiVaccination)
-    : vaccinationsQuery.isError ? mockVaccinations.filter(v => v.petId === id) : []
+    : []
   const prescriptions = prescriptionsQuery.data
     ? prescriptionsQuery.data.map(mapApiPrescription)
-    : prescriptionsQuery.isError ? mockPrescriptions.filter(p => p.petId === id) : []
+    : []
   const labs = labResultsQuery.data
     ? labResultsQuery.data.map(mapApiLabResult)
-    : labResultsQuery.isError ? mockLabResults.filter(l => l.petId === id) : []
+    : []
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
   // Aktif ilaçlar: son reçetedeki ilaçlar
   const activeMedications = prescriptions.length > 0 ? prescriptions[0].medications : []
-  const hasFallbackData = petQuery.isError || examinationsQuery.isError || vaccinationsQuery.isError ||
+  const hasApiError = examinationsQuery.isError || vaccinationsQuery.isError ||
     prescriptionsQuery.isError || labResultsQuery.isError
 
   const openQr = async () => {
@@ -194,9 +192,9 @@ export default function PetDetailScreen() {
 
       {/* İçerik */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-        {hasFallbackData && (
+        {hasApiError && (
           <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>⚠️ API kayıtları alınamadı — örnek veriler gösteriliyor</Text>
+            <Text style={styles.errorText}>Bazı kayıtlar alınamadı. Lütfen tekrar deneyin.</Text>
           </View>
         )}
 
@@ -259,6 +257,21 @@ export default function PetDetailScreen() {
                 ))}
               </View>
             )}
+
+            <TouchableOpacity
+              style={styles.healthTrackingCard}
+              onPress={() => router.push(`/(tabs)/profile/health-tracking?petId=${pet.id}` as Href)}
+              activeOpacity={0.86}
+            >
+              <View style={styles.healthTrackingIcon}>
+                <Ionicons name="analytics-outline" size={22} color={Colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.healthTrackingTitle}>Diyet ve kilo takibi</Text>
+                <Text style={styles.healthTrackingText}>Bu hayvan için kilo kaydı ve beslenme planı oluşturun.</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+            </TouchableOpacity>
 
             {/* Mikro çip */}
             {pet.microchipNo && (
@@ -492,6 +505,7 @@ function mapApiPet(pet: ApiPet): Pet {
     gender: pet.sex === 'female' ? 'female' : 'male',
     birthDate: pet.birthDate ?? pet.createdAt,
     microchipNo: pet.microchipNo,
+    photoUrl: pet.photoUrl,
   }
 }
 
@@ -669,6 +683,17 @@ const styles = StyleSheet.create({
   medicationDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary, marginTop: 5 },
   medicationName: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.text },
   medicationDetail: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 2 },
+  healthTrackingCard: {
+    backgroundColor: Colors.background, borderRadius: Radius.xl,
+    padding: Spacing.lg,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    borderWidth: 1, borderColor: Colors.primaryBorder,
+  },
+  healthTrackingIcon: { width: 44, height: 44, borderRadius: Radius.lg, backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center' },
+  healthTrackingTitle: { fontSize: FontSize.base, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },
+  healthTrackingText: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 3, lineHeight: 17 },
   recordCard: {
     backgroundColor: Colors.background, borderRadius: Radius.xl,
     padding: Spacing.lg,
