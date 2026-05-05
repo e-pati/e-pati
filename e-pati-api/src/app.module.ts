@@ -13,6 +13,15 @@ import { LabResultsModule } from './lab-results/lab-results.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ClinicsModule } from './clinics/clinics.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { BillingModule } from './billing/billing.module';
+import { AdminModule } from './admin/admin.module';
+import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { OwnerHealthModule } from './owner-health/owner-health.module';
+import { OwnersModule } from './owners/owners.module';
+import { PrivacyModule } from './privacy/privacy.module';
 
 @Module({
   imports: [
@@ -35,6 +44,15 @@ import { UploadsModule } from './uploads/uploads.module';
     NotificationsModule,
     ClinicsModule,
     UploadsModule,
+    AppointmentsModule,
+    BillingModule,
+    AdminModule,
+    WhatsAppModule,
+    AnalyticsModule,
+    CampaignsModule,
+    OwnerHealthModule,
+    OwnersModule,
+    PrivacyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

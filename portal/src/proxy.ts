@@ -17,7 +17,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (isPublic && isAuthCookie) {
+  if (isPublic && pathname !== '/' && isAuthCookie) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

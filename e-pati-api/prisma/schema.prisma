@@ -32,41 +32,107 @@ enum NotificationStatus {
   READ
 }
 
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  NONE
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  YEARLY
+}
+
+enum BillingAccountType {
+  CLINIC
+  OWNER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+}
+
+enum CampaignChannel {
+  WHATSAPP
+  SMS
+}
+
+enum CampaignStatus {
+  DRAFT
+  SENT
+}
+
+enum PrivacyRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
 model Owner {
-  id              String         @id @default(cuid())
-  email           String         @unique
-  phone           String?        @unique
-  passwordHash    String
-  fullName        String
-  role            Role           @default(OWNER)
-  emailVerifiedAt DateTime?
-  pushToken       String?
-  pushEnabled     Boolean        @default(true)
-  pets            Pet[]
-  refreshTokens   RefreshToken[]
-  notifications   Notification[]
-  auditLogs       AuditLog[]
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  deletedAt       DateTime?
+  id                      String           @id @default(cuid())
+  email                   String           @unique
+  phone                   String?          @unique
+  passwordHash            String
+  fullName                String
+  role                    Role             @default(OWNER)
+  emailVerifiedAt         DateTime?
+  pushToken               String?
+  pushEnabled             Boolean          @default(true)
+  notificationPreferences Json?
+  pets                    Pet[]
+  appointments            Appointment[]
+  subscriptions           Subscription[]
+  weightLogs              WeightLog[]
+  dietPlans               DietPlan[]
+  privacyRequests         PrivacyRequest[]
+  refreshTokens           RefreshToken[]
+  notifications           Notification[]
+  auditLogs               AuditLog[]
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  deletedAt               DateTime?
 }
 
 model Clinic {
-  id            String         @id @default(cuid())
-  name          String
-  email         String?        @unique
-  phone         String?
-  address       String?
-  isApproved    Boolean        @default(false)
-  veterinarians Veterinarian[]
-  pets          Pet[]
-  examinations  Examination[]
-  vaccinations  Vaccination[]
-  prescriptions Prescription[]
-  labResults    LabResult[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  deletedAt     DateTime?
+  id                 String              @id @default(cuid())
+  name               String
+  email              String?             @unique
+  phone              String?
+  city               String?
+  district           String?
+  address            String?
+  website            String?
+  description        String?
+  workingHours       Json?
+  services           String[]
+  rating             Float?
+  latitude           Float?
+  longitude          Float?
+  isApproved         Boolean             @default(false)
+  veterinarians      Veterinarian[]
+  pets               Pet[]
+  appointments       Appointment[]
+  subscriptions      Subscription[]
+  whatsappConnection WhatsAppConnection?
+  examinations       Examination[]
+  vaccinations       Vaccination[]
+  prescriptions      Prescription[]
+  labResults         LabResult[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  deletedAt          DateTime?
 }
 
 model Veterinarian {
@@ -84,6 +150,7 @@ model Veterinarian {
   vaccinations  Vaccination[]
   prescriptions Prescription[]
   labResults    LabResult[]
+  appointments  Appointment[]
   auditLogs     AuditLog[]
   refreshTokens RefreshToken[]
   createdAt     DateTime       @default(now())
@@ -121,6 +188,9 @@ model Pet {
   birthDate     DateTime?
   microchipNo   String?        @unique
   photoUrl      String?
+  appointments  Appointment[]
+  weightLogs    WeightLog[]
+  dietPlans     DietPlan[]
   examinations  Examination[]
   vaccinations  Vaccination[]
   prescriptions Prescription[]
@@ -131,6 +201,180 @@ model Pet {
 
   @@index([ownerId])
   @@index([clinicId])
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  petId           String
+  pet             Pet               @relation(fields: [petId], references: [id])
+  clinicId        String?
+  clinic          Clinic?           @relation(fields: [clinicId], references: [id])
+  ownerId         String?
+  owner           Owner?            @relation(fields: [ownerId], references: [id])
+  veterinarianId  String?
+  veterinarian    Veterinarian?     @relation(fields: [veterinarianId], references: [id])
+  startsAt        DateTime
+  durationMinutes Int               @default(30)
+  status          AppointmentStatus @default(PENDING)
+  reason          String?
+  notes           String?
+  notifyOwner     Boolean           @default(true)
+  requestedDate   String?
+  requestedTime   String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  @@index([petId])
+  @@index([clinicId])
+  @@index([ownerId])
+  @@index([startsAt])
+  @@index([status])
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  accountType            BillingAccountType
+  clinicId               String?
+  clinic                 Clinic?            @relation(fields: [clinicId], references: [id])
+  ownerId                String?
+  owner                  Owner?             @relation(fields: [ownerId], references: [id])
+  status                 SubscriptionStatus @default(NONE)
+  plan                   SubscriptionPlan?
+  trialEndsAt            DateTime?
+  currentPeriodEndsAt    DateTime?
+  cancelAtPeriodEnd      Boolean            @default(false)
+  price                  Int                @default(0)
+  provider               String?
+  providerCustomerId     String?
+  providerSubscriptionId String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  payments               Payment[]
+
+  @@index([clinicId])
+  @@index([ownerId])
+  @@index([status])
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  clinicId       String?
+  ownerId        String?
+  status         PaymentStatus @default(PENDING)
+  amount         Int
+  currency       String        @default("TRY")
+  provider       String?
+  providerRef    String?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([clinicId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([paidAt])
+}
+
+model PrivacyRequest {
+  id        String               @id @default(cuid())
+  ownerId   String
+  owner     Owner                @relation(fields: [ownerId], references: [id])
+  type      String
+  message   String?
+  status    PrivacyRequestStatus @default(PENDING)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([ownerId])
+  @@index([status])
+}
+
+model WhatsAppConnection {
+  id           String   @id @default(cuid())
+  clinicId     String   @unique
+  clinic       Clinic   @relation(fields: [clinicId], references: [id])
+  phoneNumber  String
+  businessName String?
+  connected    Boolean  @default(false)
+  templates    Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model WhatsAppMessage {
+  id          String   @id @default(cuid())
+  clinicId    String?
+  petId       String?
+  to          String
+  type        String
+  message     String?
+  variables   Json?
+  status      String   @default("queued")
+  providerRef String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([clinicId])
+  @@index([petId])
+}
+
+model Campaign {
+  id                      String          @id @default(cuid())
+  clinicId                String?
+  channel                 CampaignChannel
+  status                  CampaignStatus  @default(DRAFT)
+  message                 String
+  candidateIds            String[]
+  candidateCount          Int             @default(0)
+  sentCount               Int             @default(0)
+  deliveredCount          Int             @default(0)
+  openedCount             Int?
+  returnedPatientCount    Int             @default(0)
+  appointmentRequestCount Int             @default(0)
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  @@index([clinicId])
+}
+
+model WeightLog {
+  id                 String   @id @default(cuid())
+  ownerId            String
+  owner              Owner    @relation(fields: [ownerId], references: [id])
+  petId              String
+  pet                Pet      @relation(fields: [petId], references: [id])
+  weightKg           Float
+  bodyConditionScore Int?
+  notes              String?
+  loggedAt           DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  @@index([ownerId])
+  @@index([petId])
+  @@index([loggedAt])
+}
+
+model DietPlan {
+  id               String   @id @default(cuid())
+  ownerId          String
+  owner            Owner    @relation(fields: [ownerId], references: [id])
+  petId            String
+  pet              Pet      @relation(fields: [petId], references: [id])
+  foodName         String
+  dailyAmountGrams Int
+  mealsPerDay      Int
+  notes            String?
+  startedAt        DateTime @default(now())
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([petId])
+  @@index([isActive])
 }
 
 model Examination {
