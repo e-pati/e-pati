@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Req,
   Res,
@@ -18,6 +19,7 @@ import {
 import type { Request, Response } from 'express';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
@@ -113,9 +115,20 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'Current JWT payload.' })
+  @ApiOkResponse({ description: 'Current user profile.' })
   me(@CurrentUser() user: TokenPayload) {
-    return user;
+    return this.authService.me(user);
+  }
+
+  @Patch('password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Password changed.' })
+  changePassword(
+    @Body() dto: ChangePasswordDto,
+    @CurrentUser() user: TokenPayload,
+  ) {
+    return this.authService.changePassword(dto, user);
   }
 
   private setRefreshCookie(response: Response, refreshToken: string): void {

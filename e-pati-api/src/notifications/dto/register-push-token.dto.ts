@@ -11,4 +11,9 @@ export class RegisterPushTokenDto {
   @IsOptional()
   @IsString()
   token?: string;
+
+  @ApiPropertyOptional({ example: 'ios' })
+  @IsOptional()
+  @IsString()
+  platform?: string;
 }

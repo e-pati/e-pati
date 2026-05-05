@@ -7,13 +7,27 @@ import { ClinicsService } from './clinics.service';
 import { ListClinicPatientsQueryDto } from './dto/list-clinic-patients-query.dto';
 
 @ApiTags('clinics')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('clinics')
 export class ClinicsController {
   constructor(private readonly clinicsService: ClinicsService) {}
 
+  @Get('discovery')
+  @ApiOkResponse({ description: 'Public VetCep clinic discovery.' })
+  discovery(
+    @Query() query: { latitude?: string; longitude?: string; city?: string },
+  ) {
+    return this.clinicsService.discovery(query);
+  }
+
+  @Get(':id/public-profile')
+  @ApiOkResponse({ description: 'Public clinic profile.' })
+  publicProfile(@Param('id') id: string) {
+    return this.clinicsService.publicProfile(id);
+  }
+
   @Get(':id/patients')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ description: 'Clinic patient list.' })
   findPatients(
     @Param('id') id: string,
@@ -24,6 +38,8 @@ export class ClinicsController {
   }
 
   @Get(':id/dashboard')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ description: 'Clinic dashboard summary.' })
   getDashboard(@Param('id') id: string, @CurrentUser() user: TokenPayload) {
     return this.clinicsService.getDashboard(id, user);

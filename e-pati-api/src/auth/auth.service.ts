@@ -16,6 +16,7 @@ import Redis from 'ioredis';
 import { Resend } from 'resend';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -253,6 +254,85 @@ export class AuthService {
       },
       data: { revokedAt: new Date() },
     });
+  }
+
+  async me(user: TokenPayload) {
+    if (user.type === 'owner') {
+      return this.prisma.owner.findFirstOrThrow({
+        where: { id: user.sub, deletedAt: null },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          fullName: true,
+          role: true,
+          emailVerifiedAt: true,
+          createdAt: true,
+        },
+      });
+    }
+
+    return this.prisma.veterinarian.findFirstOrThrow({
+      where: { id: user.sub, deletedAt: null },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        fullName: true,
+        role: true,
+        clinicId: true,
+        clinic: {
+          select: {
+            id: true,
+            name: true,
+            isApproved: true,
+          },
+        },
+        createdAt: true,
+      },
+    });
+  }
+
+  async changePassword(dto: ChangePasswordDto, user: TokenPayload) {
+    const model = user.type === 'owner' ? 'owner' : 'veterinarian';
+    const account =
+      model === 'owner'
+        ? await this.prisma.owner.findUnique({ where: { id: user.sub } })
+        : await this.prisma.veterinarian.findUnique({
+            where: { id: user.sub },
+          });
+
+    if (!account?.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      dto.currentPassword,
+      account.passwordHash,
+    );
+
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    const passwordHash = await bcrypt.hash(
+      dto.newPassword,
+      PASSWORD_SALT_ROUNDS,
+    );
+
+    if (model === 'owner') {
+      await this.prisma.owner.update({
+        where: { id: user.sub },
+        data: { passwordHash },
+      });
+    } else {
+      await this.prisma.veterinarian.update({
+        where: { id: user.sub },
+        data: { passwordHash },
+      });
+    }
+
+    return { ok: true };
   }
 
   private async issueTokenPair(owner: Owner): Promise<AuthResponse> {
