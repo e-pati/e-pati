@@ -103,3 +103,5 @@
 - Randevu talep geri bildirimi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.
 - Portal randevu tamamlama akisi eklendi: `appointments.service.ts` icine `complete` fonksiyonu eklendi ve `/appointments` sag paneline bugunku onayli randevular karti kondu; klinik randevuyu `Tamamlandi Isaretle` aksiyonuyla `PATCH /appointments/:id { status: completed }` kontratina gonderebilir.
 - Randevu tamamlama akisi sonrasi dogrulama tamamlandi: `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili; `mobile` icin `npx tsc --noEmit` basarili.
+- Mobil bildirim tercihleri genisletildi: Profil > Bildirimler alanina `Randevu Hatirlaticilari` ve `Kampanya Mesajlari` toggle'lari eklendi; `Tüm Bildirimler` kapatildiginda asi, ilac, randevu ve kampanya tercihleri birlikte kapatilir.
+- Bildirim tercihleri genisletmesi sonrasi dogrulama tamamlandi: `mobile` icin `npx tsc --noEmit` basarili; `portal` icin `npm run lint` sifir warning/error ile tamamlandi, `npm run build` basarili.

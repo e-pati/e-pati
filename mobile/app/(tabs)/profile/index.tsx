@@ -25,7 +25,7 @@ const clinicDiscoveryRoute = '/profile/clinics' as Href
 const premiumRoute = '/profile/premium' as Href
 
 type IconName = React.ComponentProps<typeof Ionicons>['name']
-type ToggleKey = 'enabled' | 'vaccinationAlerts' | 'medicationReminders'
+type ToggleKey = 'enabled' | 'vaccinationAlerts' | 'medicationReminders' | 'appointmentReminders' | 'campaignMessages'
 
 type SettingsRow =
   | { label: string; icon: IconName; color: string; onPress: () => void; toggle?: false }
@@ -40,6 +40,8 @@ const defaultNotificationPreferences: NotificationPreferences = {
   enabled: true,
   vaccinationAlerts: true,
   medicationReminders: false,
+  appointmentReminders: true,
+  campaignMessages: false,
 }
 
 export default function ProfileScreen() {
@@ -97,6 +99,8 @@ export default function ProfileScreen() {
     if (key === 'enabled' && !value) {
       nextPreferences.vaccinationAlerts = false
       nextPreferences.medicationReminders = false
+      nextPreferences.appointmentReminders = false
+      nextPreferences.campaignMessages = false
     }
     updatePreferences.mutate(nextPreferences)
   }
@@ -117,6 +121,8 @@ export default function ProfileScreen() {
         { label: 'Tüm Bildirimler', icon: 'notifications-outline' as const, color: Colors.primary, toggle: true, value: currentPreferences.enabled, onToggle: value => updatePreference('enabled', value), disabled: updatePreferences.isPending },
         { label: 'Aşı Uyarıları', icon: 'medical-outline' as const, color: '#3b82f6', toggle: true, value: currentPreferences.vaccinationAlerts, onToggle: value => updatePreference('vaccinationAlerts', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
         { label: 'İlaç Hatırlatıcısı', icon: 'alarm-outline' as const, color: '#8b5cf6', toggle: true, value: currentPreferences.medicationReminders, onToggle: value => updatePreference('medicationReminders', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
+        { label: 'Randevu Hatırlatıcıları', icon: 'calendar-outline' as const, color: '#0ea5e9', toggle: true, value: currentPreferences.appointmentReminders ?? true, onToggle: value => updatePreference('appointmentReminders', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
+        { label: 'Kampanya Mesajları', icon: 'megaphone-outline' as const, color: '#f59e0b', toggle: true, value: currentPreferences.campaignMessages ?? false, onToggle: value => updatePreference('campaignMessages', value), disabled: !currentPreferences.enabled || updatePreferences.isPending },
       ],
     },
     {
