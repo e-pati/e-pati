@@ -136,7 +136,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(37,99,235,0.055)_1px,transparent_1px),linear-gradient(180deg,rgba(37,99,235,0.055)_1px,transparent_1px)] bg-[size:72px_72px]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-white" />
 
-        <div className="relative mx-auto grid min-h-[720px] max-w-7xl items-center gap-12 px-5 py-16 md:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
+        <div className="relative mx-auto grid min-h-[660px] max-w-7xl items-center gap-10 px-5 py-14 md:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:py-16">
           <div className="max-w-2xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-xs font-bold text-[#2563eb] shadow-sm">
               <Sparkles className="h-3.5 w-3.5" />
@@ -176,23 +176,11 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <div className="mt-9 grid max-w-xl grid-cols-3 gap-3 border-t border-sky-100 pt-6">
-              {[
-                { value: '14 gün', label: 'deneme' },
-                { value: '7/24', label: 'erişim' },
-                { value: '360°', label: 'klinik görünümü' },
-              ].map(item => (
-                <div key={item.label}>
-                  <div className="text-2xl font-black text-[#0b2a4a]">{item.value}</div>
-                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{item.label}</div>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <div className="relative min-h-[560px] lg:min-h-[620px]">
+          <div className="relative min-h-[510px] lg:min-h-[560px]">
             <div className="absolute right-0 top-0 h-full w-[88%] rounded-[44px] border border-sky-100 bg-white/78 shadow-2xl shadow-blue-900/10 backdrop-blur" />
-            <div className="absolute right-6 top-7 h-[430px] w-[86%] overflow-hidden rounded-[30px] border border-white bg-white shadow-2xl shadow-blue-900/16">
+            <div className="absolute right-6 top-6 h-[405px] w-[86%] overflow-hidden rounded-[30px] border border-white bg-white shadow-2xl shadow-blue-900/16">
               <div className="flex items-center justify-between border-b border-sky-100 bg-[#f0f7ff] px-5 py-4">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
@@ -274,7 +262,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="absolute bottom-3 left-2 w-[245px] rounded-[36px] border border-slate-200 bg-[#0b2a4a] p-2 shadow-2xl shadow-blue-900/20">
+            <div className="absolute bottom-6 left-2 w-[232px] rounded-[34px] border border-slate-200 bg-[#0b2a4a] p-2 shadow-2xl shadow-blue-900/20">
               <div className="rounded-[28px] bg-white p-4">
                 <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-slate-200" />
                 <div className="flex items-center gap-3">
@@ -303,7 +291,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="absolute bottom-24 right-1 max-w-[250px] rounded-2xl border border-sky-100 bg-white px-4 py-3 shadow-xl shadow-blue-900/10">
+            <div className="absolute bottom-28 right-1 max-w-[250px] rounded-2xl border border-sky-100 bg-white px-4 py-3 shadow-xl shadow-blue-900/10">
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eaf4ff] text-[#2563eb]">
                   <BellRing className="h-4 w-4" />
@@ -318,7 +306,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#eaf6ff] py-10">
+      <section className="bg-[#eaf6ff] py-12">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-5 md:grid-cols-4 md:px-8">
           {stats.map(item => (
             <div key={item.label} className="rounded-3xl bg-white p-6 text-center shadow-sm">
