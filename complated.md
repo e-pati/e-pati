@@ -135,3 +135,4 @@
 - Canli landing ekran goruntusu kontrolu sonrasi hero spacing cilasi yapildi: hero icindeki tekrar eden mini metrik satiri kaldirildi, mockup kompozisyonu daha kompakt hale getirildi ve istatistik bolumune gecis daha temiz olacak sekilde bosluklar sikilastirildi.
 - Landing spacing cilasi sonrasi dogrulama tamamlandi: `portal` icin `npm run lint`, `npm run build` ve `npx playwright test tests/auth.spec.ts` basarili; `mobile` icin `npx tsc --noEmit` basarili.
 - Landing spacing cilasi lokal screenshot ile kontrol edildi: hero, metrik kartlari, ozellik kartlari, is akisi ve kapanis CTA bolumlerinin desktop full-page gorunumde temiz aktigi dogrulandi.
+- Landing spacing cilasi production'a alindi: Vercel production deploy basarili oldu, `vetcep.com` alias'i yeni tasarim cilasina gecti; canli `npm run test:prod-smoke` 1/1 basarili tamamlandi ve HTML'de yeni landing metinleri dogrulandi.
