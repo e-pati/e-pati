@@ -74,42 +74,42 @@ const stats = [
 ]
 
 const trustItems = [
-  'Klinik satış görüşmelerinde demo akışı hazır',
-  'Web portal + mobil sahip deneyimi birlikte çalışır',
-  'Backend endpointleri geldikçe canlı veriye geçmeye hazır',
+  'Kurulum desteği',
+  'Mobil uygulama dahil',
+  'Güvenli bulut altyapısı',
 ]
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <div className="bg-[#2f6fa8] text-white">
+      <div className="bg-[#0b2a4a] text-white">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-5 text-xs md:px-8">
           <span className="flex items-center gap-2">
             <Clock3 className="h-3.5 w-3.5" />
-            Pazartesi-Cuma 09:00-18:00 demo görüşmesi
+            Klinikler için canlı demo görüşmeleri
           </span>
           <span className="hidden items-center gap-2 sm:flex">
             <MessageCircle className="h-3.5 w-3.5" />
-            Klinikler için VetCep tanıtımı
+            Web portal + mobil sahip uygulaması
           </span>
         </div>
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-sky-100 bg-white/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-sky-100 bg-white/92 backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2f6fa8] text-white shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2563eb] text-white shadow-sm shadow-blue-900/10">
               <PawPrint className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xl font-black tracking-tight text-[#2f6fa8]">VetCep</div>
+              <div className="text-xl font-black tracking-tight text-[#0b2a4a]">VetCep</div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-400">Klinik Portalı</div>
             </div>
           </Link>
 
           <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 lg:flex">
             {navItems.map(item => (
-              <Link key={item.label} href={item.href} className="transition-colors hover:text-[#2f6fa8]">
+              <Link key={item.label} href={item.href} className="transition-colors hover:text-[#2563eb]">
                 {item.label}
               </Link>
             ))}
@@ -118,140 +118,200 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="rounded-xl border border-sky-200 px-4 py-2.5 text-sm font-bold text-[#2f6fa8] transition-colors hover:bg-sky-50"
+              className="rounded-xl border border-sky-200 px-4 py-2.5 text-sm font-bold text-[#0b2a4a] transition-colors hover:bg-sky-50"
             >
               Giriş Yap
             </Link>
             <Link
               href="/clinic-onboarding"
-              className="hidden rounded-xl bg-[#2f6fa8] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 sm:inline-flex"
+              className="hidden rounded-xl bg-[#2563eb] px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-blue-900/10 transition-transform hover:-translate-y-0.5 sm:inline-flex"
             >
-              Demo İste
+              Demo Talep Et
             </Link>
           </div>
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#ffffff_58%,#eaf6ff_100%)]">
-        <div className="absolute inset-0 opacity-70">
-          <div className="absolute left-[-8%] top-24 h-72 w-72 rounded-full bg-sky-100 blur-3xl" />
-          <div className="absolute right-[-5%] top-16 h-96 w-96 rounded-full bg-blue-100 blur-3xl" />
-          <div className="absolute bottom-0 left-1/3 h-48 w-48 rounded-full bg-cyan-100 blur-3xl" />
-        </div>
+      <section className="relative overflow-hidden bg-[#f7fbff]">
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(37,99,235,0.055)_1px,transparent_1px),linear-gradient(180deg,rgba(37,99,235,0.055)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-white" />
 
-        <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-10 px-5 py-16 md:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:py-20">
+        <div className="relative mx-auto grid min-h-[720px] max-w-7xl items-center gap-12 px-5 py-16 md:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
           <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-xs font-bold text-[#2f6fa8] shadow-sm">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-xs font-bold text-[#2563eb] shadow-sm">
               <Sparkles className="h-3.5 w-3.5" />
-              Veteriner klinikleri için modern dijital işletim sistemi
+              Veteriner klinikleri için dijital işletim sistemi
             </div>
 
-            <h1 className="text-5xl font-black leading-[1.02] tracking-tight text-slate-950 md:text-7xl">
-              Kliniğinizi
-              <span className="block text-[#2f6fa8]">tek ekrandan</span>
-              yönetin.
+            <h1 className="text-4xl font-black leading-[1.04] tracking-tight text-[#0b2a4a] sm:text-5xl md:text-6xl">
+              Kliniğinizin yönetimi ve hasta sahipleriyle iletişimi
+              <span className="block text-[#2563eb]">tek platformda.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-              VetCep; hasta kayıtlarını, randevuları, aşı takibini, WhatsApp bilgilendirmelerini ve klinik analitiğini
-              web portalı ile mobil sahip uygulamasında birleştirir.
+              Randevu, hasta kaydı, aşı takibi, laboratuvar sonuçları, reçeteler ve mobil sahip uygulaması tek dijital deneyimde birleşir.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/clinic-onboarding"
-                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-[#2f6fa8] px-6 text-base font-black text-white shadow-lg shadow-blue-900/15 transition-transform hover:-translate-y-0.5"
+                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-[#2563eb] px-6 text-base font-black text-white shadow-lg shadow-blue-900/15 transition-transform hover:-translate-y-0.5"
               >
-                14 Gün Ücretsiz Başla
+                Demo Talep Et
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/login"
-                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-white px-6 text-base font-black text-[#2f6fa8] shadow-sm transition-colors hover:bg-sky-50"
+                href="#features"
+                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-white px-6 text-base font-black text-[#0b2a4a] shadow-sm transition-colors hover:bg-sky-50"
               >
-                Klinik Girişi
+                Klinik Portalını İncele
               </Link>
             </div>
 
-            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               {trustItems.map(item => (
-                <div key={item} className="flex items-start gap-2 text-sm font-medium text-slate-600">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#2f6fa8]" />
+                <div key={item} className="inline-flex items-center gap-2 rounded-full border border-sky-100 bg-white px-3.5 py-2 text-sm font-bold text-slate-600 shadow-sm">
+                  <CheckCircle2 className="h-4 w-4 text-[#16a34a]" />
                   <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-9 grid max-w-xl grid-cols-3 gap-3 border-t border-sky-100 pt-6">
+              {[
+                { value: '14 gün', label: 'deneme' },
+                { value: '7/24', label: 'erişim' },
+                { value: '360°', label: 'klinik görünümü' },
+              ].map(item => (
+                <div key={item.label}>
+                  <div className="text-2xl font-black text-[#0b2a4a]">{item.value}</div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{item.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="relative min-h-[520px]">
-            <div className="absolute right-0 top-4 h-[420px] w-[78%] rounded-[48px] bg-[#2f6fa8]" />
-            <div className="absolute right-12 top-2 h-28 w-28 rounded-full bg-sky-100" />
-            <div className="absolute bottom-16 left-8 h-24 w-24 rounded-full bg-sky-200" />
-
-            <div className="absolute right-4 top-16 w-[82%] overflow-hidden rounded-[34px] border border-white/70 bg-white shadow-2xl shadow-blue-900/15">
-              <div className="flex items-center justify-between border-b border-sky-100 bg-sky-50 px-5 py-4">
+          <div className="relative min-h-[560px] lg:min-h-[620px]">
+            <div className="absolute right-0 top-0 h-full w-[88%] rounded-[44px] border border-sky-100 bg-white/78 shadow-2xl shadow-blue-900/10 backdrop-blur" />
+            <div className="absolute right-6 top-7 h-[430px] w-[86%] overflow-hidden rounded-[30px] border border-white bg-white shadow-2xl shadow-blue-900/16">
+              <div className="flex items-center justify-between border-b border-sky-100 bg-[#f0f7ff] px-5 py-4">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                 </div>
-                <span className="text-xs font-bold text-sky-700">VetCep Klinik Portalı</span>
+                <span className="text-xs font-black text-[#2563eb]">VetCep Klinik Portalı</span>
               </div>
 
               <div className="grid gap-4 p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xl font-black text-[#0b2a4a]">Klinik Operasyon</div>
+                    <div className="text-xs font-medium text-slate-500">Bugünün canlı akışı</div>
+                  </div>
+                  <span className="rounded-full bg-[#16a34a]/10 px-3 py-1 text-xs font-black text-[#16a34a]">Aktif</span>
+                </div>
+
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: 'Bugün', value: '18', icon: CalendarCheck2 },
-                    { label: 'Bekleyen', value: '7', icon: BellRing },
+                    { label: 'Randevu', value: '18', icon: CalendarCheck2 },
+                    { label: 'Bildirim', value: '42', icon: BellRing },
                     { label: 'Hasta', value: '486', icon: PawPrint },
                   ].map(item => (
-                    <div key={item.label} className="rounded-2xl bg-sky-50 p-4">
-                      <item.icon className="h-4 w-4 text-[#2f6fa8]" />
-                      <div className="mt-3 text-2xl font-black text-slate-950">{item.value}</div>
+                    <div key={item.label} className="rounded-2xl border border-sky-100 bg-[#f7fbff] p-4">
+                      <item.icon className="h-4 w-4 text-[#2563eb]" />
+                      <div className="mt-3 text-2xl font-black text-[#0b2a4a]">{item.value}</div>
                       <div className="text-xs font-semibold text-slate-500">{item.label}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="rounded-3xl border border-sky-100 p-4">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-black text-slate-950">Bugünün randevuları</div>
-                      <div className="text-xs text-slate-500">Klinik ekip görünümü</div>
+                <div className="grid grid-cols-[1fr_0.72fr] gap-4">
+                  <div className="rounded-3xl border border-sky-100 p-4">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-black text-[#0b2a4a]">Bugünün randevuları</div>
+                        <div className="text-xs text-slate-500">Ekip ve hasta görünümü</div>
+                      </div>
+                      <CalendarCheck2 className="h-4 w-4 text-[#2563eb]" />
                     </div>
-                    <span className="rounded-full bg-[#2f6fa8]/10 px-3 py-1 text-xs font-bold text-[#2f6fa8]">Canlı</span>
+                    {[
+                      ['09:30', 'Mia', 'Aşı kontrolü'],
+                      ['11:00', 'Oscar', 'Muayene'],
+                      ['14:30', 'Pamuk', 'Lab sonucu'],
+                    ].map(([time, pet, note]) => (
+                      <div key={`${time}-${pet}`} className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 last:mb-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#2563eb]">
+                          <PawPrint className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-black text-slate-900">{pet}</div>
+                          <div className="truncate text-xs text-slate-500">{note}</div>
+                        </div>
+                        <div className="text-xs font-black text-slate-500">{time}</div>
+                      </div>
+                    ))}
                   </div>
-                  {[
-                    ['09:30', 'Mia', 'Aşı kontrolü'],
-                    ['11:00', 'Oscar', 'Muayene'],
-                    ['14:30', 'Pamuk', 'Lab sonucu'],
-                  ].map(([time, pet, note]) => (
-                    <div key={`${time}-${pet}`} className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 last:mb-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#2f6fa8]">
-                        <PawPrint className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-black text-slate-900">{pet}</div>
-                        <div className="text-xs text-slate-500">{note}</div>
-                      </div>
-                      <div className="text-xs font-black text-slate-500">{time}</div>
+
+                  <div className="rounded-3xl bg-[#0b2a4a] p-4 text-white">
+                    <div className="mb-4 flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-sky-300" />
+                      <span className="text-xs font-black uppercase tracking-[0.14em] text-sky-200">Analitik</span>
                     </div>
-                  ))}
+                    <div className="space-y-3">
+                      {[72, 48, 86, 58].map((height, index) => (
+                        <div key={height} className="flex items-center gap-2">
+                          <span className="w-7 text-[10px] font-bold text-white/60">{['Pts', 'Sal', 'Çar', 'Per'][index]}</span>
+                          <div className="h-2 flex-1 rounded-full bg-white/10">
+                            <div className="h-2 rounded-full bg-sky-300" style={{ width: `${height}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-7 text-3xl font-black">+31%</div>
+                    <div className="mt-1 text-xs font-medium text-white/60">geri dönen hasta</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="absolute bottom-10 left-0 w-64 rounded-[30px] border border-sky-100 bg-white p-5 shadow-2xl shadow-blue-900/10">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2f6fa8] text-white">
-                  <HeartPulse className="h-5 w-5" />
+            <div className="absolute bottom-3 left-2 w-[245px] rounded-[36px] border border-slate-200 bg-[#0b2a4a] p-2 shadow-2xl shadow-blue-900/20">
+              <div className="rounded-[28px] bg-white p-4">
+                <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-slate-200" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf4ff] text-[#2563eb]">
+                    <HeartPulse className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-black text-[#0b2a4a]">Pamuk</div>
+                    <div className="text-xs font-medium text-slate-500">Golden Retriever</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-black text-slate-950">Sahip mobilde</div>
-                  <div className="text-xs text-slate-500">Bildirim aldı</div>
+                <div className="mt-4 rounded-2xl bg-[#f7fbff] p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-black text-[#0b2a4a]">Yaklaşan aşı</span>
+                    <Syringe className="h-4 w-4 text-[#2563eb]" />
+                  </div>
+                  <div className="text-sm font-bold text-slate-600">Karma aşı · 3 gün kaldı</div>
+                </div>
+                <div className="mt-3 rounded-2xl border border-sky-100 p-3">
+                  <div className="text-xs font-black text-[#0b2a4a]">Reçete geçmişi</div>
+                  <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-slate-500">
+                    <FileText className="h-3.5 w-3.5 text-[#2563eb]" />
+                    4 kayıt görüntülenebilir
+                  </div>
                 </div>
               </div>
-              <div className="rounded-2xl bg-sky-50 p-3 text-sm font-semibold text-slate-600">
-                “Pamuk’un aşı tarihi yaklaşıyor. Randevu talep edebilirsiniz.”
+            </div>
+
+            <div className="absolute bottom-24 right-1 max-w-[250px] rounded-2xl border border-sky-100 bg-white px-4 py-3 shadow-xl shadow-blue-900/10">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eaf4ff] text-[#2563eb]">
+                  <BellRing className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-[#0b2a4a]">Mobil bildirim</div>
+                  <div className="mt-1 text-xs leading-5 text-slate-500">Sahip aşı hatırlatmasını telefonunda görür.</div>
+                </div>
               </div>
             </div>
           </div>
