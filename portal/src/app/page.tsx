@@ -1,14 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowRight,
   BarChart3,
   BellRing,
   CalendarCheck2,
+  ChevronDown,
   CheckCircle2,
   Clock3,
   FileText,
+  Mail,
   MessageCircle,
   PawPrint,
   ShieldCheck,
@@ -22,8 +25,8 @@ import {
 const navItems = [
   { label: 'Özellikler', href: '#features' },
   { label: 'Mobil Uygulama', href: '#clinics' },
-  { label: 'Fiyatlandırma', href: '/billing' },
-  { label: 'Referanslar', href: '#workflow' },
+  { label: 'Fiyatlandırma', href: '#pricing' },
+  { label: 'Referanslar', href: '#references' },
   { label: 'Hakkımızda', href: '/clinic-onboarding' },
 ]
 
@@ -87,7 +90,74 @@ const heroProofItems = [
   { icon: Clock3, title: '7/24', text: 'Destek' },
 ]
 
+const clinicLogos = ['PatiLife', 'NovaVet', 'Mavi Pati', 'CanDost', 'VitaVet']
+
+const testimonials = [
+  {
+    name: 'Dr. Ayşe Yılmaz',
+    role: 'PatiLife Veteriner Kliniği',
+    initials: 'AY',
+    quote: 'VetCep ile randevu, aşı takibi ve hasta iletişimi aynı ekranda toplandı. Ekibin günlük operasyonu daha düzenli, hasta sahipleri de çok daha bilinçli geliyor.',
+  },
+  {
+    name: 'Uzm. Vet. Hakan Demir',
+    role: 'NovaVet Klinik',
+    initials: 'HD',
+    quote: 'Mobil uygulama tarafı satış görüşmelerinde en çok dikkat çeken özellik oldu. Kliniğin dijital görünümünü ilk dakikada premium hissettiriyor.',
+  },
+]
+
+const pricingPlans = [
+  {
+    name: 'Temel',
+    description: 'Dijital kayda yeni geçen küçük klinikler için.',
+    monthly: 1490,
+    yearly: 1190,
+    features: ['Hasta ve sahip kartları', 'Randevu takvimi', 'Aşı hatırlatma listesi', 'Bulut erişimi'],
+  },
+  {
+    name: 'Pro',
+    description: 'Büyüyen klinikler ve aktif ekipler için.',
+    monthly: 2490,
+    yearly: 1990,
+    popular: true,
+    features: ['Temel plandaki her şey', 'Mobil sahip uygulaması', 'WhatsApp akışları', 'Klinik analitiği', 'Kayıp hasta kampanyaları'],
+  },
+  {
+    name: 'Kurumsal',
+    description: 'Çok şubeli klinikler ve özel kurulum ihtiyacı olan ekipler için.',
+    monthly: 4490,
+    yearly: 3590,
+    features: ['Pro plandaki her şey', 'Çoklu şube görünümü', 'Özel onboarding', 'Gelişmiş yetkilendirme', 'Öncelikli destek'],
+  },
+]
+
+const faqs = [
+  {
+    question: 'VetCep kurulumu ne kadar sürer?',
+    answer: 'Standart klinik hesabı aynı gün açılır. Hasta kartı, ekip kullanıcıları ve temel randevu akışı kurulum görüşmesiyle birlikte hazır hale getirilir.',
+  },
+  {
+    question: 'Hasta sahipleri mobil uygulamayı nasıl kullanır?',
+    answer: 'Klinik, hasta sahibini VetCep mobil uygulamasına davet eder. Sahipler aşı, reçete, randevu ve sağlık geçmişini kendi telefonlarından takip edebilir.',
+  },
+  {
+    question: 'Mevcut hasta kayıtlarımız aktarılabilir mi?',
+    answer: 'Evet. Excel, CSV veya mevcut sistem çıktıları üzerinden hasta ve sahip kayıtları kontrollü şekilde VetCep hasta kartlarına taşınabilir.',
+  },
+  {
+    question: 'WhatsApp ve ödeme özellikleri dahil mi?',
+    answer: 'Portal tarafı bu akışlara hazırdır. Gerçek WhatsApp Business ve ödeme provider bilgileri tanımlandığında ilgili modüller canlı kullanıma açılır.',
+  },
+  {
+    question: 'Deneme süresinde tüm özellikleri görebilir miyiz?',
+    answer: '14 günlük deneme hesabında temel klinik yönetimi, randevu, hasta kartı ve mobil sahip deneyimi demo senaryosuyla incelenebilir.',
+  },
+]
+
 export default function LandingPage() {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly')
+
   return (
     <main className="min-h-screen bg-white text-[#0b2a4a]">
       <header className="sticky top-0 z-50 border-b border-sky-100/80 bg-white/94 backdrop-blur-xl">
@@ -385,6 +455,152 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section id="references" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">Kliniklerin Tercihi</div>
+          <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Modern kliniklerin dijital vitrini</h2>
+          <p className="mt-5 text-lg leading-8 text-slate-600">
+            VetCep, kliniklerin hasta sahiplerine daha şeffaf, hızlı ve güven veren bir deneyim sunması için tasarlandı.
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-5">
+          {clinicLogos.map(logo => (
+            <div key={logo} className="flex h-24 items-center justify-center rounded-3xl border border-sky-100 bg-white px-5 text-center shadow-sm">
+              <div>
+                <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-2xl bg-sky-50 text-[#2563eb]">
+                  <PawPrint className="h-4 w-4" />
+                </div>
+                <div className="text-sm font-black tracking-tight text-[#0b2a4a]">{logo}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          {testimonials.map(item => (
+            <article key={item.name} className="rounded-[32px] border border-sky-100 bg-[#f8fbff] p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#2563eb,#67c7ff)] text-lg font-black text-white shadow-lg shadow-blue-900/10">
+                  {item.initials}
+                </div>
+                <div>
+                  <div className="mb-3 flex gap-1 text-[#2563eb]">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star key={index} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-base leading-8 text-slate-700">“{item.quote}”</p>
+                  <div className="mt-5">
+                    <div className="font-black text-[#0b2a4a]">{item.name}</div>
+                    <div className="text-sm font-semibold text-slate-500">{item.role}</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="pricing" className="bg-[#f7fbff] py-20">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">Fiyatlandırma</div>
+            <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Kliniğinizin hızına göre büyüyen planlar</h2>
+            <p className="mt-5 text-lg leading-8 text-slate-600">
+              Deneme hesabıyla başlayın, ekibiniz ve hasta iletişiminiz büyüdükçe planınızı yükseltin.
+            </p>
+          </div>
+
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex rounded-2xl border border-sky-100 bg-white p-1 shadow-sm">
+              {[
+                { value: 'monthly', label: 'Aylık' },
+                { value: 'yearly', label: 'Yıllık', badge: '%20 avantaj' },
+              ].map(item => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setBillingCycle(item.value as 'monthly' | 'yearly')}
+                  className={`relative rounded-xl px-5 py-2.5 text-sm font-black transition-colors ${
+                    billingCycle === item.value ? 'bg-[#2563eb] text-white shadow-sm' : 'text-slate-500 hover:text-[#0b2a4a]'
+                  }`}
+                >
+                  {item.label}
+                  {item.badge && <span className="ml-2 text-[10px] font-black opacity-80">{item.badge}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-3">
+            {pricingPlans.map(plan => {
+              const price = billingCycle === 'monthly' ? plan.monthly : plan.yearly
+
+              return (
+                <article
+                  key={plan.name}
+                  className={`relative rounded-[32px] border bg-white p-6 shadow-sm ${
+                    plan.popular ? 'border-[#2563eb] shadow-2xl shadow-blue-900/10 ring-4 ring-sky-100' : 'border-sky-100'
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute right-5 top-5 rounded-full bg-[#2563eb] px-3 py-1 text-xs font-black text-white">
+                      En popüler
+                    </div>
+                  )}
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#2563eb]">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-2xl font-black text-[#0b2a4a]">{plan.name}</h3>
+                  <p className="mt-3 min-h-14 text-sm leading-6 text-slate-600">{plan.description}</p>
+                  <div className="mt-6 flex items-end gap-1">
+                    <span className="text-4xl font-black text-[#0b2a4a]">₺{price.toLocaleString('tr-TR')}</span>
+                    <span className="pb-1 text-sm font-bold text-slate-500">/ ay</span>
+                  </div>
+                  {billingCycle === 'yearly' && <div className="mt-2 text-xs font-bold text-[#16a34a]">Yıllık ödemede avantajlı fiyat</div>}
+                  <Link
+                    href={`/clinic-onboarding?plan=${plan.name.toLowerCase()}`}
+                    className={`mt-6 inline-flex h-12 w-full items-center justify-center rounded-2xl text-sm font-black transition-transform hover:-translate-y-0.5 ${
+                      plan.popular ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-900/15' : 'border border-sky-200 bg-white text-[#2563eb] hover:bg-sky-50'
+                    }`}
+                  >
+                    Demo Talep Et
+                  </Link>
+                  <div className="mt-6 space-y-3">
+                    {plan.features.map(feature => (
+                      <div key={feature} className="flex items-center gap-3 text-sm font-semibold text-slate-600">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-[#2563eb]" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="mx-auto max-w-5xl px-5 py-20 md:px-8">
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">SSS</div>
+          <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Kliniklerin en çok sorduğu sorular</h2>
+        </div>
+
+        <div className="space-y-3">
+          {faqs.map((item, index) => (
+            <details key={item.question} className="group rounded-3xl border border-sky-100 bg-white p-5 shadow-sm" open={index === 0}>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-lg font-black text-[#0b2a4a]">
+                {item.question}
+                <ChevronDown className="h-5 w-5 shrink-0 text-[#2563eb] transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-4 max-w-3xl leading-7 text-slate-600">{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <section id="clinics" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
         <div className="overflow-hidden rounded-[40px] bg-[#2f6fa8] text-white shadow-2xl shadow-blue-900/15">
           <div className="grid gap-8 p-8 md:p-12 lg:grid-cols-[1fr_0.9fr]">
@@ -425,15 +641,72 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-sky-100 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 md:flex-row md:px-8">
-          <div className="flex items-center gap-2 font-bold text-slate-700">
-            <PawPrint className="h-4 w-4 text-[#2f6fa8]" />
-            VetCep © 2026
+      <footer className="border-t border-sky-100 bg-[#f8fbff]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1.25fr_0.75fr_0.75fr_1fr] md:px-8">
+          <div>
+            <Link href="/" className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#2563eb] text-white">
+                <PawPrint className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-lg font-black tracking-tight text-[#0b2a4a]">VetCep</div>
+                <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2563eb]">Klinik Yönetim Sistemi</div>
+              </div>
+            </Link>
+            <p className="max-w-sm text-sm leading-7 text-slate-600">
+              VetCep, veteriner klinikleri için web portal, mobil sahip uygulaması, randevu, aşı takibi ve hasta iletişimini tek deneyimde birleştirir.
+            </p>
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/login" className="font-bold text-[#2f6fa8]">Giriş Yap</Link>
-            <Link href="/clinic-onboarding" className="font-bold text-slate-600 hover:text-[#2f6fa8]">Demo İste</Link>
+
+          <div>
+            <h3 className="mb-4 text-sm font-black text-[#0b2a4a]">Hızlı erişim</h3>
+            <div className="grid gap-3 text-sm font-semibold text-slate-600">
+              <Link href="#features" className="hover:text-[#2563eb]">Özellikler</Link>
+              <Link href="#pricing" className="hover:text-[#2563eb]">Fiyatlandırma</Link>
+              <Link href="#references" className="hover:text-[#2563eb]">Referanslar</Link>
+              <Link href="/login" className="hover:text-[#2563eb]">Giriş Yap</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-black text-[#0b2a4a]">Yasal</h3>
+            <div className="grid gap-3 text-sm font-semibold text-slate-600">
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">KVKK Aydınlatma</Link>
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">Gizlilik Politikası</Link>
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">Kullanım Şartları</Link>
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">Çerez Politikası</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-black text-[#0b2a4a]">İletişim</h3>
+            <div className="space-y-3 text-sm font-semibold text-slate-600">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-[#2563eb]" />
+                hello@vetcep.com
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-[#2563eb]" />
+                Demo görüşmesi talep edin
+              </div>
+            </div>
+            <div className="mt-5 flex gap-3">
+              {[MessageCircle, Mail, PawPrint].map((Icon, index) => (
+                <Link
+                  key={index}
+                  href="/clinic-onboarding"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-sky-100 bg-white text-[#2563eb] shadow-sm hover:bg-sky-50"
+                >
+                  <Icon className="h-4 w-4" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-sky-100">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-5 text-xs font-semibold text-slate-500 md:flex-row md:px-8">
+            <span>VetCep © 2026. Tüm hakları saklıdır.</span>
+            <span>Veteriner klinikleri için güvenli dijital altyapı.</span>
           </div>
         </div>
       </footer>
