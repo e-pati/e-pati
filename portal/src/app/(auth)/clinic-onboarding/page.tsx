@@ -47,18 +47,11 @@ export default function ClinicOnboardingPage() {
   })
 
   const onSubmit = async (data: OnboardingForm) => {
-    await new Promise(resolve => setTimeout(resolve, 400))
-    const subject = encodeURIComponent(`VetCep 14 Gün Deneme Başvurusu — ${data.clinicName}`)
-    const body = encodeURIComponent(
-      `Klinik Adı: ${data.clinicName}\n` +
-      `Yetkili: ${data.authorizedName}\n` +
-      `E-posta: ${data.email}\n` +
-      `Telefon: ${data.phone}\n` +
-      `Şehir: ${data.city}\n` +
-      `Veteriner Sayısı: ${data.veterinarianCount}\n\n` +
-      `Başvuru tarihi: ${new Date().toLocaleString('tr-TR')}`
-    )
-    window.open(`mailto:burakgemicioglu33@gmail.com?subject=${subject}&body=${body}`)
+    await fetch('/api/demo-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
     setSubmitted(true)
   }
 
