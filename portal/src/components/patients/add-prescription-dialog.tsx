@@ -11,7 +11,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { prescriptionsService } from '@/services/prescriptions.service'
 import { whatsappService } from '@/services/whatsapp.service'
 import { toast } from 'sonner'
-import { Pill, X, Plus, Trash2 } from 'lucide-react'
+import { Pill, X, Plus, Trash2, Zap } from 'lucide-react'
+import { DRUG_DATABASE } from '@/lib/drug-database'
 
 const medicationSchema = z.object({
   name: z.string().min(2, 'İlaç adı gerekli'),
@@ -28,11 +29,6 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
-
-const COMMON_DRUGS = [
-  'Amoksisilin', 'Metronidazol', 'Doksisiklin', 'Prednizolon',
-  'Meloksikam', 'Gabapentin', 'Furosemid', 'Enalapril',
-]
 
 const FREQUENCY_OPTIONS = ['1x1', '2x1', '3x1', '4x1', 'Sabah-akşam', 'Günaşırı', 'Haftada 1']
 const DURATION_OPTIONS = ['3 gün', '5 gün', '7 gün', '10 gün', '14 gün', '30 gün', 'Süresiz']
@@ -159,23 +155,36 @@ export function AddPrescriptionDialog({ petId, petName, ownerName, ownerPhone, o
                     )}
                   </div>
 
-                  {/* İlaç adı + hızlı seçim */}
+                  {/* İlaç adı + akıllı veritabanı */}
                   <div className="space-y-1.5">
                     <Label className="text-xs">İlaç Adı <span className="text-destructive">*</span></Label>
                     <Input
                       placeholder="İlaç adını yazın veya seçin"
+                      list={`drugs-${index}`}
                       {...register(`medications.${index}.name`)}
                       className={errors.medications?.[index]?.name ? 'border-destructive' : ''}
                     />
+                    <datalist id={`drugs-${index}`}>
+                      {DRUG_DATABASE.map(d => <option key={d.name} value={d.name} />)}
+                    </datalist>
+                    {/* Hızlı doldur */}
                     <div className="flex flex-wrap gap-1">
-                      {COMMON_DRUGS.map(d => (
+                      {DRUG_DATABASE.slice(0, 10).map(d => (
                         <button
-                          key={d}
+                          key={d.name}
                           type="button"
-                          onClick={() => setValue(`medications.${index}.name`, d)}
-                          className="text-[10px] px-2 py-0.5 rounded-full border border-border hover:border-primary hover:text-primary transition-colors"
+                          onClick={() => {
+                            setValue(`medications.${index}.name`, d.name)
+                            setValue(`medications.${index}.dose`, d.dose)
+                            setValue(`medications.${index}.frequency`, d.frequency)
+                            setValue(`medications.${index}.duration`, d.duration)
+                            if (d.instructions) setValue(`medications.${index}.instructions`, d.instructions)
+                          }}
+                          className="text-[10px] px-2 py-0.5 rounded-full border border-border hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors flex items-center gap-1"
+                          title={`Doz: ${d.dose} · ${d.frequency} · ${d.duration}`}
                         >
-                          {d}
+                          <Zap className="w-2.5 h-2.5" />
+                          {d.name}
                         </button>
                       ))}
                     </div>

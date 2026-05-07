@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, Modal, Share, Image,
+  SafeAreaView, ActivityIndicator, Modal, Share, Image, Platform,
 } from 'react-native'
+import * as Print from 'expo-print'
+import * as Sharing from 'expo-sharing'
 import { useLocalSearchParams, router, type Href } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import QRCode from 'react-native-qrcode-svg'
@@ -105,6 +107,40 @@ export default function PetDetailScreen() {
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
+
+  const shareVaccinationCard = async () => {
+    if (!pet) return
+    const rows = vaccines.map(v => `
+      <tr>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb">${v.vaccineName}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb">${v.appliedDate ? new Date(v.appliedDate).toLocaleDateString('tr-TR') : '—'}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:${isVaccinationOverdue(v.nextDate) ? '#dc2626' : '#16a34a'}">${v.nextDate ? new Date(v.nextDate).toLocaleDateString('tr-TR') : '—'}</td>
+        <td style="padding:8px;border-bottom:1px solid #e5e7eb">${v.manufacturer ?? '—'}</td>
+      </tr>`).join('')
+    const html = `
+      <!DOCTYPE html><html><head><meta charset="utf-8">
+      <style>body{font-family:Arial,sans-serif;margin:32px;color:#111}
+      h1{color:#10B981;font-size:22px}h2{font-size:16px;color:#374151}
+      table{width:100%;border-collapse:collapse;margin-top:12px}
+      th{background:#f0fdf4;padding:8px;text-align:left;font-size:13px;border-bottom:2px solid #10B981}
+      td{font-size:13px}.footer{margin-top:24px;font-size:11px;color:#9ca3af}</style>
+      </head><body>
+      <h1>🐾 VetCep — Aşı Kartı</h1>
+      <h2>${pet.name} · ${speciesLabel((pet.species?.toLowerCase() ?? 'other') as PetSpecies)} ${pet.breed ? `· ${pet.breed}` : ''}</h2>
+      <p style="color:#6b7280;font-size:13px">Doğum: ${pet.birthDate ? new Date(pet.birthDate).toLocaleDateString('tr-TR') : '—'}</p>
+      <table><thead><tr><th>Aşı</th><th>Uygulama</th><th>Sonraki Doz</th><th>Üretici</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="4" style="padding:12px;text-align:center;color:#9ca3af">Aşı kaydı yok</td></tr>'}</tbody></table>
+      <div class="footer">VetCep tarafından oluşturuldu · ${new Date().toLocaleDateString('tr-TR')}</div>
+      </body></html>`
+    try {
+      const { uri } = await Print.printToFileAsync({ html, base64: false })
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: `${pet.name} Aşı Kartı` })
+      }
+    } catch {
+      // Share silently fails on some platforms
+    }
+  }
   // Aktif ilaçlar: son reçetedeki ilaçlar
   const activeMedications = prescriptions.length > 0 ? prescriptions[0].medications : []
   const hasApiError = examinationsQuery.isError || vaccinationsQuery.isError ||
@@ -273,6 +309,22 @@ export default function PetDetailScreen() {
               <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
             </TouchableOpacity>
 
+            {/* Acil Yardım */}
+            <TouchableOpacity
+              style={[styles.healthTrackingCard, { backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca' }]}
+              onPress={() => router.push('/(tabs)/profile/clinics' as Href)}
+              activeOpacity={0.86}
+            >
+              <View style={[styles.healthTrackingIcon, { backgroundColor: '#fee2e2' }]}>
+                <Ionicons name="medkit-outline" size={22} color="#dc2626" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.healthTrackingTitle, { color: '#dc2626' }]}>Acil Veteriner Bul</Text>
+                <Text style={styles.healthTrackingText}>Yakınımdaki VetCep kullanan klinikleri göster.</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#dc2626" />
+            </TouchableOpacity>
+
             {/* Mikro çip */}
             {pet.microchipNo && (
               <View style={styles.infoCard}>
@@ -331,12 +383,21 @@ export default function PetDetailScreen() {
 
         {activeTab === 'vaccines' && (
           <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() => setVaccinationModalVisible(true)}
-            >
-              <Text style={styles.addBtnText}>+ Aşı Ekle</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+              <TouchableOpacity
+                style={[styles.addBtn, { flex: 1 }]}
+                onPress={() => setVaccinationModalVisible(true)}
+              >
+                <Text style={styles.addBtnText}>+ Aşı Ekle</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.addBtn, { flex: 1, backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder }]}
+                onPress={shareVaccinationCard}
+              >
+                <Ionicons name="share-outline" size={14} color={Colors.primary} style={{ marginRight: 4 }} />
+                <Text style={[styles.addBtnText, { color: Colors.primary }]}>Kartı Paylaş</Text>
+              </TouchableOpacity>
+            </View>
             {vaccines.length === 0
               ? <EmptyState emoji="💉" text="Henüz aşı kaydı yok" />
               : vaccines.map(vac => {
@@ -390,12 +451,26 @@ export default function PetDetailScreen() {
                       <Text style={styles.recordDate}>{formatDate(rx.date)}</Text>
                       <Text style={styles.recordVet}>{rx.vetName}</Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.pdfBtn}
-                      onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
-                    >
-                      <Text style={styles.pdfBtnText}>📄 PDF</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <TouchableOpacity
+                        style={[styles.pdfBtn, { backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder }]}
+                        onPress={async () => {
+                          try {
+                            const meds = rx.medications.map(m => `${m.drugName}: ${m.dose}, ${m.frequency}, ${m.duration}`).join('\n')
+                            await Share.share({ message: `${pet?.name} İlaç Hatırlatması:\n${meds}\n\nVetCep tarafından`, title: `${pet?.name} İlaçları` })
+                          } catch {}
+                        }}
+                      >
+                        <Ionicons name="alarm-outline" size={13} color={Colors.primary} />
+                        <Text style={[styles.pdfBtnText, { color: Colors.primary }]}>Hatırlat</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.pdfBtn}
+                        onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
+                      >
+                        <Text style={styles.pdfBtnText}>📄 PDF</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   {rx.medications.map(med => (
                     <View key={med.id} style={styles.medRow}>

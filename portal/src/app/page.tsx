@@ -1,15 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowRight,
   BarChart3,
   BellRing,
   CalendarCheck2,
+  ChevronDown,
   CheckCircle2,
   Clock3,
   FileText,
-  HeartPulse,
+  Mail,
   MessageCircle,
   PawPrint,
   ShieldCheck,
@@ -22,9 +24,10 @@ import {
 
 const navItems = [
   { label: 'Özellikler', href: '#features' },
-  { label: 'İş Akışı', href: '#workflow' },
-  { label: 'Klinikler', href: '#clinics' },
-  { label: 'İletişim', href: '/clinic-onboarding' },
+  { label: 'Mobil Uygulama', href: '#clinics' },
+  { label: 'Fiyatlandırma', href: '#pricing' },
+  { label: 'Referanslar', href: '#references' },
+  { label: 'Hakkımızda', href: '/clinic-onboarding' },
 ]
 
 const features = [
@@ -74,42 +77,104 @@ const stats = [
 ]
 
 const trustItems = [
-  'Klinik satış görüşmelerinde demo akışı hazır',
-  'Web portal + mobil sahip deneyimi birlikte çalışır',
-  'Backend endpointleri geldikçe canlı veriye geçmeye hazır',
+  'Kurulum desteği',
+  'Mobil uygulama dahil',
+  'Güvenli bulut altyapısı',
+]
+
+const heroProofItems = [
+  { icon: ShieldCheck, title: 'Verileriniz güvende', text: 'Bulut tabanlı koruma' },
+  { icon: CheckCircle2, title: 'KVKK', text: 'Uyumlu akışlar' },
+  { icon: Star, title: 'ISO', text: '27001 hazırlığı' },
+  { icon: PawPrint, title: 'Türkiye', text: 'Sunucuları' },
+  { icon: Clock3, title: '7/24', text: 'Destek' },
+]
+
+const clinicLogos = ['PatiLife', 'NovaVet', 'Mavi Pati', 'CanDost', 'VitaVet']
+
+const testimonials = [
+  {
+    name: 'Dr. Ayşe Yılmaz',
+    role: 'PatiLife Veteriner Kliniği',
+    initials: 'AY',
+    quote: 'VetCep ile randevu, aşı takibi ve hasta iletişimi aynı ekranda toplandı. Ekibin günlük operasyonu daha düzenli, hasta sahipleri de çok daha bilinçli geliyor.',
+  },
+  {
+    name: 'Uzm. Vet. Hakan Demir',
+    role: 'NovaVet Klinik',
+    initials: 'HD',
+    quote: 'Mobil uygulama tarafı satış görüşmelerinde en çok dikkat çeken özellik oldu. Kliniğin dijital görünümünü ilk dakikada premium hissettiriyor.',
+  },
+]
+
+const pricingPlans = [
+  {
+    name: 'Temel',
+    description: 'Dijital kayda yeni geçen küçük klinikler için.',
+    monthly: 1490,
+    yearly: 1190,
+    features: ['Hasta ve sahip kartları', 'Randevu takvimi', 'Aşı hatırlatma listesi', 'Bulut erişimi'],
+  },
+  {
+    name: 'Pro',
+    description: 'Büyüyen klinikler ve aktif ekipler için.',
+    monthly: 2490,
+    yearly: 1990,
+    popular: true,
+    features: ['Temel plandaki her şey', 'Mobil sahip uygulaması', 'WhatsApp akışları', 'Klinik analitiği', 'Kayıp hasta kampanyaları'],
+  },
+  {
+    name: 'Kurumsal',
+    description: 'Çok şubeli klinikler ve özel kurulum ihtiyacı olan ekipler için.',
+    monthly: 4490,
+    yearly: 3590,
+    features: ['Pro plandaki her şey', 'Çoklu şube görünümü', 'Özel onboarding', 'Gelişmiş yetkilendirme', 'Öncelikli destek'],
+  },
+]
+
+const faqs = [
+  {
+    question: 'VetCep kurulumu ne kadar sürer?',
+    answer: 'Standart klinik hesabı aynı gün açılır. Hasta kartı, ekip kullanıcıları ve temel randevu akışı kurulum görüşmesiyle birlikte hazır hale getirilir.',
+  },
+  {
+    question: 'Hasta sahipleri mobil uygulamayı nasıl kullanır?',
+    answer: 'Klinik, hasta sahibini VetCep mobil uygulamasına davet eder. Sahipler aşı, reçete, randevu ve sağlık geçmişini kendi telefonlarından takip edebilir.',
+  },
+  {
+    question: 'Mevcut hasta kayıtlarımız aktarılabilir mi?',
+    answer: 'Evet. Excel, CSV veya mevcut sistem çıktıları üzerinden hasta ve sahip kayıtları kontrollü şekilde VetCep hasta kartlarına taşınabilir.',
+  },
+  {
+    question: 'WhatsApp ve ödeme özellikleri dahil mi?',
+    answer: 'Portal tarafı bu akışlara hazırdır. Gerçek WhatsApp Business ve ödeme provider bilgileri tanımlandığında ilgili modüller canlı kullanıma açılır.',
+  },
+  {
+    question: 'Deneme süresinde tüm özellikleri görebilir miyiz?',
+    answer: '14 günlük deneme hesabında temel klinik yönetimi, randevu, hasta kartı ve mobil sahip deneyimi demo senaryosuyla incelenebilir.',
+  },
 ]
 
 export default function LandingPage() {
-  return (
-    <main className="min-h-screen bg-white text-slate-950">
-      <div className="bg-[#2f6fa8] text-white">
-        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-5 text-xs md:px-8">
-          <span className="flex items-center gap-2">
-            <Clock3 className="h-3.5 w-3.5" />
-            Pazartesi-Cuma 09:00-18:00 demo görüşmesi
-          </span>
-          <span className="hidden items-center gap-2 sm:flex">
-            <MessageCircle className="h-3.5 w-3.5" />
-            Klinikler için VetCep tanıtımı
-          </span>
-        </div>
-      </div>
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly')
 
-      <header className="sticky top-0 z-50 border-b border-sky-100 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
+  return (
+    <main className="min-h-screen bg-white text-[#0b2a4a]">
+      <header className="sticky top-0 z-50 border-b border-sky-100/80 bg-white/94 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#2f6fa8] text-white shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#2563eb] text-white shadow-sm shadow-blue-900/10">
               <PawPrint className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xl font-black tracking-tight text-[#2f6fa8]">VetCep</div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-400">Klinik Portalı</div>
+              <div className="text-lg font-black tracking-tight text-[#0b2a4a]">VetCep</div>
+              <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2563eb]">Klinik Yönetim Sistemi</div>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 lg:flex">
+          <nav className="hidden items-center gap-7 text-xs font-semibold text-slate-600 lg:flex">
             {navItems.map(item => (
-              <Link key={item.label} href={item.href} className="transition-colors hover:text-[#2f6fa8]">
+              <Link key={item.label} href={item.href} className="transition-colors hover:text-[#2563eb]">
                 {item.label}
               </Link>
             ))}
@@ -118,147 +183,211 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="rounded-xl border border-sky-200 px-4 py-2.5 text-sm font-bold text-[#2f6fa8] transition-colors hover:bg-sky-50"
+              className="rounded-lg border border-[#0b2a4a]/20 px-4 py-2 text-xs font-bold text-[#0b2a4a] transition-colors hover:bg-sky-50"
             >
               Giriş Yap
             </Link>
             <Link
               href="/clinic-onboarding"
-              className="hidden rounded-xl bg-[#2f6fa8] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 sm:inline-flex"
+              className="hidden rounded-lg bg-[#2563eb] px-4 py-2 text-xs font-bold text-white shadow-sm shadow-blue-900/10 transition-transform hover:-translate-y-0.5 sm:inline-flex"
             >
-              Demo İste
+              Demo Talep Et
             </Link>
           </div>
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#ffffff_58%,#eaf6ff_100%)]">
-        <div className="absolute inset-0 opacity-70">
-          <div className="absolute left-[-8%] top-24 h-72 w-72 rounded-full bg-sky-100 blur-3xl" />
-          <div className="absolute right-[-5%] top-16 h-96 w-96 rounded-full bg-blue-100 blur-3xl" />
-          <div className="absolute bottom-0 left-1/3 h-48 w-48 rounded-full bg-cyan-100 blur-3xl" />
-        </div>
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_72%_8%,#e7f2ff_0,#f8fbff_32%,#ffffff_68%)]">
+        <div className="absolute -right-24 top-12 h-[520px] w-[520px] rounded-full border border-sky-100" />
+        <div className="absolute -right-10 top-32 h-[420px] w-[420px] rounded-full border border-sky-100" />
+        <div className="absolute -bottom-20 left-0 h-56 w-[52vw] rounded-tr-[100%] bg-[#eaf4ff]" />
 
-        <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-10 px-5 py-16 md:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:py-20">
-          <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-xs font-bold text-[#2f6fa8] shadow-sm">
+        <div className="relative mx-auto grid min-h-[620px] max-w-7xl items-center gap-8 px-5 py-12 md:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:py-14">
+          <div className="max-w-xl">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1.5 text-[11px] font-bold text-[#2563eb] shadow-sm">
               <Sparkles className="h-3.5 w-3.5" />
-              Veteriner klinikleri için modern dijital işletim sistemi
+              Veteriner klinikleri için dijital işletim sistemi
             </div>
 
-            <h1 className="text-5xl font-black leading-[1.02] tracking-tight text-slate-950 md:text-7xl">
-              Kliniğinizi
-              <span className="block text-[#2f6fa8]">tek ekrandan</span>
-              yönetin.
+            <h1 className="text-4xl font-black leading-[1.06] tracking-tight text-[#0b2a4a] sm:text-5xl">
+              Kliniğinizin yönetimi ve hasta sahipleriyle iletişimi
+              <span className="block text-[#2563eb]">tek platformda.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-              VetCep; hasta kayıtlarını, randevuları, aşı takibini, WhatsApp bilgilendirmelerini ve klinik analitiğini
-              web portalı ile mobil sahip uygulamasında birleştirir.
+            <p className="mt-5 max-w-lg text-sm leading-7 text-slate-600 sm:text-base">
+              Randevu, hasta kaydı, aşı takibi, laboratuvar sonuçları, reçeteler ve mobil sahip uygulaması tek dijital deneyimde birleşir.
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/clinic-onboarding"
-                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl bg-[#2f6fa8] px-6 text-base font-black text-white shadow-lg shadow-blue-900/15 transition-transform hover:-translate-y-0.5"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#2563eb] px-6 text-sm font-black text-white shadow-lg shadow-blue-900/15 transition-transform hover:-translate-y-0.5"
               >
-                14 Gün Ücretsiz Başla
-                <ArrowRight className="h-4 w-4" />
+                <CalendarCheck2 className="h-4 w-4" />
+                Demo Talep Et
               </Link>
               <Link
-                href="/login"
-                className="inline-flex h-13 items-center justify-center gap-2 rounded-2xl border border-sky-200 bg-white px-6 text-base font-black text-[#2f6fa8] shadow-sm transition-colors hover:bg-sky-50"
+                href="#features"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-6 text-sm font-black text-[#2563eb] shadow-sm transition-colors hover:bg-sky-50"
               >
-                Klinik Girişi
+                <BarChart3 className="h-4 w-4" />
+                Klinik Portalını İncele
               </Link>
             </div>
 
-            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+            <div className="mt-7 flex flex-wrap gap-3">
               {trustItems.map(item => (
-                <div key={item} className="flex items-start gap-2 text-sm font-medium text-slate-600">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#2f6fa8]" />
+                <div key={item} className="inline-flex items-center gap-2 rounded-lg border border-sky-100 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 shadow-sm">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[#2563eb]" />
                   <span>{item}</span>
                 </div>
               ))}
             </div>
+
           </div>
 
-          <div className="relative min-h-[520px]">
-            <div className="absolute right-0 top-4 h-[420px] w-[78%] rounded-[48px] bg-[#2f6fa8]" />
-            <div className="absolute right-12 top-2 h-28 w-28 rounded-full bg-sky-100" />
-            <div className="absolute bottom-16 left-8 h-24 w-24 rounded-full bg-sky-200" />
+          <div className="relative min-h-[460px] lg:min-h-[540px]">
+            <div className="absolute left-2 top-12 h-[380px] w-[78%] overflow-hidden rounded-3xl border-[10px] border-[#0b2a4a] bg-white shadow-2xl shadow-blue-950/20 [transform:perspective(1200px)_rotateY(-9deg)_rotateZ(-2deg)] lg:left-6 lg:top-4 lg:h-[440px]">
+              <div className="grid h-full grid-cols-[88px_1fr]">
+                <aside className="bg-[#0b2a4a] p-4 text-white">
+                  <div className="mb-6 flex items-center gap-2">
+                    <PawPrint className="h-5 w-5 text-sky-300" />
+                    <span className="text-sm font-black">VetCep</span>
+                  </div>
+                  <div className="space-y-2 text-[10px] font-bold text-white/72">
+                    {['Ana Sayfa', 'Randevular', 'Hastalar', 'Aşı Takibi', 'Laboratuvar', 'Ödemeler', 'Analitik'].map(item => (
+                      <div key={item} className="rounded-lg px-2 py-2 first:bg-white/12">{item}</div>
+                    ))}
+                  </div>
+                </aside>
 
-            <div className="absolute right-4 top-16 w-[82%] overflow-hidden rounded-[34px] border border-white/70 bg-white shadow-2xl shadow-blue-900/15">
-              <div className="flex items-center justify-between border-b border-sky-100 bg-sky-50 px-5 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                </div>
-                <span className="text-xs font-bold text-sky-700">VetCep Klinik Portalı</span>
-              </div>
-
-              <div className="grid gap-4 p-5">
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'Bugün', value: '18', icon: CalendarCheck2 },
-                    { label: 'Bekleyen', value: '7', icon: BellRing },
-                    { label: 'Hasta', value: '486', icon: PawPrint },
-                  ].map(item => (
-                    <div key={item.label} className="rounded-2xl bg-sky-50 p-4">
-                      <item.icon className="h-4 w-4 text-[#2f6fa8]" />
-                      <div className="mt-3 text-2xl font-black text-slate-950">{item.value}</div>
-                      <div className="text-xs font-semibold text-slate-500">{item.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="rounded-3xl border border-sky-100 p-4">
+                <div className="bg-[#f7fbff] p-5">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-black text-slate-950">Bugünün randevuları</div>
-                      <div className="text-xs text-slate-500">Klinik ekip görünümü</div>
+                      <div className="text-lg font-black text-[#0b2a4a]">Merhaba, Dr. Can Yılmaz</div>
+                      <div className="text-[11px] font-medium text-slate-500">Bugünün klinik operasyon özeti</div>
                     </div>
-                    <span className="rounded-full bg-[#2f6fa8]/10 px-3 py-1 text-xs font-bold text-[#2f6fa8]">Canlı</span>
+                    <div className="hidden h-8 w-36 rounded-full border border-sky-100 bg-white px-3 text-[10px] font-semibold text-slate-400 md:flex md:items-center">Ara...</div>
                   </div>
-                  {[
-                    ['09:30', 'Mia', 'Aşı kontrolü'],
-                    ['11:00', 'Oscar', 'Muayene'],
-                    ['14:30', 'Pamuk', 'Lab sonucu'],
-                  ].map(([time, pet, note]) => (
-                    <div key={`${time}-${pet}`} className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 last:mb-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#2f6fa8]">
-                        <PawPrint className="h-4 w-4" />
+
+                  <div className="mb-4 grid grid-cols-4 gap-3">
+                    {[
+                      ['12', 'Randevu'],
+                      ['4', 'Bekleyen'],
+                      ['7', 'Aşı hatırlatma'],
+                      ['1.248', 'Toplam hasta'],
+                    ].map(([value, label]) => (
+                      <div key={label} className="rounded-xl border border-sky-100 bg-white p-3 shadow-sm">
+                        <div className="text-lg font-black text-[#0b2a4a]">{value}</div>
+                        <div className="text-[9px] font-bold text-slate-400">{label}</div>
                       </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-black text-slate-900">{pet}</div>
-                        <div className="text-xs text-slate-500">{note}</div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-[1.15fr_0.85fr] gap-4">
+                    <div className="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-xs font-black text-[#0b2a4a]">Randevu Takvimi</span>
+                        <CalendarCheck2 className="h-4 w-4 text-[#2563eb]" />
                       </div>
-                      <div className="text-xs font-black text-slate-500">{time}</div>
+                      <div className="grid grid-cols-4 gap-2 text-[9px] font-bold text-slate-400">
+                        {['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'].map((time, index) => (
+                          <div key={time} className="min-h-12 rounded-lg bg-slate-50 p-2">
+                            <div>{time}</div>
+                            {index === 1 && <div className="mt-1 rounded-md bg-blue-100 px-1.5 py-1 text-[#2563eb]">Mia kontrol</div>}
+                            {index === 3 && <div className="mt-1 rounded-md bg-amber-100 px-1.5 py-1 text-amber-700">Oscar aşı</div>}
+                            {index === 6 && <div className="mt-1 rounded-md bg-emerald-100 px-1.5 py-1 text-emerald-700">Pamuk lab</div>}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
+
+                    <div className="space-y-3">
+                      <div className="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
+                        <div className="mb-3 text-xs font-black text-[#0b2a4a]">Son Eklenen Hastalar</div>
+                        {['Pamuk', 'Mia', 'Oscar'].map((pet, index) => (
+                          <div key={pet} className="mb-2 flex items-center gap-2 rounded-xl bg-slate-50 p-2 last:mb-0">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-[#2563eb]">
+                              <PawPrint className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="text-[11px] font-black text-slate-900">{pet}</div>
+                              <div className="text-[9px] text-slate-400">{['Golden Retriever', 'British Shorthair', 'Tekir'][index]}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="rounded-2xl bg-white p-4 shadow-sm">
+                        <div className="mb-2 flex items-center gap-2">
+                          <BarChart3 className="h-4 w-4 text-[#2563eb]" />
+                          <span className="text-xs font-black text-[#0b2a4a]">Aylık trend</span>
+                        </div>
+                        <div className="text-2xl font-black text-[#0b2a4a]">156</div>
+                        <div className="mt-2 flex h-12 items-end gap-1.5">
+                          {[32, 54, 44, 72, 62, 88, 78].map(height => (
+                            <div key={height} className="flex-1 rounded-t-md bg-[#2563eb]/25" style={{ height: `${height}%` }} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="absolute bottom-10 left-0 w-64 rounded-[30px] border border-sky-100 bg-white p-5 shadow-2xl shadow-blue-900/10">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2f6fa8] text-white">
-                  <HeartPulse className="h-5 w-5" />
+            <div className="absolute right-1 top-24 w-[210px] rounded-[32px] border-[8px] border-[#0b2a4a] bg-[#0b2a4a] shadow-2xl shadow-blue-950/20 lg:right-0 lg:top-28">
+              <div className="overflow-hidden rounded-[24px] bg-white">
+                <div className="bg-[#2563eb] px-4 pb-10 pt-4 text-white">
+                  <div className="mb-5 flex items-center justify-between">
+                    <span className="text-xs font-black">VetCep Mobil</span>
+                    <BellRing className="h-4 w-4" />
+                  </div>
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-white/40 bg-white/20">
+                    <PawPrint className="h-9 w-9" />
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm font-black text-slate-950">Sahip mobilde</div>
-                  <div className="text-xs text-slate-500">Bildirim aldı</div>
+                <div className="-mt-6 space-y-3 px-3 pb-4">
+                  {[
+                    ['Yaklaşan Aşı', 'Karma aşı · 3 gün kaldı', Syringe],
+                    ['Reçete geçmişi', '4 kayıt görüntülenebilir', FileText],
+                    ['Randevu Talebi', 'Bugün 14:30 onaylandı', CalendarCheck2],
+                  ].map(([title, text, Icon]) => (
+                    <div key={String(title)} className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm">
+                      <div className="mb-1 flex items-center gap-2 text-[11px] font-black text-[#0b2a4a]">
+                        <Icon className="h-3.5 w-3.5 text-[#2563eb]" />
+                        {title as string}
+                      </div>
+                      <div className="text-[10px] font-semibold text-slate-500">{text as string}</div>
+                    </div>
+                  ))}
+                  <div className="grid grid-cols-4 gap-1.5 border-t border-sky-100 pt-2">
+                    {['Ana', 'Kayıt', 'Aşı', 'Profil'].map(item => (
+                      <div key={item} className="rounded-lg py-1 text-center text-[9px] font-bold text-slate-400 first:bg-sky-50 first:text-[#2563eb]">{item}</div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-2xl bg-sky-50 p-3 text-sm font-semibold text-slate-600">
-                “Pamuk’un aşı tarihi yaklaşıyor. Randevu talep edebilirsiniz.”
               </div>
             </div>
           </div>
         </div>
+
+        <div className="relative mx-auto -mt-8 max-w-5xl px-5 pb-8 md:px-8">
+          <div className="grid gap-3 rounded-[28px] border border-sky-100 bg-white/90 p-4 shadow-xl shadow-blue-900/8 backdrop-blur md:grid-cols-5">
+            {heroProofItems.map(item => (
+              <div key={item.title} className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eef7ff] text-[#2563eb]">
+                  <item.icon className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-[#0b2a4a]">{item.title}</div>
+                  <div className="text-[10px] font-semibold text-slate-400">{item.text}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <section className="bg-[#eaf6ff] py-10">
+      <section className="bg-[#eaf6ff] py-12">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-5 md:grid-cols-4 md:px-8">
           {stats.map(item => (
             <div key={item.label} className="rounded-3xl bg-white p-6 text-center shadow-sm">
@@ -326,6 +455,152 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section id="references" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">Kliniklerin Tercihi</div>
+          <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Modern kliniklerin dijital vitrini</h2>
+          <p className="mt-5 text-lg leading-8 text-slate-600">
+            VetCep, kliniklerin hasta sahiplerine daha şeffaf, hızlı ve güven veren bir deneyim sunması için tasarlandı.
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-5">
+          {clinicLogos.map(logo => (
+            <div key={logo} className="flex h-24 items-center justify-center rounded-3xl border border-sky-100 bg-white px-5 text-center shadow-sm">
+              <div>
+                <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-2xl bg-sky-50 text-[#2563eb]">
+                  <PawPrint className="h-4 w-4" />
+                </div>
+                <div className="text-sm font-black tracking-tight text-[#0b2a4a]">{logo}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          {testimonials.map(item => (
+            <article key={item.name} className="rounded-[32px] border border-sky-100 bg-[#f8fbff] p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#2563eb,#67c7ff)] text-lg font-black text-white shadow-lg shadow-blue-900/10">
+                  {item.initials}
+                </div>
+                <div>
+                  <div className="mb-3 flex gap-1 text-[#2563eb]">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star key={index} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-base leading-8 text-slate-700">“{item.quote}”</p>
+                  <div className="mt-5">
+                    <div className="font-black text-[#0b2a4a]">{item.name}</div>
+                    <div className="text-sm font-semibold text-slate-500">{item.role}</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="pricing" className="bg-[#f7fbff] py-20">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">Fiyatlandırma</div>
+            <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Kliniğinizin hızına göre büyüyen planlar</h2>
+            <p className="mt-5 text-lg leading-8 text-slate-600">
+              Deneme hesabıyla başlayın, ekibiniz ve hasta iletişiminiz büyüdükçe planınızı yükseltin.
+            </p>
+          </div>
+
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex rounded-2xl border border-sky-100 bg-white p-1 shadow-sm">
+              {[
+                { value: 'monthly', label: 'Aylık' },
+                { value: 'yearly', label: 'Yıllık', badge: '%20 avantaj' },
+              ].map(item => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setBillingCycle(item.value as 'monthly' | 'yearly')}
+                  className={`relative rounded-xl px-5 py-2.5 text-sm font-black transition-colors ${
+                    billingCycle === item.value ? 'bg-[#2563eb] text-white shadow-sm' : 'text-slate-500 hover:text-[#0b2a4a]'
+                  }`}
+                >
+                  {item.label}
+                  {item.badge && <span className="ml-2 text-[10px] font-black opacity-80">{item.badge}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-3">
+            {pricingPlans.map(plan => {
+              const price = billingCycle === 'monthly' ? plan.monthly : plan.yearly
+
+              return (
+                <article
+                  key={plan.name}
+                  className={`relative rounded-[32px] border bg-white p-6 shadow-sm ${
+                    plan.popular ? 'border-[#2563eb] shadow-2xl shadow-blue-900/10 ring-4 ring-sky-100' : 'border-sky-100'
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute right-5 top-5 rounded-full bg-[#2563eb] px-3 py-1 text-xs font-black text-white">
+                      En popüler
+                    </div>
+                  )}
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#2563eb]">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-2xl font-black text-[#0b2a4a]">{plan.name}</h3>
+                  <p className="mt-3 min-h-14 text-sm leading-6 text-slate-600">{plan.description}</p>
+                  <div className="mt-6 flex items-end gap-1">
+                    <span className="text-4xl font-black text-[#0b2a4a]">₺{price.toLocaleString('tr-TR')}</span>
+                    <span className="pb-1 text-sm font-bold text-slate-500">/ ay</span>
+                  </div>
+                  {billingCycle === 'yearly' && <div className="mt-2 text-xs font-bold text-[#16a34a]">Yıllık ödemede avantajlı fiyat</div>}
+                  <Link
+                    href={`/clinic-onboarding?plan=${plan.name.toLowerCase()}`}
+                    className={`mt-6 inline-flex h-12 w-full items-center justify-center rounded-2xl text-sm font-black transition-transform hover:-translate-y-0.5 ${
+                      plan.popular ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-900/15' : 'border border-sky-200 bg-white text-[#2563eb] hover:bg-sky-50'
+                    }`}
+                  >
+                    Demo Talep Et
+                  </Link>
+                  <div className="mt-6 space-y-3">
+                    {plan.features.map(feature => (
+                      <div key={feature} className="flex items-center gap-3 text-sm font-semibold text-slate-600">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-[#2563eb]" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="mx-auto max-w-5xl px-5 py-20 md:px-8">
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <div className="mb-3 text-sm font-black uppercase tracking-[0.28em] text-[#2f6fa8]">SSS</div>
+          <h2 className="text-4xl font-black tracking-tight text-slate-950 md:text-5xl">Kliniklerin en çok sorduğu sorular</h2>
+        </div>
+
+        <div className="space-y-3">
+          {faqs.map((item, index) => (
+            <details key={item.question} className="group rounded-3xl border border-sky-100 bg-white p-5 shadow-sm" open={index === 0}>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-lg font-black text-[#0b2a4a]">
+                {item.question}
+                <ChevronDown className="h-5 w-5 shrink-0 text-[#2563eb] transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-4 max-w-3xl leading-7 text-slate-600">{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <section id="clinics" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
         <div className="overflow-hidden rounded-[40px] bg-[#2f6fa8] text-white shadow-2xl shadow-blue-900/15">
           <div className="grid gap-8 p-8 md:p-12 lg:grid-cols-[1fr_0.9fr]">
@@ -366,15 +641,72 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-sky-100 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 md:flex-row md:px-8">
-          <div className="flex items-center gap-2 font-bold text-slate-700">
-            <PawPrint className="h-4 w-4 text-[#2f6fa8]" />
-            VetCep © 2026
+      <footer className="border-t border-sky-100 bg-[#f8fbff]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1.25fr_0.75fr_0.75fr_1fr] md:px-8">
+          <div>
+            <Link href="/" className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#2563eb] text-white">
+                <PawPrint className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-lg font-black tracking-tight text-[#0b2a4a]">VetCep</div>
+                <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2563eb]">Klinik Yönetim Sistemi</div>
+              </div>
+            </Link>
+            <p className="max-w-sm text-sm leading-7 text-slate-600">
+              VetCep, veteriner klinikleri için web portal, mobil sahip uygulaması, randevu, aşı takibi ve hasta iletişimini tek deneyimde birleştirir.
+            </p>
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/login" className="font-bold text-[#2f6fa8]">Giriş Yap</Link>
-            <Link href="/clinic-onboarding" className="font-bold text-slate-600 hover:text-[#2f6fa8]">Demo İste</Link>
+
+          <div>
+            <h3 className="mb-4 text-sm font-black text-[#0b2a4a]">Hızlı erişim</h3>
+            <div className="grid gap-3 text-sm font-semibold text-slate-600">
+              <Link href="#features" className="hover:text-[#2563eb]">Özellikler</Link>
+              <Link href="#pricing" className="hover:text-[#2563eb]">Fiyatlandırma</Link>
+              <Link href="#references" className="hover:text-[#2563eb]">Referanslar</Link>
+              <Link href="/login" className="hover:text-[#2563eb]">Giriş Yap</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-black text-[#0b2a4a]">Yasal</h3>
+            <div className="grid gap-3 text-sm font-semibold text-slate-600">
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">KVKK Aydınlatma</Link>
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">Gizlilik Politikası</Link>
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">Kullanım Şartları</Link>
+              <Link href="/clinic-onboarding" className="hover:text-[#2563eb]">Çerez Politikası</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-black text-[#0b2a4a]">İletişim</h3>
+            <div className="space-y-3 text-sm font-semibold text-slate-600">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-[#2563eb]" />
+                hello@vetcep.com
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-[#2563eb]" />
+                Demo görüşmesi talep edin
+              </div>
+            </div>
+            <div className="mt-5 flex gap-3">
+              {[MessageCircle, Mail, PawPrint].map((Icon, index) => (
+                <Link
+                  key={index}
+                  href="/clinic-onboarding"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-sky-100 bg-white text-[#2563eb] shadow-sm hover:bg-sky-50"
+                >
+                  <Icon className="h-4 w-4" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-sky-100">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-5 text-xs font-semibold text-slate-500 md:flex-row md:px-8">
+            <span>VetCep © 2026. Tüm hakları saklıdır.</span>
+            <span>Veteriner klinikleri için güvenli dijital altyapı.</span>
           </div>
         </div>
       </footer>

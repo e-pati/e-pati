@@ -1,0 +1,52 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '' 's/title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 8 },/title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: 8 },/' '/Users/gemici/Documents/e-pati/mobile/app/\\(auth\\)/otp.tsx')",
+      "Bash(sed -i '' 's/title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: Spacing.xl },/title: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text, marginBottom: Spacing.xl },/' '/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/edit.tsx')",
+      "Bash(sed -i '' 's/doneText: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text },/doneText: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, fontFamily: Fonts.bold, color: Colors.text },/' '/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/edit.tsx')",
+      "Bash(sed -i '' \"s/speciesEmoji\\(\\(vac.pet.species?.toLowerCase\\(\\) ?? 'other'\\) as any\\)/speciesEmoji\\(\\(vac.pet.species?.toLowerCase\\(\\) ?? 'other'\\) as PetSpecies\\)/g\" /Users/gemici/Documents/e-pati/portal/src/app/\\\\\\(dashboard\\\\\\)/dashboard/page.tsx)",
+      "Bash(sed -i '' \"s/speciesEmoji\\(\\(exam.pet.species?.toLowerCase\\(\\) ?? 'other'\\) as any\\)/speciesEmoji\\(\\(exam.pet.species?.toLowerCase\\(\\) ?? 'other'\\) as PetSpecies\\)/g\" /Users/gemici/Documents/e-pati/portal/src/app/\\\\\\(dashboard\\\\\\)/dashboard/page.tsx)",
+      "Bash(sed -i '' 's/type: n.type as any,/type: n.type as '\\\\''examination'\\\\'' | '\\\\''vaccination'\\\\'' | '\\\\''prescription'\\\\'' | '\\\\''lab'\\\\'' | '\\\\''reminder'\\\\'',/' '/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/notifications/index.tsx')",
+      "Bash(sed -i '' 's/\\(createPet.error as any\\)?.response?.data?.message/\\(createPet.error as { response?: { data?: { message?: string } } }\\)?.response?.data?.message/' '/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/new.tsx')",
+      "Bash(curl -s \"https://www.google.com/search?q=TÜRKVET+veteriner+sistemi+Tarım+Bakanlığı&hl=tr&num=5\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -s \"https://www.google.com/search?q=e-Veteriner+Türkiye+devlet+sistemi+veteriner+klinik&hl=tr&num=5\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -s \"https://www.google.com/search?q=Türkiye+evcil+hayvan+çip+sorgulama+mikroçip+sistemi&hl=tr&num=5\" -H \"User-Agent: Mozilla/5.0\")",
+      "WebFetch(domain:vetkimlik.com)",
+      "WebFetch(domain:www.tarimorman.gov.tr)",
+      "WebFetch(domain:www.petkimlik.com)",
+      "WebFetch(domain:petinoks.com)",
+      "WebFetch(domain:bulutvet.com)",
+      "WebFetch(domain:fixvet.net)",
+      "WebFetch(domain:tvhb.org.tr)",
+      "Bash(git merge *)",
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:3000 npx playwright test --reporter=list)",
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:3000 npx playwright test --reporter=line)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://e-pati.onrender.com/auth/register -X POST -H 'Content-Type: application/json' -d '{\"fullName\":\"Test User\",\"email\":\"test123@test.com\",\"password\":\"Test1234!\"}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://e-pati.onrender.com/auth/register -X POST -H 'Content-Type: application/json' -d '{\"fullName\":\"Test User\",\"email\":\"testrender99@gmail.com\",\"password\":\"Test1234!\"}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://e-pati.onrender.com/auth/register -X POST -H 'Content-Type: application/json' -d '{\"fullName\":\"Test User\",\"email\":\"testuser99@gmail.com\",\"password\":\"Test1234!\"}')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://e-pati.onrender.com/auth/register -X POST -H 'Content-Type: application/json' -d '{\"fullName\":\"Test User\",\"email\":\"test999@gmail.com\",\"password\":\"Test1234!\",\"phone\":\"+905555555555\"}')",
+      "Bash(sed -i '' \"s/<Text style={styles.alertTitle}>⚠️ Aşı Uyarısı<\\\\/Text>/<View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}><Ionicons name=\\\\\"warning-outline\\\\\" size={16} color={Colors.warning} \\\\/><Text style={styles.alertTitleText}>Aşı Uyarısı<\\\\/Text><\\\\/View>/\" \"/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/[id].tsx\")",
+      "Bash(sed -i '' \"s/<Text style={styles.infoCardTitle}>💊 Aktif İlaçlar<\\\\/Text>/<View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}><Ionicons name=\\\\\"medical-outline\\\\\" size={16} color={Colors.primary} \\\\/><Text style={styles.infoCardTitle}>Aktif İlaçlar<\\\\/Text><\\\\/View>/\" \"/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/[id].tsx\")",
+      "Bash(sed -i '' \"s/<Text style={styles.backText}>← Geri<\\\\/Text>/<Ionicons name=\\\\\"chevron-back\\\\\" size={20} color={Colors.primary} \\\\/><Text style={styles.backText}>Geri<\\\\/Text>/\" \"/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/edit.tsx\")",
+      "Bash(sed -i '' \"s/container: { flex: 1, backgroundColor: Colors.surface },/container: { flex: 1, backgroundColor: '#F0FDF4' },/\" \"/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/edit.tsx\")",
+      "Bash(sed -i '' \"s/scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: 60, paddingBottom: 40 },/scroll: { flexGrow: 1, paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: 40 },/\" \"/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/edit.tsx\")",
+      "Bash(sed -i '' \"s/back: { marginBottom: Spacing.xxl },/back: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: Spacing.xl },/\" \"/Users/gemici/Documents/e-pati/mobile/app/\\(tabs\\)/pets/edit.tsx\")",
+      "Bash(npx vercel *)",
+      "Bash(sed -i '' 's/className=\"pl-9\"/className=\"pl-9 rounded-full bg-gray-50 border-gray-100 focus-visible:bg-white focus-visible:border-primary\\\\/30\"/g' '/Users/gemici/Documents/e-pati/portal/src/app/\\(dashboard\\)/patients/page.tsx')",
+      "Bash(sed -i '' 's/className=\"border-border\\\\/50 hover:border-primary\\\\/30 hover:shadow-md transition-all cursor-pointer group\"/className=\"bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group rounded-2xl\"/g' '/Users/gemici/Documents/e-pati/portal/src/app/\\(dashboard\\)/patients/page.tsx')",
+      "Bash(sed -i '' 's/className=\"border-border\\\\/50 hover:border-primary\\\\/30 hover:shadow-sm transition-all cursor-pointer\"/className=\"bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer rounded-2xl\"/g' '/Users/gemici/Documents/e-pati/portal/src/app/\\(dashboard\\)/examinations/page.tsx')",
+      "Bash(sed -i '' 's/className=\"border-border\\\\/50 hover:border-primary\\\\/30 hover:shadow-sm transition-all\"/className=\"bg-white border-0 shadow-sm hover:shadow-md transition-all rounded-2xl\"/g' '/Users/gemici/Documents/e-pati/portal/src/app/\\(dashboard\\)/vaccinations/page.tsx')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,v\\) for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\) if any\\(x in k.lower\\(\\) for x in ['firebase','aws','s3','r2','cloud','storage','bull','queue']\\)]\")",
+      "WebFetch(domain:www.kolayvet.com)",
+      "WebFetch(domain:e-vet.com.tr)",
+      "WebFetch(domain:fugevet.com)",
+      "WebFetch(domain:vetesveteriner.com)",
+      "WebFetch(domain:apps.apple.com)",
+      "WebFetch(domain:play.google.com)",
+      "WebFetch(domain:startupmarket.co)"
+    ],
+    "additionalDirectories": [
+      "/Users/gemici/Documents/e-pati/portal/src/app/(dashboard)/patients/[id]"
+    ]
+  }
+}
