@@ -11,7 +11,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { vaccinationsService } from '@/services/vaccinations.service'
 import { whatsappService } from '@/services/whatsapp.service'
 import { toast } from 'sonner'
-import { Syringe, X } from 'lucide-react'
+import { Syringe, X, Zap } from 'lucide-react'
+import { VACCINATION_TEMPLATES } from '@/lib/drug-database'
 
 const schema = z.object({
   name: z.string().min(2, 'Aşı adı gerekli'),
@@ -24,21 +25,23 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-const COMMON_VACCINES = [
-  'Kuduz', 'Karma (FVRCP)', 'Karma (DHPPiL)', 'Lösemi (FeLV)',
-  'Bordetella', 'Leptospira', 'Lyme', 'Giardia',
-]
+function addMonths(date: Date, months: number): string {
+  const d = new Date(date)
+  d.setMonth(d.getMonth() + months)
+  return d.toISOString().split('T')[0]
+}
 
 interface Props {
   petId: string
   petName: string
   ownerName: string
   ownerPhone?: string
+  petSpecies?: string
   open: boolean
   onClose: () => void
 }
 
-export function AddVaccinationDialog({ petId, petName, ownerName, ownerPhone, open, onClose }: Props) {
+export function AddVaccinationDialog({ petId, petName, ownerName, ownerPhone, petSpecies, open, onClose }: Props) {
   const qc = useQueryClient()
   const [submitting, setSubmitting] = useState(false)
 
@@ -116,22 +119,40 @@ export function AddVaccinationDialog({ petId, petName, ownerName, ownerPhone, op
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
-          {/* Hızlı seçim */}
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Sık Kullanılan Aşılar</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {COMMON_VACCINES.map(v => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => setValue('name', v)}
-                  className="text-xs px-2.5 py-1 rounded-full border border-border hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Tür bazlı şablonlar */}
+          {(() => {
+            const speciesKey = petSpecies
+              ? (['Cat','Dog','Rabbit','Bird'].includes(petSpecies) ? petSpecies : 'Other')
+              : 'Other'
+            const templates = VACCINATION_TEMPLATES[speciesKey] ?? VACCINATION_TEMPLATES['Other']
+            return (
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-primary" />
+                  Önerilen Aşılar
+                  {petSpecies && <span className="text-primary font-medium">({petSpecies})</span>}
+                </Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {templates.map(t => (
+                    <button
+                      key={t.name}
+                      type="button"
+                      title={t.notes}
+                      onClick={() => {
+                        setValue('name', t.name)
+                        setValue('dueAt', addMonths(new Date(), t.intervalMonths))
+                        if (t.notes) setValue('notes', t.notes)
+                      }}
+                      className="text-xs px-2.5 py-1 rounded-full border border-border hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors flex items-center gap-1"
+                    >
+                      <Zap className="w-2.5 h-2.5" />
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Aşı adı */}
           <div className="space-y-1.5">
