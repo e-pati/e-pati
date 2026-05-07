@@ -468,6 +468,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         petName={pet.name}
         ownerName={ownerName}
         ownerPhone={ownerPhone}
+        petSpecies={pet.species}
         open={vaccinationDialogOpen}
         onClose={() => setVaccinationDialogOpen(false)}
       />
