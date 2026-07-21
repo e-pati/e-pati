@@ -13,6 +13,12 @@ test.describe('Bakanlık konsolu', () => {
 
     await expect(page.getByRole('heading', { name: 'Konya' })).toBeVisible()
     await expect(page.getByText('Bu il için 1 aktif erken uyarı sinyali bulunuyor.')).toBeVisible()
+
+    await expect(page.getByTestId('vaccination-chart')).toBeVisible()
+    await expect(page.getByTestId('population-chart')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Kars erken uyarısını incele' }).click()
+    await expect(page.getByRole('heading', { name: 'Kars' })).toBeVisible()
   })
 
   test('klinik oturumu açıkken de Bakanlık demosu erişilebilir kalır', async ({ context, page }) => {
