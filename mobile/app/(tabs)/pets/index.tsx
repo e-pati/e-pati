@@ -11,6 +11,7 @@ import { petsService, type ApiPet } from '@/services/pets.service'
 import { useAuthStore } from '@/stores/auth.store'
 import { speciesEmoji, speciesLabel, calculateAge } from '@/lib/utils'
 import { Colors, Spacing, Radius, FontSize, FontWeight, Fonts } from '@/constants/theme'
+import { DEMO_PET_ID, demoCattleProfile, demoPetProfile } from '@/lib/mobile-demo-data'
 import type { PetSpecies } from '@/types'
 
 const SPECIES_FILTERS = [
@@ -126,6 +127,8 @@ export default function PetsScreen() {
         </ScrollView>
       </View>
 
+      <DemoProfiles />
+
       {isError && (
         <View style={styles.errorBanner}>
           <Text style={styles.errorText}>API bağlantısı kurulamadı. Lütfen tekrar deneyin.</Text>
@@ -172,6 +175,70 @@ export default function PetsScreen() {
         />
       )}
     </SafeAreaView>
+  )
+}
+
+function DemoProfiles() {
+  const profiles = [
+    {
+      id: DEMO_PET_ID,
+      eyebrow: 'Vatandaş görünümü',
+      name: demoPetProfile.pet.name,
+      detail: `${demoPetProfile.pet.breed} · Aşı kartı`,
+      emoji: '🐈',
+      color: Colors.primary,
+      background: Colors.primaryBg,
+      onPress: () => router.push(`/(tabs)/pets/${DEMO_PET_ID}`),
+    },
+    {
+      id: demoCattleProfile.id,
+      eyebrow: 'Üretici görünümü',
+      name: demoCattleProfile.name,
+      detail: `${demoCattleProfile.breed} · Küpe kaydı`,
+      emoji: '🐄',
+      color: '#A16207',
+      background: '#FFFBEB',
+      onPress: () => router.push('/(tabs)/pets/producer-demo'),
+    },
+  ]
+
+  return (
+    <View style={styles.demoSection}>
+      <View style={styles.demoHeadingRow}>
+        <View>
+          <Text style={styles.demoEyebrow}>SUNUM AKIŞI</Text>
+          <Text style={styles.demoTitle}>Demo Profilleri</Text>
+        </View>
+        <View style={styles.demoBadge}>
+          <Text style={styles.demoBadgeText}>Sentetik veri</Text>
+        </View>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.demoProfileRow}
+      >
+        {profiles.map(profile => (
+          <TouchableOpacity
+            key={profile.id}
+            style={[styles.demoProfileCard, { backgroundColor: profile.background }]}
+            onPress={() => { haptic.light(); profile.onPress() }}
+            activeOpacity={0.86}
+          >
+            <View style={[styles.demoProfileIcon, { borderColor: profile.color + '33' }]}>
+              <Text style={styles.demoProfileEmoji}>{profile.emoji}</Text>
+            </View>
+            <Text style={[styles.demoProfileEyebrow, { color: profile.color }]}>
+              {profile.eyebrow}
+            </Text>
+            <Text style={styles.demoProfileName}>{profile.name}</Text>
+            <Text style={styles.demoProfileDetail}>{profile.detail}</Text>
+            <Text style={[styles.demoProfileAction, { color: profile.color }]}>Profili aç →</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   )
 }
 
@@ -270,6 +337,43 @@ const styles = StyleSheet.create({
   filterEmoji: { fontSize: 14 },
   filterLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
   filterLabelActive: { color: Colors.primary },
+
+  // Demo profiles
+  demoSection: {
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.sm,
+    backgroundColor: '#F0FDF4',
+  },
+  demoHeadingRow: {
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+    paddingHorizontal: Spacing.xl, marginBottom: Spacing.md,
+  },
+  demoEyebrow: {
+    fontSize: 9, color: Colors.primary, fontWeight: FontWeight.bold,
+    letterSpacing: 1.2, marginBottom: 2,
+  },
+  demoTitle: { fontSize: FontSize.lg, color: Colors.text, fontFamily: Fonts.bold, fontWeight: FontWeight.bold },
+  demoBadge: {
+    borderRadius: Radius.full, backgroundColor: '#FEF3C7',
+    borderWidth: 1, borderColor: '#FCD34D', paddingHorizontal: 9, paddingVertical: 4,
+  },
+  demoBadgeText: { fontSize: 9, color: '#92400E', fontWeight: FontWeight.semibold },
+  demoProfileRow: { paddingHorizontal: Spacing.xl, gap: Spacing.md, paddingBottom: 2 },
+  demoProfileCard: {
+    width: 184, borderRadius: Radius.xl, padding: Spacing.lg,
+    borderWidth: 1, borderColor: 'rgba(15, 23, 42, 0.06)',
+    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  },
+  demoProfileIcon: {
+    width: 42, height: 42, borderRadius: Radius.md, backgroundColor: '#fff',
+    alignItems: 'center', justifyContent: 'center', borderWidth: 1, marginBottom: Spacing.md,
+  },
+  demoProfileEmoji: { fontSize: 24 },
+  demoProfileEyebrow: { fontSize: 9, fontWeight: FontWeight.bold, textTransform: 'uppercase', letterSpacing: 0.6 },
+  demoProfileName: { fontSize: FontSize.lg, color: Colors.text, fontFamily: Fonts.bold, fontWeight: FontWeight.bold, marginTop: 2 },
+  demoProfileDetail: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 2 },
+  demoProfileAction: { fontSize: FontSize.xs, fontWeight: FontWeight.bold, marginTop: Spacing.md },
 
   // Error
   errorBanner: {
