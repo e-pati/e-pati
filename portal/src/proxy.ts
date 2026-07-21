@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/', '/login', '/clinic-onboarding', '/get-app', '/vatandas-giris']
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/clinic-onboarding',
+  '/get-app',
+  '/vatandas-giris',
+  '/bakanlik',
+]
 const AUTH_PATHS = ['/login', '/clinic-onboarding']
 
 export function proxy(request: NextRequest) {

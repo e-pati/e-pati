@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 21 Temmuz 2026 — 0.7 vatandaş demo girişi tamamlandı
-- **Frontend/mobil ilerleme:** %5
+- **Son güncelleme:** 21 Temmuz 2026 — 0.5 Bakanlık konsolunun ilk parçası tamamlandı
+- **Frontend/mobil ilerleme:** %15
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Görev 0.5 Bakanlık konsolu için ekran/veri planının çıkarılması
+- **Sıradaki adım:** 0.5 Bakanlık konsoluna aşılama/popülasyon grafikleri ve erken uyarı akışının eklenmesi
 
 ---
 
@@ -26,7 +26,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⬜ | 0.1'in ana sahibi Erol; portal tarafı Burak'ta |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ⬜ | Şema v2 (0.2) Erol'dan gelince tam bağlanır |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ⬜ | |
-| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ⬜ | 81 il sentetik veriyle; demoyu bu satar |
+| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | 🟡 | 81 il verisi, ulusal KPI'lar, harita ve il drill-down tamamlandı; grafikler ve uyarı akışı sırada |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ⬜ | Genişletme yok, cila |
 
@@ -49,6 +49,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-21 — Bakanlık konsolu ulusal harita ve il drill-down
+**Yapılanlar:** SaaS admininden ayrı `/bakanlik` demo alanı oluşturuldu. 81 il için deterministik sentetik popülasyon, aşılama, işletme, veteriner ve risk verisi eklendi. Ulusal KPI kartları, koordinat tabanlı Türkiye haritası, il seçici ve seçilen ilin detay paneli geliştirildi. Bakanlık route'u klinik oturumu açıkken de sunumda erişilebilir hale getirildi.
+**Dokunulan dosyalar:** `portal/src/app/(ministry)/bakanlik/layout.tsx`, `portal/src/app/(ministry)/bakanlik/page.tsx`, `portal/src/components/ministry/turkey-province-map.tsx`, `portal/src/components/ministry/province-detail-panel.tsx`, `portal/src/lib/ministry-demo-data.ts`, `portal/src/proxy.ts`, `portal/tests/ministry-dashboard.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** `/bakanlik` çalışıyor; 81 il noktası gösteriliyor, varsayılan Ankara görünümünden harita veya seçim alanıyla diğer illere drill-down yapılabiliyor. Lint, production build, görsel kontrol ve 2 Playwright senaryosu başarılı. Aşılama/popülasyon grafikleri ile ayrıntılı erken uyarı akışı henüz eklenmedi.
+**Sıradaki:** 0.5'in ikinci parçasında Recharts ile aşılama ve popülasyon panolarını, ardından sentetik hastalık erken-uyarı akışını eklemek.
+**Erol'a not (varsa):** Faz 0 demosu sentetik veriyle bağımsız çalışıyor; şu anda backend engeli yok. Pilot aşamasında ulusal özet, il detayı ve erken uyarı endpoint sözleşmeleri gerekecek.
 
 ### 2026-07-21 — e-Devlet tarzı vatandaş demo girişi
 **Yapılanlar:** Simülasyon olarak açıkça etiketlenen, TC Kimlik No ve şifre alanlarına sahip kurumsal vatandaş giriş ekranı geliştirildi. Backend kullanılmadan mock giriş, form doğrulama ve vatandaş mobil deneyimine yönlendirme eklendi. Route erişimi klinik oturumu açıkken de sunumda çalışacak şekilde düzenlendi ve Playwright testi yazıldı.
