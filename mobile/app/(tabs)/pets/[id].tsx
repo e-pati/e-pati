@@ -22,6 +22,7 @@ import { AddLabResultModal } from '@/components/AddLabResultModal'
 import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
 import { AddExaminationModal } from '@/components/AddExaminationModal'
 import { Linking } from 'react-native'
+import { DEMO_PET_ID, demoPetProfile } from '@/lib/mobile-demo-data'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
 type IconName = React.ComponentProps<typeof Ionicons>['name']
@@ -36,6 +37,7 @@ const TABS: { key: Tab; label: string; icon: IconName; color: string }[] = [
 
 export default function PetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
+  const isDemoPet = id === DEMO_PET_ID
   const [activeTab, setActiveTab] = useState<Tab>('summary')
   const [qrVisible, setQrVisible] = useState(false)
   const [qrToken, setQrToken] = useState('')
@@ -48,37 +50,39 @@ export default function PetDetailScreen() {
   const petQuery = useQuery({
     queryKey: ['pets', id],
     queryFn: () => petsService.getOne(id),
-    enabled: !!id,
+    enabled: !!id && !isDemoPet,
     retry: 1,
   })
   const examinationsQuery = useQuery({
     queryKey: ['examinations', { petId: id }],
     queryFn: () => examinationsService.getAll({ petId: id, limit: 100 }),
-    enabled: !!id,
+    enabled: !!id && !isDemoPet,
     retry: 1,
   })
   const vaccinationsQuery = useQuery({
     queryKey: ['vaccinations', { petId: id }],
     queryFn: () => vaccinationsService.getAll({ petId: id, limit: 100 }),
-    enabled: !!id,
+    enabled: !!id && !isDemoPet,
     retry: 1,
   })
   const prescriptionsQuery = useQuery({
     queryKey: ['prescriptions', { petId: id }],
     queryFn: () => prescriptionsService.getAll({ petId: id }),
-    enabled: !!id,
+    enabled: !!id && !isDemoPet,
     retry: 1,
   })
   const labResultsQuery = useQuery({
     queryKey: ['lab-results', { petId: id }],
     queryFn: () => labResultsService.getAll({ petId: id }),
-    enabled: !!id,
+    enabled: !!id && !isDemoPet,
     retry: 1,
   })
 
-  const pet = petQuery.data ? mapApiPet(petQuery.data) : undefined
+  const pet = isDemoPet
+    ? demoPetProfile.pet
+    : petQuery.data ? mapApiPet(petQuery.data) : undefined
 
-  if (petQuery.isLoading) return (
+  if (!isDemoPet && petQuery.isLoading) return (
     <View style={styles.center}>
       <ActivityIndicator color={Colors.primary} size="large" />
       <Text style={styles.loadingText}>Hasta bilgisi yükleniyor...</Text>
@@ -91,19 +95,19 @@ export default function PetDetailScreen() {
     </View>
   )
 
-  const exams = (examinationsQuery.data
-    ? examinationsQuery.data.map(mapApiExamination)
-    : []
+  const exams = (isDemoPet
+    ? demoPetProfile.examinations
+    : examinationsQuery.data ? examinationsQuery.data.map(mapApiExamination) : []
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  const vaccines = vaccinationsQuery.data
-    ? vaccinationsQuery.data.map(mapApiVaccination)
-    : []
-  const prescriptions = prescriptionsQuery.data
-    ? prescriptionsQuery.data.map(mapApiPrescription)
-    : []
-  const labs = labResultsQuery.data
-    ? labResultsQuery.data.map(mapApiLabResult)
-    : []
+  const vaccines = isDemoPet
+    ? demoPetProfile.vaccinations
+    : vaccinationsQuery.data ? vaccinationsQuery.data.map(mapApiVaccination) : []
+  const prescriptions = isDemoPet
+    ? demoPetProfile.prescriptions
+    : prescriptionsQuery.data ? prescriptionsQuery.data.map(mapApiPrescription) : []
+  const labs = isDemoPet
+    ? demoPetProfile.labResults
+    : labResultsQuery.data ? labResultsQuery.data.map(mapApiLabResult) : []
 
   const lastExam = exams[0]
   const upcomingVaccines = vaccines.filter(v => isVaccinationDueSoon(v.nextDate) || isVaccinationOverdue(v.nextDate))
@@ -143,12 +147,16 @@ export default function PetDetailScreen() {
   }
   // Aktif ilaçlar: son reçetedeki ilaçlar
   const activeMedications = prescriptions.length > 0 ? prescriptions[0].medications : []
-  const hasApiError = examinationsQuery.isError || vaccinationsQuery.isError ||
-    prescriptionsQuery.isError || labResultsQuery.isError
+  const hasApiError = !isDemoPet && (examinationsQuery.isError || vaccinationsQuery.isError ||
+    prescriptionsQuery.isError || labResultsQuery.isError)
 
   const openQr = async () => {
     setQrVisible(true)
     if (qrToken) return
+    if (isDemoPet) {
+      setQrToken(`vetcep-demo:${demoPetProfile.hkn}`)
+      return
+    }
     setQrLoading(true)
     try {
       const { token } = await petsService.getQr(pet.id)
@@ -170,13 +178,20 @@ export default function PetDetailScreen() {
             <Text style={styles.heroBackText}>Geri</Text>
           </TouchableOpacity>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity
-              onPress={() => router.push(`/(tabs)/pets/edit?id=${pet.id}`)}
-              style={styles.heroActionBtn}
-            >
-              <Ionicons name="create-outline" size={16} color="#fff" />
-              <Text style={styles.heroActionText}>Düzenle</Text>
-            </TouchableOpacity>
+            {isDemoPet ? (
+              <View style={styles.demoHeroBadge}>
+                <Ionicons name="sparkles-outline" size={14} color="#FEF3C7" />
+                <Text style={styles.demoHeroBadgeText}>Demo Verisi</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={() => router.push(`/(tabs)/pets/edit?id=${pet.id}`)}
+                style={styles.heroActionBtn}
+              >
+                <Ionicons name="create-outline" size={16} color="#fff" />
+                <Text style={styles.heroActionText}>Düzenle</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity onPress={openQr} style={[styles.heroActionBtn, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
               <Ionicons name="qr-code-outline" size={16} color="#fff" />
               <Text style={styles.heroActionText}>QR</Text>
@@ -326,6 +341,23 @@ export default function PetDetailScreen() {
             </TouchableOpacity>
 
             {/* Mikro çip */}
+            {isDemoPet && (
+              <View style={[styles.infoCard, styles.digitalIdentityCard]}>
+                <View style={styles.identityHeader}>
+                  <View style={styles.identityIcon}>
+                    <Ionicons name="shield-checkmark-outline" size={20} color={Colors.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.infoCardTitle}>Hayvan Kimlik Numarası (HKN)</Text>
+                    <Text style={styles.hknValue}>{demoPetProfile.hkn}</Text>
+                  </View>
+                </View>
+                <View style={styles.integrationBadge}>
+                  <Text style={styles.integrationBadgeText}>{demoPetProfile.integrationLabel}</Text>
+                </View>
+              </View>
+            )}
+
             {pet.microchipNo && (
               <View style={styles.infoCard}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
@@ -340,12 +372,14 @@ export default function PetDetailScreen() {
 
         {activeTab === 'exams' && (
           <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() => setExaminationModalVisible(true)}
-            >
-              <Text style={styles.addBtnText}>+ Muayene Ekle</Text>
-            </TouchableOpacity>
+            {!isDemoPet && (
+              <TouchableOpacity
+                style={styles.addBtn}
+                onPress={() => setExaminationModalVisible(true)}
+              >
+                <Text style={styles.addBtnText}>+ Muayene Ekle</Text>
+              </TouchableOpacity>
+            )}
             {exams.length === 0
               ? <EmptyState emoji="🩺" text="Henüz muayene kaydı yok" />
               : exams.map(exam => (
@@ -384,12 +418,14 @@ export default function PetDetailScreen() {
         {activeTab === 'vaccines' && (
           <View style={styles.section}>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-              <TouchableOpacity
-                style={[styles.addBtn, { flex: 1 }]}
-                onPress={() => setVaccinationModalVisible(true)}
-              >
-                <Text style={styles.addBtnText}>+ Aşı Ekle</Text>
-              </TouchableOpacity>
+              {!isDemoPet && (
+                <TouchableOpacity
+                  style={[styles.addBtn, { flex: 1 }]}
+                  onPress={() => setVaccinationModalVisible(true)}
+                >
+                  <Text style={styles.addBtnText}>+ Aşı Ekle</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={[styles.addBtn, { flex: 1, backgroundColor: Colors.primaryBg, borderWidth: 1, borderColor: Colors.primaryBorder }]}
                 onPress={shareVaccinationCard}
@@ -436,12 +472,14 @@ export default function PetDetailScreen() {
 
         {activeTab === 'prescriptions' && (
           <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() => setPrescriptionModalVisible(true)}
-            >
-              <Text style={styles.addBtnText}>+ Reçete Yaz</Text>
-            </TouchableOpacity>
+            {!isDemoPet && (
+              <TouchableOpacity
+                style={styles.addBtn}
+                onPress={() => setPrescriptionModalVisible(true)}
+              >
+                <Text style={styles.addBtnText}>+ Reçete Yaz</Text>
+              </TouchableOpacity>
+            )}
             {prescriptions.length === 0
               ? <EmptyState emoji="💊" text="Henüz reçete yok" />
               : prescriptions.map(rx => (
@@ -464,12 +502,14 @@ export default function PetDetailScreen() {
                         <Ionicons name="alarm-outline" size={13} color={Colors.primary} />
                         <Text style={[styles.pdfBtnText, { color: Colors.primary }]}>Hatırlat</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.pdfBtn}
-                        onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
-                      >
-                        <Text style={styles.pdfBtnText}>📄 PDF</Text>
-                      </TouchableOpacity>
+                      {!isDemoPet && (
+                        <TouchableOpacity
+                          style={styles.pdfBtn}
+                          onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
+                        >
+                          <Text style={styles.pdfBtnText}>📄 PDF</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </View>
                   {rx.medications.map(med => (
@@ -487,12 +527,14 @@ export default function PetDetailScreen() {
 
         {activeTab === 'lab' && (
           <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() => setLabModalVisible(true)}
-            >
-              <Text style={styles.addBtnText}>+ Sonuç Ekle</Text>
-            </TouchableOpacity>
+            {!isDemoPet && (
+              <TouchableOpacity
+                style={styles.addBtn}
+                onPress={() => setLabModalVisible(true)}
+              >
+                <Text style={styles.addBtnText}>+ Sonuç Ekle</Text>
+              </TouchableOpacity>
+            )}
             {labs.length === 0
               ? <EmptyState emoji="🔬" text="Henüz lab sonucu yok" />
               : labs.map(lab => (
@@ -685,6 +727,13 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
   },
   heroActionText: { fontSize: FontSize.xs, color: '#fff', fontWeight: FontWeight.semibold },
+  demoHeroBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: 'rgba(146, 64, 14, 0.35)', borderRadius: Radius.full,
+    paddingHorizontal: Spacing.md, paddingVertical: 6,
+    borderWidth: 1, borderColor: 'rgba(253, 230, 138, 0.5)',
+  },
+  demoHeroBadgeText: { fontSize: FontSize.xs, color: '#FEF3C7', fontWeight: FontWeight.semibold },
   heroContent: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.lg,
     paddingHorizontal: Spacing.xl, paddingTop: Spacing.sm,
@@ -746,6 +795,19 @@ const styles = StyleSheet.create({
   infoCardDate: { fontSize: FontSize.base, fontWeight: FontWeight.semibold, color: Colors.text },
   infoCardVet: { fontSize: FontSize.sm, color: Colors.textMuted, marginBottom: 6 },
   infoCardText: { fontSize: FontSize.sm, color: Colors.textSecondary },
+  digitalIdentityCard: { borderWidth: 1, borderColor: Colors.primaryBorder },
+  identityHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  identityIcon: {
+    width: 42, height: 42, borderRadius: Radius.md,
+    backgroundColor: Colors.primaryBg, alignItems: 'center', justifyContent: 'center',
+  },
+  hknValue: { fontSize: FontSize.sm, fontFamily: 'monospace', color: Colors.text, marginTop: 2 },
+  integrationBadge: {
+    alignSelf: 'flex-start', marginTop: Spacing.md,
+    borderRadius: Radius.full, backgroundColor: '#FEF3C7',
+    borderWidth: 1, borderColor: '#FCD34D', paddingHorizontal: 9, paddingVertical: 4,
+  },
+  integrationBadgeText: { fontSize: 9, color: '#92400E', fontWeight: FontWeight.semibold },
   alertCard: {
     backgroundColor: Colors.warning + '15', borderRadius: Radius.xl,
     padding: Spacing.lg, borderWidth: 1, borderColor: Colors.warning + '40',
