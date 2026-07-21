@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import dynamic from 'next/dynamic'
 import {
   Activity,
   Building2,
@@ -9,10 +10,10 @@ import {
   MapPinned,
   ShieldCheck,
   Siren,
-  Stethoscope,
   TrendingUp,
 } from 'lucide-react'
 
+import { DiseaseAlertFeed } from '@/components/ministry/disease-alert-feed'
 import { ProvinceDetailPanel } from '@/components/ministry/province-detail-panel'
 import { TurkeyProvinceMap } from '@/components/ministry/turkey-province-map'
 import { Badge } from '@/components/ui/badge'
@@ -31,6 +32,20 @@ const compactNumberFormatter = new Intl.NumberFormat('tr-TR', {
 
 const numberFormatter = new Intl.NumberFormat('tr-TR')
 
+const MinistryAnalyticsPanels = dynamic(
+  () => import('@/components/ministry/ministry-analytics-panels')
+    .then((module) => module.MinistryAnalyticsPanels),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
+        <div className="h-[400px] animate-pulse rounded-2xl bg-slate-200/70" />
+        <div className="h-[400px] animate-pulse rounded-2xl bg-slate-200/70" />
+      </div>
+    ),
+  },
+)
+
 export default function MinistryDashboardPage() {
   const [selectedPlateCode, setSelectedPlateCode] = useState(6)
 
@@ -39,6 +54,19 @@ export default function MinistryDashboardPage() {
       ?? ministryProvinces[0],
     [selectedPlateCode],
   )
+
+  const handleAlertProvinceSelect = (provinceName: string) => {
+    const province = ministryProvinces.find((item) => item.name === provinceName)
+    if (!province) return
+
+    setSelectedPlateCode(province.plateCode)
+    window.requestAnimationFrame(() => {
+      document.getElementById('province-overview')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    })
+  }
 
   const nationalStats = [
     {
@@ -134,7 +162,10 @@ export default function MinistryDashboardPage() {
         ))}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.7fr)_380px]">
+      <section
+        id="province-overview"
+        className="grid scroll-mt-24 gap-5 xl:grid-cols-[minmax(0,1.7fr)_380px]"
+      >
         <Card className="gap-0 rounded-2xl bg-white py-0 shadow-sm ring-slate-200">
           <CardContent className="p-5 sm:p-6">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -176,23 +207,13 @@ export default function MinistryDashboardPage() {
         <ProvinceDetailPanel province={selectedProvince} />
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-5">
-          <ShieldCheck className="size-5 text-slate-400" />
-          <h2 className="mt-3 text-sm font-bold text-slate-800">Aşılama kapsam panoları</h2>
-          <p className="mt-1 text-xs leading-5 text-slate-500">İkinci parçada grafiklerle eklenecek.</p>
-        </div>
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-5">
-          <Stethoscope className="size-5 text-slate-400" />
-          <h2 className="mt-3 text-sm font-bold text-slate-800">Popülasyon dağılımı</h2>
-          <p className="mt-1 text-xs leading-5 text-slate-500">Tür ve bölge kırılımı hazırlanıyor.</p>
-        </div>
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-5">
-          <Siren className="size-5 text-slate-400" />
-          <h2 className="mt-3 text-sm font-bold text-slate-800">Erken uyarı akışı</h2>
-          <p className="mt-1 text-xs leading-5 text-slate-500">Sentetik sinyaller ikinci parçada açılacak.</p>
-        </div>
-      </section>
+      <MinistryAnalyticsPanels provinces={ministryProvinces} />
+
+      <DiseaseAlertFeed
+        alerts={ministryAlerts}
+        selectedProvince={selectedProvince.name}
+        onSelectProvince={handleAlertProvinceSelect}
+      />
     </main>
   )
 }
