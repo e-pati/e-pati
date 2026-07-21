@@ -47,4 +47,3 @@ export default function LivestockLayout({ children }: { children: React.ReactNod
     </div>
   )
 }
-
