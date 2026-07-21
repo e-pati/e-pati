@@ -80,6 +80,59 @@ enum PrivacyRequestStatus {
   REJECTED
 }
 
+enum AnimalClass {
+  PET
+  CATTLE
+  SMALL_RUMINANT
+  STRAY
+  SERVICE
+}
+
+enum AnimalSex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum AnimalStatus {
+  ACTIVE
+  LOST
+  ADOPTED
+  SOLD
+  TRANSFERRED
+  DECEASED
+  ARCHIVED
+}
+
+enum AnimalIdentifierType {
+  HKN
+  MICROCHIP
+  EAR_TAG
+  PASSPORT
+  QR_TAG
+}
+
+enum PremiseType {
+  FARM
+  SHELTER
+  CLINIC
+  OWNER_HOME
+  MUNICIPAL_FEEDING_POINT
+  PUBLIC_INSTITUTION
+}
+
+enum MovementReason {
+  BIRTH
+  SALE
+  TRANSFER
+  SHELTER_INTAKE
+  ADOPTION
+  TREATMENT
+  RETURN_TO_AREA
+  DEATH
+  OTHER
+}
+
 model Owner {
   id                      String           @id @default(cuid())
   email                   String           @unique
@@ -92,6 +145,8 @@ model Owner {
   pushEnabled             Boolean          @default(true)
   notificationPreferences Json?
   pets                    Pet[]
+  animals                 Animal[]
+  premises                Premise[]
   appointments            Appointment[]
   subscriptions           Subscription[]
   weightLogs              WeightLog[]
@@ -123,6 +178,8 @@ model Clinic {
   isApproved         Boolean             @default(false)
   veterinarians      Veterinarian[]
   pets               Pet[]
+  animals            Animal[]
+  premises           Premise[]
   appointments       Appointment[]
   subscriptions      Subscription[]
   whatsappConnection WhatsAppConnection?
@@ -156,6 +213,112 @@ model Veterinarian {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
+}
+
+model Premise {
+  id                 String           @id @default(cuid())
+  type               PremiseType
+  name               String
+  ownerId            String?
+  owner              Owner?           @relation(fields: [ownerId], references: [id])
+  clinicId           String?
+  clinic             Clinic?          @relation(fields: [clinicId], references: [id])
+  ministryCode       String?          @unique
+  province           String
+  district           String
+  neighborhood       String?
+  address            String?
+  latitude           Float?
+  longitude          Float?
+  capacity           Int?
+  currentAnimalCount Int              @default(0)
+  metadata           Json?
+  animals            Animal[]
+  outgoingMovements  AnimalMovement[] @relation("MovementFromPremise")
+  incomingMovements  AnimalMovement[] @relation("MovementToPremise")
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  deletedAt          DateTime?
+
+  @@index([ownerId])
+  @@index([clinicId])
+  @@index([type])
+  @@index([province, district])
+}
+
+model Animal {
+  id                String             @id @default(cuid())
+  hkn               String             @unique
+  class             AnimalClass
+  species           String
+  breed             String?
+  name              String?
+  sex               AnimalSex          @default(UNKNOWN)
+  birthDate         DateTime?
+  birthPlace        String?
+  color             String?
+  photoUrl          String?
+  status            AnimalStatus       @default(ACTIVE)
+  ownerId           String?
+  owner             Owner?             @relation(fields: [ownerId], references: [id])
+  clinicId          String?
+  clinic            Clinic?            @relation(fields: [clinicId], references: [id])
+  petId             String?            @unique
+  pet               Pet?               @relation(fields: [petId], references: [id])
+  currentPremiseId  String?
+  currentPremise    Premise?           @relation(fields: [currentPremiseId], references: [id])
+  identifiers       AnimalIdentifier[]
+  movements         AnimalMovement[]   @relation("MovementAnimal")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+
+  @@index([class])
+  @@index([status])
+  @@index([ownerId])
+  @@index([clinicId])
+  @@index([currentPremiseId])
+  @@index([species])
+}
+
+model AnimalIdentifier {
+  id        String               @id @default(cuid())
+  animalId  String
+  animal    Animal               @relation(fields: [animalId], references: [id])
+  type      AnimalIdentifierType
+  value     String
+  issuedBy  String?
+  issuedAt  DateTime?
+  expiresAt DateTime?
+  isPrimary Boolean              @default(false)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@unique([type, value])
+  @@index([animalId])
+  @@index([value])
+}
+
+model AnimalMovement {
+  id            String         @id @default(cuid())
+  animalId      String
+  animal        Animal         @relation("MovementAnimal", fields: [animalId], references: [id])
+  fromPremiseId String?
+  fromPremise   Premise?       @relation("MovementFromPremise", fields: [fromPremiseId], references: [id])
+  toPremiseId   String?
+  toPremise     Premise?       @relation("MovementToPremise", fields: [toPremiseId], references: [id])
+  reason        MovementReason
+  occurredAt    DateTime
+  notes         String?
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([animalId])
+  @@index([fromPremiseId])
+  @@index([toPremiseId])
+  @@index([reason])
+  @@index([occurredAt])
 }
 
 model RefreshToken {
@@ -195,6 +358,7 @@ model Pet {
   vaccinations  Vaccination[]
   prescriptions Prescription[]
   labResults    LabResult[]
+  animal        Animal?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?

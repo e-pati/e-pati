@@ -7,10 +7,8 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isPublic = PUBLIC_PATHS.some(p => p === '/' ? pathname === '/' : pathname.startsWith(p))
 
-  // localStorage'a middleware'den erişemeyiz — cookie kontrolü yaparız
-  // Token cookie'ye de yazılmıyor şu an, bu yüzden basit bir kontrol:
-  // epati-auth zustand persist key'i localStorage'da — server'da kontrol edemeyiz
-  // Çözüm: login sonrası bir httpOnly olmayan cookie set ederiz
+  // Access token API domaininde httpOnly cookie olarak durur.
+  // Portal tarafında route guard için hassas olmayan oturum işareti kullanılır.
   const isAuthCookie = request.cookies.get('epati-logged-in')
 
   if (!isPublic && !isAuthCookie) {

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, Stethoscope, Syringe, FlaskConical,
-  Bell, Settings, LogOut, PawPrint, Pill, Receipt, CreditCard, ShieldCheck, CalendarDays, ChartNoAxesCombined, Megaphone,
+  Bell, Settings, LogOut, PawPrint, Pill, Receipt, CreditCard, ShieldCheck, CalendarDays, ChartNoAxesCombined, Megaphone, Database,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,7 @@ const navItems = [
   { href: '/lab-results', label: 'Lab Sonuçları', icon: FlaskConical },
   { href: '/invoices', label: 'Fatura & Kasa', icon: Receipt },
   { href: '/analytics', label: 'Analitik', icon: ChartNoAxesCombined },
+  { href: '/registry', label: 'Ulusal Kayıt', icon: Database },
   { href: '/campaigns/lost-patients', label: 'Kampanyalar', icon: Megaphone },
   { href: '/notifications', label: 'Bildirimler', icon: Bell },
   { href: '/billing', label: 'Abonelik', icon: CreditCard },

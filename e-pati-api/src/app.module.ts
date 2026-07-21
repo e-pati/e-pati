@@ -22,11 +22,14 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { OwnerHealthModule } from './owner-health/owner-health.module';
 import { OwnersModule } from './owners/owners.module';
 import { PrivacyModule } from './privacy/privacy.module';
+import { validateEnvironment } from './config/env.validation';
+import { RegistryModule } from './registry/registry.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate: validateEnvironment,
     }),
     ThrottlerModule.forRoot([
       {
@@ -53,6 +56,7 @@ import { PrivacyModule } from './privacy/privacy.module';
     OwnerHealthModule,
     OwnersModule,
     PrivacyModule,
+    RegistryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

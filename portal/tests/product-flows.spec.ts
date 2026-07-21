@@ -9,7 +9,6 @@ async function setLoggedIn(page: Page) {
     path: '/',
   }])
   await page.evaluate(() => {
-    localStorage.setItem('accessToken', 'mock-token-for-test')
     localStorage.setItem('epati-auth', JSON.stringify({
       state: {
         user: {

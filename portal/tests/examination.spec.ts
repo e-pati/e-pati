@@ -8,9 +8,6 @@ async function setLoggedIn(page: any) {
     domain: 'localhost',
     path: '/',
   }])
-  await page.evaluate(() => {
-    localStorage.setItem('accessToken', 'mock-token-for-test')
-  })
 }
 
 test.describe('Muayene Formu', () => {

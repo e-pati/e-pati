@@ -48,10 +48,10 @@ cp .env.example .env
 `.env` içinde `DATABASE_URL` satırındaki `<DB_PASSWORD>` değerini ekipten alınan DB şifresiyle değiştir:
 
 ```env
-DATABASE_URL="postgresql://postgres.aurjucbyusfmwkysaofz:<DB_PASSWORD>@aws-0-eu-west-1.pooler.supabase.com:5432/postgres"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 ```
 
-Gerçek DB şifresi GitHub'a yazılmayacak.
+Gerçek DB hostu, kullanıcı adı ve şifresi GitHub'a yazılmayacak.
 
 Kurulum:
 

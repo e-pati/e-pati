@@ -29,12 +29,17 @@ import type { TokenPayload } from './types/token-payload';
 
 type RequestWithCookies = Request & {
   cookies?: {
+    accessToken?: string;
     refreshToken?: string;
   };
 };
 
+const ACCESS_COOKIE_NAME = 'accessToken';
 const REFRESH_COOKIE_NAME = 'refreshToken';
+const ACCESS_COOKIE_MAX_AGE_MS = 15 * 60 * 1000;
 const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const COOKIE_SAME_SITE = IS_PRODUCTION ? 'none' : 'lax';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -62,6 +67,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const auth = await this.authService.verifyOtp(dto);
+    this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
     return this.withoutRefreshToken(auth);
   }
@@ -74,6 +80,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const auth = await this.authService.login(dto);
+    this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
     return this.withoutRefreshToken(auth);
   }
@@ -86,6 +93,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const auth = await this.authService.loginClinic(dto);
+    this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
     return this.withoutRefreshToken(auth);
   }
@@ -98,6 +106,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const auth = await this.authService.refresh(request.cookies?.refreshToken);
+    this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
     return this.withoutRefreshToken(auth);
   }
@@ -109,7 +118,8 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     await this.authService.logout(request.cookies?.refreshToken);
-    response.clearCookie(REFRESH_COOKIE_NAME);
+    response.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
+    response.clearCookie(REFRESH_COOKIE_NAME, { path: '/auth' });
   }
 
   @Get('me')
@@ -134,10 +144,20 @@ export class AuthController {
   private setRefreshCookie(response: Response, refreshToken: string): void {
     response.cookie(REFRESH_COOKIE_NAME, refreshToken, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      sameSite: COOKIE_SAME_SITE,
+      secure: IS_PRODUCTION,
       maxAge: REFRESH_COOKIE_MAX_AGE_MS,
       path: '/auth',
+    });
+  }
+
+  private setAccessCookie(response: Response, accessToken: string): void {
+    response.cookie(ACCESS_COOKIE_NAME, accessToken, {
+      httpOnly: true,
+      sameSite: COOKIE_SAME_SITE,
+      secure: IS_PRODUCTION,
+      maxAge: ACCESS_COOKIE_MAX_AGE_MS,
+      path: '/',
     });
   }
 
