@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Database, Landmark, PawPrint, ShieldCheck } from 'lucide-react'
+import { Database, Landmark, PawPrint, Presentation, ShieldCheck } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 
@@ -23,6 +23,9 @@ export default function MinistryLayout({ children }: { children: React.ReactNode
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/demo-akisi" className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 xl:flex">
+              <Presentation className="size-4" /> Sunum Akışı
+            </Link>
             <Badge
               variant="outline"
               className="hidden h-7 border-amber-300 bg-amber-50 px-3 font-semibold text-amber-800 sm:inline-flex"

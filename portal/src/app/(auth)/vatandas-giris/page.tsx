@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -88,12 +89,17 @@ export default function CitizenLoginPage() {
             </div>
           </div>
 
-          <Badge
-            variant="outline"
-            className="h-7 border-amber-300 bg-amber-50 px-3 font-semibold text-amber-800"
-          >
-            Simülasyon / Demo
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Link href="/demo-akisi" className="hidden text-xs font-bold text-slate-500 transition-colors hover:text-slate-900 sm:block">
+              Sunum Akışı
+            </Link>
+            <Badge
+              variant="outline"
+              className="h-7 border-amber-300 bg-amber-50 px-3 font-semibold text-amber-800"
+            >
+              Simülasyon / Demo
+            </Badge>
+          </div>
         </header>
 
         <section className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[1fr_460px] lg:py-16">

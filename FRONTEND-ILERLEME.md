@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 21 Temmuz 2026 — 0.4 sokak/belediye demo modülü tamamlandı
-- **Frontend/mobil ilerleme:** %95
+- **Son güncelleme:** 21 Temmuz 2026 — 25 dakikalık Faz 0 sunum rotası tamamlandı
+- **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Faz 0 ekranlarını 25 dakikalık uçtan uca sunum rotasında birbirine bağlamak ve demo provası yapmak
+- **Sıradaki adım:** Sunum kumandasıyla iki tam prova yapmak ve Bakanlığın muhtemel zor sorularına karşı düşmanca soru turunu tamamlamak
 
 ---
 
@@ -29,6 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | 7 bölümlük presenter kumandası, canlı süre, toplu reset ve ekran geçişleri tamamlandı |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -49,6 +50,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-21 — 25 dakikalık Faz 0 sunum kumandası
+**Yapılanlar:** `/demo-akisi` altında yedi bölümlük ve toplam 25 dakikalık presenter kumandası geliştirildi. Açılış/konumlandırma, vatandaş ve mobil, klinik, üretici, belediye, Bakanlık karar desteği ve pilot kapanışı için hedef süre, seyirciye ana mesaj, konuşmacı notu ve kontrol listeleri tanımlandı. Canlı sayaç, bölüm ilerlemesi, yeni sekmede demo ekranı açma ve hayvancılık/belediye Zustand durumlarını topluca sıfırlama eklendi. Demo yüzeylerine kumandaya dönüş bağlantıları yerleştirildi.
+**Dokunulan dosyalar:** `portal/src/app/(demo)/demo-akisi/page.tsx`, `portal/src/lib/demo-presentation-data.ts`, `portal/src/stores/demo-presentation.store.ts`, `portal/src/app/(auth)/vatandas-giris/page.tsx`, `portal/src/app/get-app/page.tsx`, `portal/src/app/(livestock)/hayvancilik/layout.tsx`, `portal/src/app/(municipality)/belediye/layout.tsx`, `portal/src/app/(ministry)/bakanlik/layout.tsx`, `portal/src/proxy.ts`, `portal/tests/demo-presentation.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** `/demo-akisi` oturumsuz ve klinik oturumu açıkken erişilebilir. 7 bölüm, 25:00 hedefi, sayaç, ileri geçiş, ekran bağlantıları ve toplu reset çalışıyor. Lint, production build, masaüstü görsel kontrol ve 2 Playwright senaryosu başarılı.
+**Sıradaki:** Kumandayla iki tam 25 dakikalık prova yapmak; ardından HAYBİS entegrasyonu, veri barındırma, iki kişilik ekip, TÜBİTAK alternatifi ve şirket sürekliliği sorularına karşı düşmanca soru turu yürütmek.
+**Erol'a not (varsa):** Faz 0 sunum rotası için yeni backend ihtiyacı yok. `d55f3a2` registry/seed verisi klinik ve ulusal kayıt bölümlerinde kullanılacak; demo öncesi lokal seed ve servislerin ayakta olduğu birlikte doğrulanmalı.
 
 ### 2026-07-21 — Sokak hayvanı belediye demo akışı
 **Yapılanlar:** Tek belediyeye ait bağımsız `/belediye` operasyon alanı geliştirildi. Dost isimli sentetik sokak köpeğinin hassas konum paylaşmadan barınak kabulü ve HKN oluşturması, komplikasyonsuz kısırlaştırma kaydı ve doğrulanmış sağlık bilgilerinden sahiplendirme ilanı yayımlaması üç adımlı kalıcı Zustand akışına bağlandı. Demo sıfırlama, ilerleme göstergesi ve açık simülasyon etiketleri eklendi.
