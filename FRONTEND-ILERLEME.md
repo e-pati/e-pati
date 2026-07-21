@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 21 Temmuz 2026 — 0.5 Bakanlık konsolu tamamlandı
-- **Frontend/mobil ilerleme:** %45
+- **Son güncelleme:** 21 Temmuz 2026 — 0.8 mobil demo tamamlandı
+- **Frontend/mobil ilerleme:** %60
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** 0.8 mobil demo için mevcut evcil hayvan ekranlarını denetlemek ve üretici/inek görünümünü planlamak
+- **Sıradaki adım:** 0.3 büyükbaş/küçükbaş demo ekranları için portal akışını ve sentetik veri modelini planlamak
 
 ---
 
@@ -28,7 +28,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ⬜ | |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
-| 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ⬜ | Genişletme yok, cila |
+| 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
 
 **Erol'dan (backend) beklenenler:**
 - _(henüz yok — ihtiyaç doğdukça buraya yazılacak: hangi endpoint/şema/mock veri lazım)_
@@ -49,6 +49,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-21 — Mobil evcil hayvan ve üretici demo profilleri
+**Yapılanlar:** Hayvanlarım ekranına backend'den bağımsız erişilebilen Pamuk ve Sarıkız sentetik demo profilleri eklendi. Pamuk'un mevcut detay deneyimi HKN/PETVET kimliği, muayene, aşı, reçete ve laboratuvar kayıtlarıyla demo modunda çalışır hale getirildi. Sarıkız için HKN, küpe, işletme, aşılama ve olay geçmişini gösteren üretici görünümü geliştirildi; demo profillerindeki kayıt değiştirme eylemleri kapatıldı.
+**Dokunulan dosyalar:** `mobile/lib/mobile-demo-data.ts`, `mobile/app/(tabs)/pets/index.tsx`, `mobile/app/(tabs)/pets/[id].tsx`, `mobile/app/(tabs)/pets/producer-demo.tsx`, `mobile/app/(tabs)/pets/_layout.tsx`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** `/pets`, `/pets/demo-pamuk` ve `/pets/producer-demo` backend olmadan çalışıyor. TypeScript kontrolü, üç ekran için Expo web görsel kontrolü ve production web export başarılı. Expo'nun mevcut bağımlılık sürümü uyumluluk uyarıları devam ediyor; bu çalışma kapsamında paket güncellenmedi.
+**Sıradaki:** 0.3 büyükbaş/küçükbaş demo ekranları için işletme kaydı, küpe ile giriş, hareket görünümü ve olay geçmişi akışını planlamak.
+**Erol'a not (varsa):** Faz 0 demosu için backend ihtiyacı yok. Üretim entegrasyonunda HKN, küpe, işletme, aşılama ve olay geçmişi alanlarını kapsayan büyükbaş profil sözleşmesi gerekecek.
 
 ### 2026-07-21 — Bakanlık konsolu aşılama, popülasyon ve erken uyarı panoları
 **Yapılanlar:** Bölgesel aşılama kapsamı için Recharts sütun grafiği, hayvan kimlik sınıfları için ulusal popülasyon dağılım grafiği ve dört sentetik sinyalden oluşan hastalık erken-uyarı akışı eklendi. Uyarı kartları ilgili ili seçip harita drill-down paneline taşıyacak şekilde bağlandı. Grafikler istemci tarafında dinamik yüklenerek statik build uyarıları giderildi; `next-themes` kaynaklı geliştirme hydration uyarısı kök layout'ta güvenli şekilde bastırıldı.
