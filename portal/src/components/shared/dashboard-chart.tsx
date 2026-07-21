@@ -35,8 +35,8 @@ const FALLBACK_DATA = [
 ]
 
 export function DashboardChart() {
-  const examinationsQuery = useExaminations({ limit: 500 })
-  const vaccinationsQuery = useVaccinations({ limit: 500 })
+  const examinationsQuery = useExaminations({ limit: 100 })
+  const vaccinationsQuery = useVaccinations({ limit: 100 })
 
   const data = useMemo(() => {
     if (examinationsQuery.data && vaccinationsQuery.data) {

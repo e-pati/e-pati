@@ -32,7 +32,7 @@ export function useAllClinicPatients() {
   const clinicId = useAuthStore(s => s.user?.clinicId)
   return useQuery({
     queryKey: ['clinic-patients-all', clinicId],
-    queryFn: () => clinicsService.getPatients(clinicId!, { limit: 500 }),
+    queryFn: () => clinicsService.getPatients(clinicId!, { limit: 100 }),
     enabled: !!clinicId,
     staleTime: 5 * 60 * 1000,
   })
