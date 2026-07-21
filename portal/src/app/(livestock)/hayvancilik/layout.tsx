@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Database, House, Layers3, PawPrint, ShieldCheck } from 'lucide-react'
+import { Database, House, Layers3, PawPrint, Presentation, ShieldCheck } from 'lucide-react'
 
 import { LivestockDemoSteps } from '@/components/livestock/livestock-demo-steps'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,9 @@ export default function LivestockLayout({ children }: { children: React.ReactNod
           </Link>
 
           <div className="flex items-center gap-2">
+            <Link href="/demo-akisi" className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 xl:flex">
+              <Presentation className="size-4" /> Sunum Akışı
+            </Link>
             <Link
               href="/hayvancilik"
               className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-white sm:flex"

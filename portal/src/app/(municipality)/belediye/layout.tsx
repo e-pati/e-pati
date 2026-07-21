@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Building2, Database, House, PawPrint, ShieldCheck } from 'lucide-react'
+import { Building2, Database, House, PawPrint, Presentation, ShieldCheck } from 'lucide-react'
 
 import { MunicipalityDemoSteps } from '@/components/municipality/municipality-demo-steps'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +20,9 @@ export default function MunicipalityLayout({ children }: { children: React.React
           </Link>
 
           <div className="flex items-center gap-2">
+            <Link href="/demo-akisi" className="hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 xl:flex">
+              <Presentation className="size-4" /> Sunum Akışı
+            </Link>
             <Link href="/belediye" className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-white sm:flex">
               <House className="size-4" /> Operasyon paneli
             </Link>

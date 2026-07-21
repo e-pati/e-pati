@@ -99,6 +99,12 @@ export default function GetAppPage() {
         >
           e-pati-portal.vercel.app →
         </Link>
+        <Link
+          href="/demo-akisi"
+          className="mt-4 block text-xs font-semibold text-muted-foreground hover:text-primary"
+        >
+          ← Sunum akışına dön
+        </Link>
       </div>
     </div>
   )

@@ -10,6 +10,7 @@ const PUBLIC_PATHS = [
   '/bakanlik',
   '/hayvancilik',
   '/belediye',
+  '/demo-akisi',
 ]
 const AUTH_PATHS = ['/login', '/clinic-onboarding']
 
