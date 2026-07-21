@@ -4,6 +4,8 @@
 > Sunum süresi: **25 dakika**  
 > Ana kumanda: `http://localhost:3001/demo-akisi`
 
+Konuşmacı metni ve düşmanca soru turu: [`DEMO-PROVA-KONUSMA-METNI.md`](DEMO-PROVA-KONUSMA-METNI.md)
+
 Bu belge, Bakanlık sunumundan önce aynı ortamı ayağa kaldırmak ve demo akışını aynı sırayla tekrarlamak için hazırlanmıştır. VetCep; HAYBİS, PETVET, İTS, TÜRKVET ve e-Devlet'in yerine geçen bir sistem olarak değil, bu sistemlerin üzerinde çalışan entegrasyon, kullanıcı deneyimi, klinik derinlik ve karar-destek katmanı olarak anlatılmalıdır.
 
 ## 1. Zorunlu ön kontrol
@@ -116,4 +118,3 @@ Sunuma ancak aşağıdakilerin tümü “evet” ise canlı demoyla girin:
 - [ ] Bakanlık haritasında 81 il ve grafikler görünüyor
 - [ ] Bir tam kronometreli prova 25 dakika içinde bitti
 - [ ] Yedek ekran görüntüleri yerel diskte hazır
-

@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 22 Temmuz 2026 — ilk teknik demo provası tamamlandı
+- **Son güncelleme:** 22 Temmuz 2026 — 25 dakikalık konuşmacı ve zor soru prova paketi tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Runbook ile iki insan anlatımlı, kronometreli 25 dakikalık prova yapmak ve ikinci turda zor soru cevaplarını sesli çalışmak
+- **Sıradaki adım:** Konuşma metniyle ilk insan anlatımlı 25 dakikalık provayı yapmak, bölüm sürelerini forma kaydetmek ve yalnızca prova bulgularını düzeltmek
 
 ---
 
@@ -50,6 +50,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-22 — Konuşmacı metni ve düşmanca soru prova paketi
+**Yapılanlar:** Yedi demo bölümünü 25 dakikalık kumandayla birebir eşleyen konuşmacı metni hazırlandı. Her bölüm için söylenecek ana mesaj, canlı tıklama sırası, geçiş cümlesi, zorunlu dürüstlük ifadesi ve süre kurtarma noktası tanımlandı. Toplantı süresinin kısalması için 20 dakikalık alternatif rota, on muhtemel Bakanlık sorusuna 30–45 saniyelik cevaplar ve prova değerlendirme formu eklendi. Teknik runbook'tan konuşma metnine bağlantı verildi.
+**Dokunulan dosyalar:** `DEMO-PROVA-KONUSMA-METNI.md`, `DEMO-PROVA-RUNBOOK.md`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Kod veya ekran davranışı değişmedi. Konuşma paketi `/demo-akisi` içindeki 00:00–25:00 bölüm sınırları, mevcut demo rotaları ve sentetik veri açıklamalarıyla uyumlu. İnsan anlatımlı kronometreli prova henüz yapılmadı.
+**Sıradaki:** Metni kelimesi kelimesine okumadan ilk tam provayı yapmak; geçiş zamanlarını değerlendirme formuna kaydedip yalnızca süre veya akış engellerini düzeltmek.
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. İlk insan anlatımlı prova sırasında gerçek klinik/seed akışında sorun görülürse Erol'a health, migration ve seed bulgusuyla birlikte net mesaj hazırlanacak.
 
 ### 2026-07-22 — İlk teknik demo provası ve sunum runbook'u
 **Yapılanlar:** Backend health/readiness ve gerçek veteriner girişi doğrulandı; portalda klinik girişinden Misket profili ve aşı kaydına kadar gerçek servisli akış prova edildi. Backend'in kabul ettiği üst sınırı aşan `limit=500` istekleri `100` değerine çekilerek Misket aşı-hasta eşleşmesi düzeltildi. Vatandaş, sunum kumandası, üretici, belediye ve Bakanlık akışları tek işçili Chromium turunda doğrulandı. Sunum ön kontrolü, dakika dakika rota, arıza B planı, zor soru cevapları ve go/no-go listesini içeren runbook eklendi.
