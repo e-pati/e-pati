@@ -9,7 +9,6 @@ export interface DemoEnterprise {
   animalCount: number
   status: 'active' | 'demo'
 }
-
 export interface DemoLivestockEvent {
   id: string
   date: string
@@ -104,4 +103,3 @@ export const livestockDemoStats = {
   activeMovements: 3,
   healthAlerts: 2,
 }
-
