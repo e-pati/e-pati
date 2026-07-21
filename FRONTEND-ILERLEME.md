@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 21 Temmuz 2026 — 25 dakikalık Faz 0 sunum rotası tamamlandı
+- **Son güncelleme:** 22 Temmuz 2026 — ilk teknik demo provası tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Sunum kumandasıyla iki tam prova yapmak ve Bakanlığın muhtemel zor sorularına karşı düşmanca soru turunu tamamlamak
+- **Sıradaki adım:** Runbook ile iki insan anlatımlı, kronometreli 25 dakikalık prova yapmak ve ikinci turda zor soru cevaplarını sesli çalışmak
 
 ---
 
@@ -29,10 +29,10 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
-| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | 7 bölümlük presenter kumandası, canlı süre, toplu reset ve ekran geçişleri tamamlandı |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik prova geçti; 7 bölümlük kumanda, gerçek Misket klinik akışı ve 10/10 Faz 0 tarayıcı testi doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
-- Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
+- Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
 
 ---
 
@@ -50,6 +50,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-22 — İlk teknik demo provası ve sunum runbook'u
+**Yapılanlar:** Backend health/readiness ve gerçek veteriner girişi doğrulandı; portalda klinik girişinden Misket profili ve aşı kaydına kadar gerçek servisli akış prova edildi. Backend'in kabul ettiği üst sınırı aşan `limit=500` istekleri `100` değerine çekilerek Misket aşı-hasta eşleşmesi düzeltildi. Vatandaş, sunum kumandası, üretici, belediye ve Bakanlık akışları tek işçili Chromium turunda doğrulandı. Sunum ön kontrolü, dakika dakika rota, arıza B planı, zor soru cevapları ve go/no-go listesini içeren runbook eklendi.
+**Dokunulan dosyalar:** `portal/src/hooks/use-clinic.ts`, `portal/src/components/shared/dashboard-chart.tsx`, `DEMO-PROVA-RUNBOOK.md`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Backend 0 derleme hatasıyla açılıyor; health, readiness ve demo klinik girişi 200. Misket arama, profil ve aşı akışı çalışıyor. Portal lint, 10/10 Faz 0 Playwright testi, mobil TypeScript kontrolü ve Expo web export başarılı. Teknik prova tamamlandı; insan anlatımlı iki kronometreli prova henüz yapılmadı.
+**Sıradaki:** `DEMO-PROVA-RUNBOOK.md` ile iki tam 25 dakikalık prova yapmak; ikinci provada HAYBİS entegrasyonu, veri barındırma, ekip kapasitesi, TÜBİTAK alternatifi ve şirket sürekliliği sorularını sesli yanıtlamak.
+**Erol'a not (varsa):** Yeni backend işi gerekmiyor. Lokal şema güncellemelerinden sonra `npm run db:generate` zorunlu; demo verisi kaybolursa migration/seed durumu Burak ve Erol birlikte kontrol edilmeli.
 
 ### 2026-07-21 — 25 dakikalık Faz 0 sunum kumandası
 **Yapılanlar:** `/demo-akisi` altında yedi bölümlük ve toplam 25 dakikalık presenter kumandası geliştirildi. Açılış/konumlandırma, vatandaş ve mobil, klinik, üretici, belediye, Bakanlık karar desteği ve pilot kapanışı için hedef süre, seyirciye ana mesaj, konuşmacı notu ve kontrol listeleri tanımlandı. Canlı sayaç, bölüm ilerlemesi, yeni sekmede demo ekranı açma ve hayvancılık/belediye Zustand durumlarını topluca sıfırlama eklendi. Demo yüzeylerine kumandaya dönüş bağlantıları yerleştirildi.
