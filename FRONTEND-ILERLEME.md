@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 21 Temmuz 2026 — 0.8 mobil demo tamamlandı
-- **Frontend/mobil ilerleme:** %60
+- **Son güncelleme:** 21 Temmuz 2026 — 0.3 büyükbaş/küçükbaş demo modülü tamamlandı
+- **Frontend/mobil ilerleme:** %80
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** 0.3 büyükbaş/küçükbaş demo ekranları için portal akışını ve sentetik veri modelini planlamak
+- **Sıradaki adım:** 0.4 sokak/belediye demo akışı için barınak girişi, kısırlaştırma ve sahiplendirme ekranlarını planlamak
 
 ---
 
@@ -24,14 +24,14 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | # | Görev | Sorumlu | Durum | Not |
 |---|---|---|---|---|
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⬜ | 0.1'in ana sahibi Erol; portal tarafı Burak'ta |
-| 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ⬜ | Şema v2 (0.2) Erol'dan gelince tam bağlanır |
+| 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, iki işletme arası hareket ve olay geçmişi tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ⬜ | |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
 
 **Erol'dan (backend) beklenenler:**
-- _(henüz yok — ihtiyaç doğdukça buraya yazılacak: hangi endpoint/şema/mock veri lazım)_
+- Faz 0 demosu için engel yok. Canlı bağlantıda Şema v2 kapsamında işletme, kimliklendirme ve hareket endpoint sözleşmeleri gerekecek.
 
 ---
 
@@ -49,6 +49,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-21 — Büyükbaş/küçükbaş üretici demo akışı
+**Yapılanlar:** HAYBİS/TÜRKVET'in yerine geçmediğini açıkça belirten bağımsız `/hayvancilik` demo alanı geliştirildi. Üretici paneli, sentetik işletme kayıt formu, küpe ile Sarıkız girişi, Güneş Süt İşletmesi'nden Bereket Besi Çiftliği'ne hareket onayı ve HKN altında birleşen yaşam boyu olay geçmişi Zustand ile kalıcı mock akışa bağlandı. Demo sıfırlama ve senaryo ilerleme göstergeleri eklendi.
+**Dokunulan dosyalar:** `portal/src/app/(livestock)/hayvancilik/layout.tsx`, `portal/src/app/(livestock)/hayvancilik/page.tsx`, `portal/src/app/(livestock)/hayvancilik/isletmeler/yeni/page.tsx`, `portal/src/app/(livestock)/hayvancilik/hayvanlar/yeni/page.tsx`, `portal/src/app/(livestock)/hayvancilik/hareket/page.tsx`, `portal/src/app/(livestock)/hayvancilik/hayvanlar/[id]/page.tsx`, `portal/src/components/livestock/livestock-demo-steps.tsx`, `portal/src/lib/livestock-demo-data.ts`, `portal/src/stores/livestock-demo.store.ts`, `portal/src/proxy.ts`, `portal/tests/livestock-demo.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** İşletme kaydı → küpe doğrulama → iki işletme arası hareket → olay geçmişi zinciri backend olmadan çalışıyor. Klinik oturumu açıkken de demo erişilebilir. Lint, production build, üç ana ekranın görsel kontrolü ve 2 Playwright senaryosu başarılı.
+**Sıradaki:** 0.4 sokak/belediye demo akışını barınak girişi → kısırlaştırma → sahiplendirme ilanı sınırında planlamak.
+**Erol'a not (varsa):** Faz 0 için backend ihtiyacı yok. Canlı entegrasyonda işletme oluşturma/doğrulama, küpe-HKN eşleştirme, hareket onayı ve olay geçmişi endpoint sözleşmeleri gerekecek.
 
 ### 2026-07-21 — Mobil evcil hayvan ve üretici demo profilleri
 **Yapılanlar:** Hayvanlarım ekranına backend'den bağımsız erişilebilen Pamuk ve Sarıkız sentetik demo profilleri eklendi. Pamuk'un mevcut detay deneyimi HKN/PETVET kimliği, muayene, aşı, reçete ve laboratuvar kayıtlarıyla demo modunda çalışır hale getirildi. Sarıkız için HKN, küpe, işletme, aşılama ve olay geçmişini gösteren üretici görünümü geliştirildi; demo profillerindeki kayıt değiştirme eylemleri kapatıldı.
