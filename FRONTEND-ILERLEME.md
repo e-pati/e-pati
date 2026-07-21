@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 21 Temmuz 2026 — 0.3 büyükbaş/küçükbaş demo modülü tamamlandı
-- **Frontend/mobil ilerleme:** %80
+- **Son güncelleme:** 21 Temmuz 2026 — 0.4 sokak/belediye demo modülü tamamlandı
+- **Frontend/mobil ilerleme:** %95
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** 0.4 sokak/belediye demo akışı için barınak girişi, kısırlaştırma ve sahiplendirme ekranlarını planlamak
+- **Sıradaki adım:** Faz 0 ekranlarını 25 dakikalık uçtan uca sunum rotasında birbirine bağlamak ve demo provası yapmak
 
 ---
 
@@ -25,13 +25,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 |---|---|---|---|---|
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⬜ | 0.1'in ana sahibi Erol; portal tarafı Burak'ta |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, iki işletme arası hareket ve olay geçmişi tamamlandı |
-| 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ⬜ | |
+| 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost için barınak kabulü, kısırlaştırma kaydı ve yayımlanan sahiplendirme ilanı tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
 
 **Erol'dan (backend) beklenenler:**
-- Faz 0 demosu için engel yok. Canlı bağlantıda Şema v2 kapsamında işletme, kimliklendirme ve hareket endpoint sözleşmeleri gerekecek.
+- Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
 
 ---
 
@@ -49,6 +49,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-21 — Sokak hayvanı belediye demo akışı
+**Yapılanlar:** Tek belediyeye ait bağımsız `/belediye` operasyon alanı geliştirildi. Dost isimli sentetik sokak köpeğinin hassas konum paylaşmadan barınak kabulü ve HKN oluşturması, komplikasyonsuz kısırlaştırma kaydı ve doğrulanmış sağlık bilgilerinden sahiplendirme ilanı yayımlaması üç adımlı kalıcı Zustand akışına bağlandı. Demo sıfırlama, ilerleme göstergesi ve açık simülasyon etiketleri eklendi.
+**Dokunulan dosyalar:** `portal/src/app/(municipality)/belediye/layout.tsx`, `portal/src/app/(municipality)/belediye/page.tsx`, `portal/src/app/(municipality)/belediye/barinak-giris/page.tsx`, `portal/src/app/(municipality)/belediye/kisirlastirma/page.tsx`, `portal/src/app/(municipality)/belediye/sahiplendirme/yeni/page.tsx`, `portal/src/components/municipality/municipality-demo-steps.tsx`, `portal/src/lib/municipality-demo-data.ts`, `portal/src/stores/municipality-demo.store.ts`, `portal/src/proxy.ts`, `portal/tests/municipality-demo.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Barınak girişi → kısırlaştırma → sahiplendirme ilanı zinciri backend olmadan çalışıyor; ilan sonunda “Yayında · Demo” önizlemesi gösteriliyor. Klinik oturumu açıkken de erişilebilir. Lint, production build, üç ana ekranın görsel kontrolü ve 2 Playwright senaryosu başarılı.
+**Sıradaki:** 0.7, 0.8, 0.3, 0.4 ve 0.5 ekranlarını tek 25 dakikalık sunum rotasında bağlamak; demo sıfırlama ve geçişlerini prova etmek.
+**Erol'a not (varsa):** Faz 0 için backend ihtiyacı yok. Registry çekirdeği main'e alındı; canlı belediye entegrasyonu için kısırlaştırma işlemi ve sahiplendirme ilanı durumlarına ait endpoint/şema alanları gerekecek.
 
 ### 2026-07-21 — Büyükbaş/küçükbaş üretici demo akışı
 **Yapılanlar:** HAYBİS/TÜRKVET'in yerine geçmediğini açıkça belirten bağımsız `/hayvancilik` demo alanı geliştirildi. Üretici paneli, sentetik işletme kayıt formu, küpe ile Sarıkız girişi, Güneş Süt İşletmesi'nden Bereket Besi Çiftliği'ne hareket onayı ve HKN altında birleşen yaşam boyu olay geçmişi Zustand ile kalıcı mock akışa bağlandı. Demo sıfırlama ve senaryo ilerleme göstergeleri eklendi.

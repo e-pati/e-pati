@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   '/vatandas-giris',
   '/bakanlik',
   '/hayvancilik',
+  '/belediye',
 ]
 const AUTH_PATHS = ['/login', '/clinic-onboarding']
 
