@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Building2, CalendarDays, Mail, MapPin, Phone, ShieldCheck, UsersRound, WalletCards } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { adminService, type AdminClinic } from '@/services/admin.service'
 
@@ -60,10 +60,10 @@ export default function AdminClinicDetailPage({ params }: { params: Promise<{ id
 
   return (
     <div className="p-6 space-y-6">
-      <Button render={<Link href="/admin/clinics" />} variant="outline" className="gap-2">
+      <Link href="/admin/clinics" className={buttonVariants({ variant: 'outline', className: 'gap-2' })}>
         <ArrowLeft className="h-4 w-4" />
         Kliniklere Dön
-      </Button>
+      </Link>
 
       {clinicQuery.isError && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
