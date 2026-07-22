@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Expo Pamuk + Sarıkız demo fallback durumları cilalandı
+- **Son güncelleme:** 23 Temmuz 2026 — Pamuk + Sarıkız cihaz dokunma ve kaydırma ergonomisi tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip yalnız demo-kritik yeni bulguları ele almak; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
@@ -28,7 +28,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
-| 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları ile API kapalıyken sunum-güvenli yükleme/fallback durumları tamamlandı |
+| 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback durumları ve 44px cihaz dokunma hedefleri tamamlandı |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Expo detay ekranları cihaz ergonomisi
+**Yapılanlar:** Pamuk evcil hayvan ve Sarıkız üretici detayları 390×844 dokunmatik cihaz bağlamında denetlendi. Pamuk kayıt sekmelerinin yalnız 33px yüksekliğinde olduğu tespit edildi; Geri, QR ve beş kayıt sekmesi en az 44px dokunma yüksekliğine getirildi. Sarıkız geri eylemi de 44px'e tamamlandı. Pamuk sekme şeridinin 57px yatay kaydığı ve Lab kaydını açtığı, Sarıkız içeriğinin 856px kayarak yaşam boyu olay zinciri ile sentetik veri dipnotuna ulaştığı doğrulandı.
+**Dokunulan dosyalar:** `mobile/app/(tabs)/pets/[id].tsx`, `mobile/app/(tabs)/pets/producer-demo.tsx`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Pamuk'ta Geri, QR, Özet, Muayene, Aşı, Reçete ve Lab hedeflerinin tamamı 44px; Sarıkız geri hedefi 44px. Lab sekmesi ve son olay kaydı erişilebilir, sabit alt navigasyon içeriği kapatmıyor. Mobil TypeScript kontrolü, Expo production web export ve son 390×844 görsel/etkileşim turu başarılı.
+**Sıradaki:** Provaları şimdilik bekletmek; yalnız demo-kritik yeni bulguları ele almak ve Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak.
+**Erol'a not (varsa):** Bu adım yalnız mevcut sentetik mobil demo ekranlarının cihaz ergonomisini iyileştirdi; yeni backend ihtiyacı çıkmadı.
 
 ### 2026-07-23 — Expo mobil demo fallback cilası
 **Yapılanlar:** Hayvanlarım ekranı Expo web mobil görünümünde canlı API açık değilken denetlendi. Pamuk ve Sarıkız demo kartları kullanılabilir olmasına rağmen sayfayı kaplayan yükleme göstergesi ile bağlantı hatasının altında “Henüz hayvan eklenmedi” mesajının birlikte görünmesi düzeltildi. Yükleme hali kompakt ve demo profillerinin kullanılabildiğini belirten bir durum kartına dönüştürüldü; bağlantı hatasında canlı kayıtlarla sentetik sunum profilleri açıkça ayrıştırıldı. Pamuk evcil hayvan ve Sarıkız üretici detayları ayrıca görsel olarak kontrol edildi, demo-kritik sorun bulunmadığı için kapsam dışı değişiklik yapılmadı.

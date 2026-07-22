@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing.md,
   },
-  backButton: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  backButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, minHeight: 44 },
   backText: { color: '#fff', fontSize: FontSize.sm, fontWeight: FontWeight.semibold },
   demoBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 5,

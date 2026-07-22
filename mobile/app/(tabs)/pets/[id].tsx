@@ -718,10 +718,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing.sm,
   },
-  heroBack: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  heroBack: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, minHeight: 44 },
   heroBackText: { fontSize: FontSize.base, color: '#fff', fontWeight: FontWeight.medium },
   heroActionBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, minHeight: 44,
     backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.full,
     paddingHorizontal: Spacing.md, paddingVertical: 6,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)',
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   tabsWrapper: { backgroundColor: '#fff', paddingVertical: Spacing.sm },
   tabsRow: { paddingHorizontal: Spacing.xl, gap: 8 },
   tabItem: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, minHeight: 44,
     paddingHorizontal: Spacing.md, paddingVertical: 8,
     borderRadius: Radius.full, borderWidth: 1.5, borderColor: Colors.border,
     backgroundColor: '#fff',
