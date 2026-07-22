@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — üretici ve belediye demo akışlarının mobil dokunma ergonomisi tamamlandı
+- **Son güncelleme:** 23 Temmuz 2026 — Expo Pamuk + Sarıkız demo fallback durumları cilalandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip 0.8 Expo mobil demo ekranlarının hata/boş durum ve görsel tutarlılık cilasını denetlemek; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
+- **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip yalnız demo-kritik yeni bulguları ele almak; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
 
 ---
 
@@ -28,7 +28,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
-| 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
+| 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları ile API kapalıyken sunum-güvenli yükleme/fallback durumları tamamlandı |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Expo mobil demo fallback cilası
+**Yapılanlar:** Hayvanlarım ekranı Expo web mobil görünümünde canlı API açık değilken denetlendi. Pamuk ve Sarıkız demo kartları kullanılabilir olmasına rağmen sayfayı kaplayan yükleme göstergesi ile bağlantı hatasının altında “Henüz hayvan eklenmedi” mesajının birlikte görünmesi düzeltildi. Yükleme hali kompakt ve demo profillerinin kullanılabildiğini belirten bir durum kartına dönüştürüldü; bağlantı hatasında canlı kayıtlarla sentetik sunum profilleri açıkça ayrıştırıldı. Pamuk evcil hayvan ve Sarıkız üretici detayları ayrıca görsel olarak kontrol edildi, demo-kritik sorun bulunmadığı için kapsam dışı değişiklik yapılmadı.
+**Dokunulan dosyalar:** `mobile/app/(tabs)/pets/index.tsx`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** `/pets` yükleme ve API-hata durumlarında Pamuk ile Sarıkız erişilebilir kalıyor; yanıltıcı boş liste mesajı gösterilmiyor. Mobil TypeScript kontrolü, Expo production web export ve 390px genişlikte yükleme/hata görsel kontrolleri başarılı.
+**Sıradaki:** Provaları şimdilik bekletmek; yalnız demo-kritik yeni bulguları ele almak ve Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak.
+**Erol'a not (varsa):** Bu cila sentetik mobil demo akışında kaldı; yeni backend ihtiyacı çıkmadı. Canlı hayvan listesi mevcut servis entegrasyon noktasından geldiğinde aynı durum ayrımı korunacak.
 
 ### 2026-07-23 — Üretici ve belediye mobil dokunma ergonomisi
 **Yapılanlar:** Üretici işletme kaydı → küpe girişi → işletmeler arası hareket → Sarıkız olay geçmişi ile belediye barınak kabulü → kısırlaştırma → sahiplendirme ilanı akışları 390×844, `hasTouch` mobil bağlamında uçtan uca çalıştırıldı. İki başlangıç eyleminin yalnız 32px olduğu tespit edildi. Başlangıç/sıfırlama, form iptal/kayıt, küpe doğrulama, barınak kabulü, kayıt açma ve ilan yayımlama eylemleri mobilde tam genişlik ve en az 44px dokunma yüksekliğine getirildi; geniş ekranda mevcut kompakt düzen korundu. Görsel kontrolde kesilen belediye başlığı mobilde “VetCep Belediye”, geniş ekranda tam ad olacak şekilde düzeltildi. Dokunma yüksekliği ve iki akışın nihai başarı durumunu koruyan kalıcı E2E testi eklendi.

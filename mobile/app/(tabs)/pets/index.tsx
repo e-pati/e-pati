@@ -34,6 +34,7 @@ export default function PetsScreen() {
   })
 
   const rawPets: ApiPet[] = data ?? []
+  const liveRecordsUnavailable = isError && rawPets.length === 0
 
   const filtered = rawPets.filter(pet => {
     const matchQuery = !query || pet.name.toLowerCase().includes(query.toLowerCase())
@@ -131,14 +132,28 @@ export default function PetsScreen() {
 
       {isError && (
         <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>API bağlantısı kurulamadı. Lütfen tekrar deneyin.</Text>
+          <Text style={styles.errorTitle}>Canlı kayıt bağlantısı şu anda kullanılamıyor</Text>
+          <Text style={styles.errorText}>
+            Pamuk ve Sarıkız sentetik demo profilleri sunum için kullanılabilir.
+          </Text>
         </View>
       )}
 
       {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>Yükleniyor...</Text>
+        <View style={styles.liveStatus}>
+          <ActivityIndicator color={Colors.primary} size="small" />
+          <View style={styles.liveStatusContent}>
+            <Text style={styles.liveStatusTitle}>Canlı kayıtlar kontrol ediliyor</Text>
+            <Text style={styles.loadingText}>Demo profilleri bu sırada kullanılabilir.</Text>
+          </View>
+        </View>
+      ) : liveRecordsUnavailable ? (
+        <View style={styles.demoReadyState}>
+          <Text style={styles.demoReadyIcon}>✓</Text>
+          <View style={styles.demoReadyContent}>
+            <Text style={styles.demoReadyTitle}>Sunum profilleri hazır</Text>
+            <Text style={styles.demoReadyText}>Devam etmek için yukarıdan Pamuk veya Sarıkız’ı seçin.</Text>
+          </View>
         </View>
       ) : (
         <FlatList
@@ -379,13 +394,35 @@ const styles = StyleSheet.create({
   errorBanner: {
     marginHorizontal: Spacing.xl, marginBottom: Spacing.md,
     backgroundColor: '#fef3cd', borderRadius: Radius.md,
-    padding: Spacing.sm, borderWidth: 1, borderColor: '#fde68a',
+    padding: Spacing.md, borderWidth: 1, borderColor: '#fde68a',
   },
-  errorText: { fontSize: FontSize.xs, color: '#92400e' },
+  errorTitle: { fontSize: FontSize.sm, color: '#78350F', fontWeight: FontWeight.bold },
+  errorText: { fontSize: FontSize.xs, color: '#92400e', lineHeight: 18, marginTop: 3 },
 
   // List
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.md },
   loadingText: { fontSize: FontSize.sm, color: Colors.textMuted },
+  liveStatus: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    marginHorizontal: Spacing.xl, marginTop: Spacing.sm,
+    borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.primaryBorder,
+    backgroundColor: '#fff', padding: Spacing.md,
+  },
+  liveStatusContent: { flex: 1 },
+  liveStatusTitle: { fontSize: FontSize.sm, color: Colors.text, fontWeight: FontWeight.semibold, marginBottom: 2 },
+  demoReadyState: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    marginHorizontal: Spacing.xl, marginTop: Spacing.sm,
+    borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.primaryBorder,
+    backgroundColor: '#fff', padding: Spacing.md,
+  },
+  demoReadyIcon: {
+    width: 34, height: 34, borderRadius: 17, textAlign: 'center', lineHeight: 34,
+    backgroundColor: Colors.primaryBg, color: Colors.primary, fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+  },
+  demoReadyContent: { flex: 1 },
+  demoReadyTitle: { fontSize: FontSize.sm, color: Colors.text, fontWeight: FontWeight.bold },
+  demoReadyText: { fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 18, marginTop: 2 },
   list: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.md, paddingBottom: 24, gap: 12 },
 
   // Card
