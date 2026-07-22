@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Header } from '@/components/layout/header'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CalendarDays, Clock3, Plus, Stethoscope, Users } from 'lucide-react'
 import { appointmentsService, type Appointment } from '@/services/appointments.service'
@@ -179,10 +179,10 @@ export default function AppointmentsPage() {
                       </button>
                     ))}
                   </div>
-                  <Button render={<Link href="/appointments/new" />} className="gap-2">
+                  <Link href="/appointments/new" className={buttonVariants({ className: 'gap-2' })}>
                     <Plus className="w-4 h-4" />
                     Yeni Randevu
-                  </Button>
+                  </Link>
                 </div>
               </div>
 
@@ -269,9 +269,12 @@ export default function AppointmentsPage() {
                       >
                         Tamamlandı İşaretle
                       </Button>
-                      <Button render={<Link href={`/appointments/${appointment.id}`} />} size="sm" variant="outline" className="mt-2 h-7 w-full">
+                      <Link
+                        href={`/appointments/${appointment.id}`}
+                        className={buttonVariants({ size: 'sm', variant: 'outline', className: 'mt-2 h-7 w-full' })}
+                      >
                         Detay
-                      </Button>
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -319,9 +322,12 @@ export default function AppointmentsPage() {
                           İptal
                         </Button>
                       </div>
-                      <Button render={<Link href={`/appointments/${appointment.id}`} />} size="sm" variant="ghost" className="mt-2 h-7 w-full">
+                      <Link
+                        href={`/appointments/${appointment.id}`}
+                        className={buttonVariants({ size: 'sm', variant: 'ghost', className: 'mt-2 h-7 w-full' })}
+                      >
                         Detay
-                      </Button>
+                      </Link>
                     </div>
                   ))}
                 </div>

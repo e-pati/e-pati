@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 22 Temmuz 2026 — portal httpOnly-cookie oturum güvenliği frontend tarafında tamamlandı
+- **Son güncelleme:** 22 Temmuz 2026 — portal link-buton erişilebilirlik semantiği düzeltildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Erol'un auth yanıt gövdesinden access token'ı kaldırması ve üretim cookie/CORS/CSRF politikasını netleştirmesi sonrası 0.1'i uçtan uca kapatmak
+- **Sıradaki adım:** Erol'un 0.1 auth kapanışını beklerken gerçek veteriner oturumundaki bildirim 403 sözleşme uyumsuzluğunu frontend/backend rol kapsamıyla teşhis etmek
 
 ---
 
@@ -52,6 +52,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-22 — Link-buton erişilebilirlik semantiği
+**Yapılanlar:** Base UI `Button` bileşenine Next `Link` render eden 13 kullanım kaldırıldı. Randevu listesi/detayı, abonelik sonuçları, abonelik guard'ı ve admin klinik detayındaki navigasyon eylemleri gerçek `<a>` öğeleri olarak bırakılıp ortak `buttonVariants` ile görsel olarak butonlaştırıldı. Böylece Base UI native-button uyarısı giderilirken klavye ve ekran okuyucu link semantiği korundu. Anchor etiketi, `href` değerleri ve konsol uyarısının yokluğu için Playwright regresyon testi eklendi.
+**Dokunulan dosyalar:** `portal/src/app/(admin)/admin/clinics/[id]/page.tsx`, `portal/src/app/(dashboard)/appointments/page.tsx`, `portal/src/app/(dashboard)/appointments/[id]/page.tsx`, `portal/src/app/(dashboard)/billing/success/page.tsx`, `portal/src/app/(dashboard)/billing/cancel/page.tsx`, `portal/src/components/shared/subscription-guard.tsx`, `portal/tests/product-flows.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Yeni Randevu, randevu detay, Kliniklere Dön, ödeme sonucu ve abonelik navigasyonları gerçek link olarak çalışıyor; native `<button>` konsol uyarısı yok. Hedef ürün testleri 8/8, tam Playwright turu 46 geçti/1 prod smoke atlandı; lint ve production build başarılı.
+**Sıradaki:** Gerçek veteriner oturumunda sidebar ve bildirim ekranının aldığı 403 yanıtını rol/endpoint sözleşmesi açısından teşhis edip frontend işi ile Erol işi arasındaki sınırı çıkarmak.
+**Erol'a not (varsa):** Bu adımda backend ihtiyacı yok. 0.1 için önceki access-token yanıt gövdesi, production cookie/CORS/CSRF ve Redis secret notları geçerliliğini koruyor.
 
 ### 2026-07-22 — Portal httpOnly-cookie oturum güvenliği
 **Yapılanlar:** Zustand auth store'un localStorage persist katmanı kaldırıldı. Klinik ve admin layout'ları, içerik göstermeden önce `/auth/me` üzerinden gerçek httpOnly-cookie oturumunu doğrulayan ortak `AuthGuard` ile korundu. 401 interceptor'ında eşzamanlı refresh istekleri tek promise altında birleştirildi; başarısız refresh merkezi oturum-sonlandı olayıyla marker ve store'u temizliyor. Login güvenli `next` yönlendirmesini destekler hale getirildi; logout backend erişilemese de yerel oturumu kapatıyor. Korumalı ekran testleri localStorage taklidi yerine mock `/auth/me` sözleşmesine taşındı.

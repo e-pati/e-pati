@@ -40,4 +40,30 @@ test.describe('Ürün akışları', () => {
     await expect(page).toHaveURL(/\/admin\/clinics\/test-clinic/)
     await expect(page.getByText(/Klinik detayı|Admin klinik detay servisi|Klinik detayı yükleniyor/).first()).toBeVisible({ timeout: 10000 })
   })
+
+  test('link görünümlü butonlar anchor semantiğini korumalı', async ({ page }) => {
+    const baseUiWarnings: string[] = []
+    page.on('console', message => {
+      if (message.type() === 'warning' && message.text().includes('expected a native <button>')) {
+        baseUiWarnings.push(message.text())
+      }
+    })
+
+    await setLoggedIn(page)
+
+    await page.goto('/appointments')
+    const newAppointmentLink = page.getByRole('link', { name: 'Yeni Randevu' })
+    await expect(newAppointmentLink).toHaveAttribute('href', '/appointments/new')
+    await expect(newAppointmentLink).toHaveJSProperty('tagName', 'A')
+
+    await page.goto('/admin/clinics/test-clinic')
+    const backToClinicsLink = page.getByRole('link', { name: 'Kliniklere Dön' })
+    await expect(backToClinicsLink).toHaveAttribute('href', '/admin/clinics')
+    await expect(backToClinicsLink).toHaveJSProperty('tagName', 'A')
+
+    await page.goto('/billing/success')
+    await expect(page.getByRole('link', { name: 'Panele Dön' })).toHaveAttribute('href', '/dashboard')
+
+    expect(baseUiWarnings).toEqual([])
+  })
 })

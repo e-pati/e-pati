@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Header } from '@/components/layout/header'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { appointmentsService, type Appointment } from '@/services/appointments.service'
 import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, PawPrint, Pencil, Phone, Stethoscope, UserRound, XCircle } from 'lucide-react'
@@ -95,10 +95,10 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
       <Header title="Randevu Detayı" subtitle="Klinik randevu bilgileri ve durum aksiyonları" />
 
       <div className="p-6 space-y-6">
-        <Button render={<Link href="/appointments" />} variant="outline" className="gap-2">
+        <Link href="/appointments" className={buttonVariants({ variant: 'outline', className: 'gap-2' })}>
           <ArrowLeft className="w-4 h-4" />
           Randevulara Dön
-        </Button>
+        </Link>
 
         {appointmentQuery.isError && (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -156,10 +156,13 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                 <CardContent className="p-5">
                   <h2 className="text-sm font-semibold text-foreground">Durum aksiyonları</h2>
                   <div className="mt-4 space-y-2">
-                    <Button render={<Link href={`/appointments/${appointment.id}/edit`} />} className="w-full gap-2" variant="outline">
+                    <Link
+                      href={`/appointments/${appointment.id}/edit`}
+                      className={buttonVariants({ variant: 'outline', className: 'w-full gap-2' })}
+                    >
                       <Pencil className="w-4 h-4" />
                       Randevuyu Düzenle
-                    </Button>
+                    </Link>
                     {appointment.status === 'pending' && (
                       <Button
                         className="w-full gap-2"
@@ -193,9 +196,12 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                       </Button>
                     )}
                     {appointment.petId && (
-                      <Button render={<Link href={`/patients/${appointment.petId}`} />} className="w-full" variant="ghost">
+                      <Link
+                        href={`/patients/${appointment.petId}`}
+                        className={buttonVariants({ variant: 'ghost', className: 'w-full' })}
+                      >
                         Hasta Kartını Aç
-                      </Button>
+                      </Link>
                     )}
                   </div>
                 </CardContent>

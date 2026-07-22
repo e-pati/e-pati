@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AlertTriangle, CreditCard, LockKeyhole } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { isSubscriptionUsable, useSubscription } from '@/hooks/use-subscription'
 
 const allowedWhenBlocked = ['/billing', '/settings', '/notifications']
@@ -38,13 +38,13 @@ export function SubscriptionGuard({ children }: { children: React.ReactNode }) {
           Durum: {subscription.status}
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button render={<Link href="/billing" />} className="gap-2">
+          <Link href="/billing" className={buttonVariants({ className: 'gap-2' })}>
             <CreditCard className="h-4 w-4" />
             Aboneliği Aktifleştir
-          </Button>
-          <Button render={<Link href="/settings" />} variant="outline">
+          </Link>
+          <Link href="/settings" className={buttonVariants({ variant: 'outline' })}>
             Ayarlara Git
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { AlertTriangle, CreditCard, RotateCcw } from 'lucide-react'
 
@@ -32,13 +32,13 @@ export default function BillingCancelPage() {
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Button render={<Link href="/billing/checkout" />} className="gap-2">
+              <Link href="/billing/checkout" className={buttonVariants({ className: 'gap-2' })}>
                 <CreditCard className="h-4 w-4" />
                 Tekrar Dene
-              </Button>
-              <Button render={<Link href="/billing" />} variant="outline">
+              </Link>
+              <Link href="/billing" className={buttonVariants({ variant: 'outline' })}>
                 Aboneliğe Dön
-              </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
