@@ -1,31 +1,22 @@
 import { test, expect } from '@playwright/test'
-
-async function setLoggedIn(page: any) {
-  await page.goto('/login')
-  await page.context().addCookies([{
-    name: 'epati-logged-in',
-    value: '1',
-    domain: 'localhost',
-    path: '/',
-  }])
-}
+import { mockAuthenticatedSession } from './helpers/auth'
 
 test.describe('Muayene Formu', () => {
   test('/examinations/new sayfası yüklenmeli', async ({ page }) => {
-    await setLoggedIn(page)
+    await mockAuthenticatedSession(page)
     await page.goto('/examinations/new')
     await expect(page).toHaveURL(/\/examinations\/new/)
     await expect(page.locator('form').filter({ hasText: 'Hasta Seçimi' })).toBeVisible({ timeout: 10000 })
   })
 
   test('submit butonu var olmalı', async ({ page }) => {
-    await setLoggedIn(page)
+    await mockAuthenticatedSession(page)
     await page.goto('/examinations/new')
     await expect(page.locator('button[type="submit"]')).toBeVisible({ timeout: 10000 })
   })
 
   test('hasta seçilmeden form hata vermeli', async ({ page }) => {
-    await setLoggedIn(page)
+    await mockAuthenticatedSession(page)
     await page.goto('/examinations/new')
     await page.locator('button[type="submit"]').click()
     await expect(
@@ -36,14 +27,14 @@ test.describe('Muayene Formu', () => {
 
 test.describe('Dashboard', () => {
   test('dashboard yüklenmeli', async ({ page }) => {
-    await setLoggedIn(page)
+    await mockAuthenticatedSession(page)
     await page.goto('/dashboard')
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
     await expect(page.locator('main, [role="main"]').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('dashboard sayfasında içerik görünmeli', async ({ page }) => {
-    await setLoggedIn(page)
+    await mockAuthenticatedSession(page)
     await page.goto('/dashboard')
     // Stat kartları veya herhangi bir ana içerik yüklenmeli
     await expect(
@@ -63,7 +54,7 @@ test.describe('Sayfalar erişilebilir', () => {
 
   for (const { path } of pages) {
     test(`${path} sayfası yüklenmeli`, async ({ page }) => {
-      await setLoggedIn(page)
+      await mockAuthenticatedSession(page)
       await page.goto(path)
       await expect(page).toHaveURL(new RegExp(path))
       await expect(page.locator('body')).toBeVisible()

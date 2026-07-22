@@ -5,12 +5,14 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { Menu } from 'lucide-react'
 import { SubscriptionBanner } from '@/components/shared/subscription-banner'
 import { SubscriptionGuard } from '@/components/shared/subscription-guard'
+import { AuthGuard } from '@/components/auth/auth-guard'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC]">
+    <AuthGuard>
+      <div className="flex h-screen bg-[#F8FAFC]">
       {/* Mobil overlay */}
       {sidebarOpen && (
         <div
@@ -45,6 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SubscriptionBanner />
         <SubscriptionGuard>{children}</SubscriptionGuard>
       </main>
-    </div>
+      </div>
+    </AuthGuard>
   )
 }

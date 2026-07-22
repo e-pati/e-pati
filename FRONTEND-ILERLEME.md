@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 22 Temmuz 2026 — 25 dakikalık konuşmacı ve zor soru prova paketi tamamlandı
+- **Son güncelleme:** 22 Temmuz 2026 — portal httpOnly-cookie oturum güvenliği frontend tarafında tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Konuşma metniyle ilk insan anlatımlı 25 dakikalık provayı yapmak, bölüm sürelerini forma kaydetmek ve yalnızca prova bulgularını düzeltmek
+- **Sıradaki adım:** Erol'un auth yanıt gövdesinden access token'ı kaldırması ve üretim cookie/CORS/CSRF politikasını netleştirmesi sonrası 0.1'i uçtan uca kapatmak
 
 ---
 
@@ -23,7 +23,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 | # | Görev | Sorumlu | Durum | Not |
 |---|---|---|---|---|
-| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⬜ | 0.1'in ana sahibi Erol; portal tarafı Burak'ta |
+| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard ve tekilleştirilmiş refresh eklendi; backend yanıt gövdesindeki access token ve üretim cookie politikası Erol'da |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, iki işletme arası hareket ve olay geçmişi tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost için barınak kabulü, kısırlaştırma kaydı ve yayımlanan sahiplendirme ilanı tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
@@ -33,6 +33,8 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
+- 0.1 güvenlik kapanışı için `login`, `clinic/login`, `verify-otp` ve `refresh` yanıt gövdelerinden `accessToken` kaldırılmalı; token yalnızca httpOnly cookie ile taşınmalı.
+- Üretim için portal/API originleri, `CORS_ORIGINS`, cookie `Secure`/`SameSite`/`Domain` ayarları ve cookie tabanlı auth için CSRF/Origin doğrulama politikası birlikte netleştirilmeli. Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındadır.
 
 ---
 
@@ -50,6 +52,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-22 — Portal httpOnly-cookie oturum güvenliği
+**Yapılanlar:** Zustand auth store'un localStorage persist katmanı kaldırıldı. Klinik ve admin layout'ları, içerik göstermeden önce `/auth/me` üzerinden gerçek httpOnly-cookie oturumunu doğrulayan ortak `AuthGuard` ile korundu. 401 interceptor'ında eşzamanlı refresh istekleri tek promise altında birleştirildi; başarısız refresh merkezi oturum-sonlandı olayıyla marker ve store'u temizliyor. Login güvenli `next` yönlendirmesini destekler hale getirildi; logout backend erişilemese de yerel oturumu kapatıyor. Korumalı ekran testleri localStorage taklidi yerine mock `/auth/me` sözleşmesine taşındı.
+**Dokunulan dosyalar:** `portal/src/lib/auth-session.ts`, `portal/src/lib/api.ts`, `portal/src/services/auth.service.ts`, `portal/src/stores/auth.store.ts`, `portal/src/components/auth/auth-guard.tsx`, `portal/src/app/(dashboard)/layout.tsx`, `portal/src/app/(admin)/admin/layout.tsx`, `portal/src/app/(auth)/login/page.tsx`, `portal/src/proxy.ts`, `portal/tests/helpers/auth.ts`, `portal/tests/auth.spec.ts`, `portal/tests/patients.spec.ts`, `portal/tests/examination.spec.ts`, `portal/tests/product-flows.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Gerçek backend ile klinik login → dashboard → sayfa yenileme → `/auth/me` doğrulama → logout geçti. Access ve refresh cookie'leri httpOnly, portal marker'ı hassas olmayan navigasyon işareti ve `epati-auth` localStorage kaydı yok. Lint ve production build başarılı; tam Playwright turunda 45 test geçti, environment gerektiren 1 prod smoke testi atlandı.
+**Sıradaki:** Erol backend auth yanıtlarından access token gövdesini kaldırdıktan ve üretim cookie/CORS/CSRF politikasını netleştirdikten sonra gerçek ortam smoke testiyle 0.1'i ✅ yapmak.
+**Erol'a not (varsa):** `AuthController.withoutRefreshToken()` halen `{ accessToken, user }` dönüyor. `login`, `clinic/login`, `verify-otp` ve `refresh` yanıtlarında yalnızca kullanıcı/oturum metadatası dönmeli; access/refresh token yalnızca httpOnly cookie'de kalmalı. Üretim CORS originleri ve CSRF/Origin koruması da cookie ayarlarıyla birlikte doğrulanmalı. Redis secret rotasyonu/geçmiş temizliği backend sorumluluğunda devam ediyor.
 
 ### 2026-07-22 — Konuşmacı metni ve düşmanca soru prova paketi
 **Yapılanlar:** Yedi demo bölümünü 25 dakikalık kumandayla birebir eşleyen konuşmacı metni hazırlandı. Her bölüm için söylenecek ana mesaj, canlı tıklama sırası, geçiş cümlesi, zorunlu dürüstlük ifadesi ve süre kurtarma noktası tanımlandı. Toplantı süresinin kısalması için 20 dakikalık alternatif rota, on muhtemel Bakanlık sorusuna 30–45 saniyelik cevaplar ve prova değerlendirme formu eklendi. Teknik runbook'tan konuşma metnine bağlantı verildi.
