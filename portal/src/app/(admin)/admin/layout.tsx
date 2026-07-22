@@ -1,10 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { BarChart3, Building2, LayoutDashboard, PawPrint, ShieldCheck, WalletCards } from 'lucide-react'
-import { useAuthStore } from '@/stores/auth.store'
+import { AuthGuard } from '@/components/auth/auth-guard'
 import { cn } from '@/lib/utils'
 
 const adminNav = [
@@ -14,37 +13,11 @@ const adminNav = [
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
   const pathname = usePathname()
-  const user = useAuthStore(s => s.user)
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN'
-
-  useEffect(() => {
-    if (user && !isSuperAdmin) router.replace('/dashboard')
-  }, [isSuperAdmin, router, user])
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
-        <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 text-sm text-muted-foreground">
-          Oturum bilgisi yükleniyor...
-        </div>
-      </div>
-    )
-  }
-
-  if (!isSuperAdmin) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6">
-        <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 text-sm text-muted-foreground">
-          Admin yetkisi gerekli. Panele yönlendiriliyorsunuz...
-        </div>
-      </div>
-    )
-  }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <AuthGuard allowedRoles={['SUPER_ADMIN']}>
+      <div className="min-h-screen bg-[#F8FAFC]">
       <header className="h-16 border-b border-gray-100 bg-white sticky top-0 z-20">
         <div className="h-full px-6 flex items-center justify-between">
           <Link href="/admin/dashboard" className="flex items-center gap-3">
@@ -111,6 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <ShieldCheck className="w-3.5 h-3.5 text-primary" />
         SUPER_ADMIN
       </div>
-    </div>
+      </div>
+    </AuthGuard>
   )
 }

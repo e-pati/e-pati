@@ -1,27 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
+import { mockAuthenticatedSession, superAdminUser } from './helpers/auth'
 
 async function setLoggedIn(page: Page) {
-  await page.goto('/login')
-  await page.context().addCookies([{
-    name: 'epati-logged-in',
-    value: '1',
-    domain: 'localhost',
-    path: '/',
-  }])
-  await page.evaluate(() => {
-    localStorage.setItem('epati-auth', JSON.stringify({
-      state: {
-        user: {
-          id: 'super-admin-test',
-          email: 'admin@vetcep.test',
-          fullName: 'VetCep Admin',
-          role: 'SUPER_ADMIN',
-        },
-        isAuthenticated: true,
-      },
-      version: 0,
-    }))
-  })
+  await mockAuthenticatedSession(page, superAdminUser)
 }
 
 test.describe('Ürün akışları', () => {

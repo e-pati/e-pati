@@ -41,7 +41,12 @@ export default function LoginPage() {
     try {
       const res = await authService.loginClinic(data.email, data.password)
       setUser(res.user)
-      router.push(res.user.role === 'SUPER_ADMIN' ? '/admin/dashboard' : '/dashboard')
+      const requestedPath = new URLSearchParams(window.location.search).get('next')
+      const safeRequestedPath = requestedPath?.startsWith('/') && !requestedPath.startsWith('//')
+        ? requestedPath
+        : undefined
+      const defaultPath = res.user.role === 'SUPER_ADMIN' ? '/admin/dashboard' : '/dashboard'
+      router.push(safeRequestedPath ?? defaultPath)
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)
         ? err.response?.data?.message

@@ -19,12 +19,14 @@ export function proxy(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some(p => p === '/' ? pathname === '/' : pathname.startsWith(p))
   const isAuthPage = AUTH_PATHS.some(path => pathname.startsWith(path))
 
-  // Access token API domaininde httpOnly cookie olarak durur.
-  // Portal tarafında route guard için hassas olmayan oturum işareti kullanılır.
-  const isAuthCookie = request.cookies.get('epati-logged-in')
+  // Bu işaret yalnızca erken navigasyon optimizasyonudur, yetkilendirme değildir.
+  // Korumalı layout her açılışta API'deki httpOnly cookie'yi /auth/me ile doğrular.
+  const isAuthCookie = request.cookies.get('epati-logged-in')?.value === '1'
 
   if (!isPublic && !isAuthCookie) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   // Vatandaş demo ekranı ve uygulama sayfası, klinik oturumu açık olsa bile

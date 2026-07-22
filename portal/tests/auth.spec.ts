@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { clinicUser, superAdminUser } from './helpers/auth'
 
 test.describe('Auth', () => {
   test('ana sayfa public landing olarak yüklenmeli', async ({ page }) => {
@@ -60,10 +61,15 @@ test.describe('Auth', () => {
         body: JSON.stringify({
           accessToken: 'mock-access-token',
           refreshToken: 'mock-refresh-token',
-          user: { id: 'admin-1', email: 'admin@vetcep.test', fullName: 'VetCep Admin', role: 'SUPER_ADMIN' },
+          user: superAdminUser,
         }),
       })
     })
+    await page.route('**/auth/me', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(superAdminUser),
+    }))
 
     await page.goto('/login')
     await expect(page.locator('input[type="email"]')).toBeVisible({ timeout: 15000 })
@@ -76,6 +82,105 @@ test.describe('Auth', () => {
     // Kullanıcı login'den çıkmış mı (admin dashboard veya başka sayfaya gitmiş)
     const url = page.url()
     expect(url).not.toContain('/login')
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('epati-auth'))).toBeNull()
+  })
+
+  test('korumalı sayfa açılışında httpOnly oturumu /auth/me ile doğrulamalı', async ({ page }) => {
+    let meCallCount = 0
+    await page.route('**/auth/me', route => {
+      meCallCount += 1
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(clinicUser),
+      })
+    })
+    await page.context().addCookies([{
+      name: 'epati-logged-in',
+      value: '1',
+      domain: 'localhost',
+      path: '/',
+      sameSite: 'Lax',
+    }])
+
+    await page.goto('/dashboard')
+    await expect(page.getByText('Dr. Test Veteriner').first()).toBeVisible({ timeout: 10000 })
+    expect(meCallCount).toBe(1)
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('epati-auth'))).toBeNull()
+  })
+
+  test('401 sonrası refresh yapıp başarısız isteği bir kez tekrarlamalı', async ({ page }) => {
+    let meCallCount = 0
+    let refreshCallCount = 0
+
+    await page.route('**/auth/me', route => {
+      meCallCount += 1
+      return route.fulfill({
+        status: meCallCount === 1 ? 401 : 200,
+        contentType: 'application/json',
+        body: JSON.stringify(meCallCount === 1 ? { message: 'Token expired' } : clinicUser),
+      })
+    })
+    await page.route('**/auth/refresh', route => {
+      refreshCallCount += 1
+      return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
+    })
+    await page.context().addCookies([{
+      name: 'epati-logged-in', value: '1', domain: 'localhost', path: '/', sameSite: 'Lax',
+    }])
+
+    await page.goto('/dashboard')
+    await expect(page.getByText('Dr. Test Veteriner').first()).toBeVisible({ timeout: 10000 })
+    expect(refreshCallCount).toBe(1)
+    expect(meCallCount).toBe(2)
+  })
+
+  test('refresh başarısızsa istemci oturumunu temizleyip login sayfasına dönmeli', async ({ page }) => {
+    await page.route('**/auth/me', route => route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: JSON.stringify({ message: 'Token expired' }),
+    }))
+    await page.route('**/auth/refresh', route => route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: JSON.stringify({ message: 'Refresh expired' }),
+    }))
+    await page.context().addCookies([{
+      name: 'epati-logged-in', value: '1', domain: 'localhost', path: '/', sameSite: 'Lax',
+    }])
+
+    await page.goto('/patients')
+    await expect(page).toHaveURL(/\/login\?next=%2Fpatients/, { timeout: 10000 })
+    const marker = await page.context().cookies().then(cookies => (
+      cookies.find(cookie => cookie.name === 'epati-logged-in')
+    ))
+    expect(marker).toBeUndefined()
+  })
+
+  test('çıkış backend erişiminden bağımsız olarak yerel oturumu temizlemeli', async ({ page }) => {
+    await page.route('**/auth/me', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(clinicUser),
+    }))
+    await page.route('**/auth/logout', route => route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ message: 'Service unavailable' }),
+    }))
+    await page.context().addCookies([{
+      name: 'epati-logged-in', value: '1', domain: 'localhost', path: '/', sameSite: 'Lax',
+    }])
+
+    await page.goto('/dashboard')
+    await page.getByRole('button', { name: /Dr\. Test Veteriner/ }).click()
+
+    await expect(page).toHaveURL(/\/login$/, { timeout: 10000 })
+    const marker = await page.context().cookies().then(cookies => (
+      cookies.find(cookie => cookie.name === 'epati-logged-in')
+    ))
+    expect(marker).toBeUndefined()
   })
 
   test('VetCep başlığı görünür olmalı', async ({ page }) => {

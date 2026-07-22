@@ -1,24 +1,22 @@
 'use client'
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import type { AuthUser } from '@/services/auth.service'
+
+export type AuthStatus = 'idle' | 'checking' | 'authenticated' | 'unauthenticated'
 
 interface AuthStore {
   user: AuthUser | null
-  isAuthenticated: boolean
+  status: AuthStatus
+  setChecking: () => void
   setUser: (user: AuthUser) => void
   clearUser: () => void
 }
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    set => ({
-      user: null,
-      isAuthenticated: false,
-      setUser: user => set({ user, isAuthenticated: true }),
-      clearUser: () => set({ user: null, isAuthenticated: false }),
-    }),
-    { name: 'epati-auth' },
-  ),
-)
+export const useAuthStore = create<AuthStore>()(set => ({
+  user: null,
+  status: 'idle',
+  setChecking: () => set({ status: 'checking' }),
+  setUser: user => set({ user, status: 'authenticated' }),
+  clearUser: () => set({ user: null, status: 'unauthenticated' }),
+}))
