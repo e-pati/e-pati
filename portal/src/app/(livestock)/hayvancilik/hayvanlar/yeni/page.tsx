@@ -89,9 +89,9 @@ export default function NewLivestockAnimalPage() {
               <Field label="Cinsiyet"><Input {...register('sex')} /></Field>
               <Field label="Üretim amacı"><Input {...register('purpose')} /></Field>
               <Field label="Giriş yapılacak işletme"><Input value={sourceEnterprise.name} readOnly className="bg-slate-50" /></Field>
-              <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5 sm:col-span-2">
-                <Link href="/hayvancilik" className={buttonVariants({ variant: 'outline' })}>İptal</Link>
-                <Button type="submit" disabled={isSubmitting} className="bg-emerald-700 hover:bg-emerald-800">
+              <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:col-span-2 sm:flex-row sm:justify-end">
+                <Link href="/hayvancilik" className={buttonVariants({ variant: 'outline', className: 'h-11 w-full sm:w-auto' })}>İptal</Link>
+                <Button type="submit" disabled={isSubmitting} className="h-11 w-full bg-emerald-700 hover:bg-emerald-800 sm:w-auto">
                   <ScanLine className="size-4" /> Küpeyi doğrula ve ilerle
                 </Button>
               </div>

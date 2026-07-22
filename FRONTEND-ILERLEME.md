@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Faz 0 mobil responsive dayanıklılık ve vatandaş demo geçişi cilalandı
+- **Son güncelleme:** 23 Temmuz 2026 — üretici ve belediye demo akışlarının mobil dokunma ergonomisi tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Güncel build ile kronometreli insan provası yapmak; Erol'un klinik bildirim ve 0.1 auth sözleşmelerini tamamlamasının ardından gerçek servis entegrasyonlarını doğrulamak
+- **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip 0.8 Expo mobil demo ekranlarının hata/boş durum ve görsel tutarlılık cilasını denetlemek; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
 
 ---
 
@@ -24,12 +24,12 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | # | Görev | Sorumlu | Durum | Not |
 |---|---|---|---|---|
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard ve tekilleştirilmiş refresh eklendi; backend yanıt gövdesindeki access token ve üretim cookie politikası Erol'da |
-| 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, iki işletme arası hareket ve olay geçmişi tamamlandı |
-| 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost için barınak kabulü, kısırlaştırma kaydı ve yayımlanan sahiplendirme ilanı tamamlandı |
+| 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
+| 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
-| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik prova geçti; 7 bölümlük kumanda, gerçek Misket klinik akışı ve 13 rotalık mobil taşma/runtime regresyonu doğrulandı |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Üretici ve belediye mobil dokunma ergonomisi
+**Yapılanlar:** Üretici işletme kaydı → küpe girişi → işletmeler arası hareket → Sarıkız olay geçmişi ile belediye barınak kabulü → kısırlaştırma → sahiplendirme ilanı akışları 390×844, `hasTouch` mobil bağlamında uçtan uca çalıştırıldı. İki başlangıç eyleminin yalnız 32px olduğu tespit edildi. Başlangıç/sıfırlama, form iptal/kayıt, küpe doğrulama, barınak kabulü, kayıt açma ve ilan yayımlama eylemleri mobilde tam genişlik ve en az 44px dokunma yüksekliğine getirildi; geniş ekranda mevcut kompakt düzen korundu. Görsel kontrolde kesilen belediye başlığı mobilde “VetCep Belediye”, geniş ekranda tam ad olacak şekilde düzeltildi. Dokunma yüksekliği ve iki akışın nihai başarı durumunu koruyan kalıcı E2E testi eklendi.
+**Dokunulan dosyalar:** `portal/src/app/(livestock)/hayvancilik/page.tsx`, `portal/src/app/(livestock)/hayvancilik/isletmeler/yeni/page.tsx`, `portal/src/app/(livestock)/hayvancilik/hayvanlar/yeni/page.tsx`, `portal/src/app/(municipality)/belediye/layout.tsx`, `portal/src/app/(municipality)/belediye/page.tsx`, `portal/src/app/(municipality)/belediye/barinak-giris/page.tsx`, `portal/src/app/(municipality)/belediye/sahiplendirme/yeni/page.tsx`, `portal/tests/demo-touch.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Üretici ve belediye mobil senaryoları gerçek touch bağlamında eksiksiz tamamlanıyor; birincil eylemler 44px veya daha yüksek. Responsive + touch hedef paketi 15/15, tam Playwright turu 63 geçti/1 environment testi atlandı; lint ve production build başarılı.
+**Sıradaki:** Prova çalışmalarını şimdilik bekletip Expo mobil demo ekranlarında yalnız mevcut Pamuk + Sarıkız senaryosunun hata/boş durum ve görsel tutarlılık cilasını denetlemek.
+**Erol'a not (varsa):** Bu adım tamamen sentetik frontend demo akışında kaldı; yeni backend ihtiyacı çıkmadı. Klinik bildirim ve httpOnly-cookie auth kapanış notları geçerli.
 
 ### 2026-07-23 — Faz 0 mobil dayanıklılık ve vatandaş geçiş cilası
 **Yapılanlar:** Faz 0'ın vatandaş, sunum kumandası, üretici, belediye ve Bakanlık yüzeyleri 390×844 mobil ve 1440×1000 masaüstü görünümlerde denetlendi. e-Devlet demo girişinden sonraki `source=edevlet-demo` parametresinin yok sayıldığı ve genel indirme sayfasında yayımlanmamış uygulama için mağaza linkleri gösterildiği tespit edildi. Demo kaynağına özel olarak gerçek doğrulama/veri aktarımı yapılmadığını açıklayan başarı durumu, Pamuk + Sarıkız mobil senaryo özeti ve sunum akışına dönüş eklendi; App Store, Google Play ve placeholder portal bağlantıları demo modunda kaldırıldı. On üç Faz 0 rotasında mobil yatay taşma ve çalışma zamanı hatası kontrolü yapan kalıcı Playwright regresyonu eklendi.
