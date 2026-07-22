@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 22 Temmuz 2026 — veteriner bildirim 403 rol sözleşmesi düzeltildi
+- **Son güncelleme:** 23 Temmuz 2026 — Faz 0 mobil responsive dayanıklılık ve vatandaş demo geçişi cilalandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Erol'un klinik kapsamlı bildirim endpoint sözleşmesini ve 0.1 auth kapanışını tamamlamasının ardından gerçek servis entegrasyonlarını doğrulamak
+- **Sıradaki adım:** Güncel build ile kronometreli insan provası yapmak; Erol'un klinik bildirim ve 0.1 auth sözleşmelerini tamamlamasının ardından gerçek servis entegrasyonlarını doğrulamak
 
 ---
 
@@ -27,9 +27,9 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, iki işletme arası hareket ve olay geçmişi tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost için barınak kabulü, kısırlaştırma kaydı ve yayımlanan sahiplendirme ilanı tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
-| 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi ve mobil deneyime yönlendirme tamamlandı |
+| 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları tamamlandı |
-| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik prova geçti; 7 bölümlük kumanda, gerçek Misket klinik akışı ve 10/10 Faz 0 tarayıcı testi doğrulandı |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik prova geçti; 7 bölümlük kumanda, gerçek Misket klinik akışı ve 13 rotalık mobil taşma/runtime regresyonu doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Faz 0 mobil dayanıklılık ve vatandaş geçiş cilası
+**Yapılanlar:** Faz 0'ın vatandaş, sunum kumandası, üretici, belediye ve Bakanlık yüzeyleri 390×844 mobil ve 1440×1000 masaüstü görünümlerde denetlendi. e-Devlet demo girişinden sonraki `source=edevlet-demo` parametresinin yok sayıldığı ve genel indirme sayfasında yayımlanmamış uygulama için mağaza linkleri gösterildiği tespit edildi. Demo kaynağına özel olarak gerçek doğrulama/veri aktarımı yapılmadığını açıklayan başarı durumu, Pamuk + Sarıkız mobil senaryo özeti ve sunum akışına dönüş eklendi; App Store, Google Play ve placeholder portal bağlantıları demo modunda kaldırıldı. On üç Faz 0 rotasında mobil yatay taşma ve çalışma zamanı hatası kontrolü yapan kalıcı Playwright regresyonu eklendi.
+**Dokunulan dosyalar:** `portal/src/app/get-app/page.tsx`, `portal/tests/citizen-login.spec.ts`, `portal/tests/demo-responsive.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Vatandaş girişi → mobil demo geçişi açık simülasyon diliyle çalışıyor; evcil ve üretim hayvanı kapsamı görünür. Hedef testler 15/15, tam Playwright turu 61 geçti/1 environment testi atlandı; lint ve production build başarılı. Denetlenen 13 mobil demo rotasında yatay taşma veya page error yok.
+**Sıradaki:** Güncel build ile 25 dakikalık kronometreli insan provası yapmak; yalnız sunumu engelleyen yeni bulgu çıkarsa düzeltmek. Erol'un klinik bildirim ve 0.1 auth işlerini ayrı sözleşme turunda doğrulamak.
+**Erol'a not (varsa):** Bu adımda yeni backend ihtiyacı çıkmadı. Önceki klinik bildirim endpoint'i ve httpOnly-cookie auth kapanış notları geçerliliğini koruyor.
 
 ### 2026-07-22 — Veteriner bildirim 403 rol sözleşmesi
 **Yapılanlar:** Veteriner oturumunda oluşan 403'ün kaynağı, backend `/notifications` servisinin yalnızca `OWNER` rolünü kabul etmesine rağmen portalın tüm klinik rollerinde bu endpoint'i çağırması olarak doğrulandı. Sidebar ve bildirim ekranı owner bildirim sorgusunu yalnızca `OWNER` için çalıştıracak hale getirildi; sorgu anahtarına kullanıcı kimliği eklenerek kullanıcılar arası cache sızıntısı önlendi. Backend'in `body`, `payload` ve `status` alanları portalın `message`, `type` ve `isRead` modeline normalize edildi. Klinik kullanıcılarına hatalı istek yerine entegrasyon durumunu dürüstçe açıklayan temiz bir bilgi ekranı eklendi.

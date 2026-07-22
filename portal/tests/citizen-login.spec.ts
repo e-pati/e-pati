@@ -18,6 +18,12 @@ test.describe('Vatandaş demo girişi', () => {
     await page.getByRole('button', { name: 'e-Devlet ile Giriş Yap' }).click()
 
     await expect(page).toHaveURL('/get-app?source=edevlet-demo')
+    await expect(page.getByText('Vatandaş girişi tamamlandı · Simülasyon')).toBeVisible()
+    await expect(page.getByText('Pamuk ve Sarıkız kayıt senaryosu')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Hayvan kayıtlarınız her zaman yanınızda' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /App Store/ })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Google Play/ })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /e-pati-portal/ })).toHaveCount(0)
   })
 
   test('klinik oturumu açıkken de demo route erişilebilir kalır', async ({ context, page }) => {
