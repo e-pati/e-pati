@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 22 Temmuz 2026 — portal link-buton erişilebilirlik semantiği düzeltildi
+- **Son güncelleme:** 22 Temmuz 2026 — veteriner bildirim 403 rol sözleşmesi düzeltildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Erol'un 0.1 auth kapanışını beklerken gerçek veteriner oturumundaki bildirim 403 sözleşme uyumsuzluğunu frontend/backend rol kapsamıyla teşhis etmek
+- **Sıradaki adım:** Erol'un klinik kapsamlı bildirim endpoint sözleşmesini ve 0.1 auth kapanışını tamamlamasının ardından gerçek servis entegrasyonlarını doğrulamak
 
 ---
 
@@ -35,6 +35,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
 - 0.1 güvenlik kapanışı için `login`, `clinic/login`, `verify-otp` ve `refresh` yanıt gövdelerinden `accessToken` kaldırılmalı; token yalnızca httpOnly cookie ile taşınmalı.
 - Üretim için portal/API originleri, `CORS_ORIGINS`, cookie `Secure`/`SameSite`/`Domain` ayarları ve cookie tabanlı auth için CSRF/Origin doğrulama politikası birlikte netleştirilmeli. Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındadır.
+- Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi gerekiyor. `VETERINARIAN` ve `CLINIC_ADMIN` yetkileri desteklenmeli; `SUPER_ADMIN` davranışı netleştirilmeli. Yanıt modeli `id`, `type`, `title`, `message`, `createdAt` ve `readAt` alanlarıyla belgelenmeli veya mevcut `body`/`payload`/`status` şekli sabit sözleşme olarak paylaşılmalı.
 
 ---
 
@@ -52,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-22 — Veteriner bildirim 403 rol sözleşmesi
+**Yapılanlar:** Veteriner oturumunda oluşan 403'ün kaynağı, backend `/notifications` servisinin yalnızca `OWNER` rolünü kabul etmesine rağmen portalın tüm klinik rollerinde bu endpoint'i çağırması olarak doğrulandı. Sidebar ve bildirim ekranı owner bildirim sorgusunu yalnızca `OWNER` için çalıştıracak hale getirildi; sorgu anahtarına kullanıcı kimliği eklenerek kullanıcılar arası cache sızıntısı önlendi. Backend'in `body`, `payload` ve `status` alanları portalın `message`, `type` ve `isRead` modeline normalize edildi. Klinik kullanıcılarına hatalı istek yerine entegrasyon durumunu dürüstçe açıklayan temiz bir bilgi ekranı eklendi.
+**Dokunulan dosyalar:** `portal/src/services/notifications.service.ts`, `portal/src/hooks/use-notifications.ts`, `portal/src/components/layout/sidebar.tsx`, `portal/src/app/(dashboard)/notifications/page.tsx`, `portal/tests/notifications.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Gerçek `vet@example.com` oturumunda dashboard ve bildirim ekranı ziyaret edildi; owner bildirim API çağrısı yapılmadı ve 403 kaldırıldı. Owner yanıt normalizasyonu ile klinik rol korumasını kapsayan hedef testler 2/2, tam Playwright turu 48 geçti/1 environment testi atlandı; lint ve production build başarılı.
+**Sıradaki:** Erol klinik kapsamlı bildirim endpoint'ini sağladığında role göre servis seçimini ekleyip veteriner bildirim listesini gerçek veriye bağlamak; 0.1 auth backend kapanışını ayrıca doğrulamak.
+**Erol'a not (varsa):** Mevcut `GET /notifications` ve okundu işaretleme akışı yalnız `OWNER`; portal artık veteriner/klinik admin rollerinde bunları çağırmıyor. `clinicId` ile scope edilen listeleme + okundu işaretleme endpoint'leri, `VETERINARIAN`/`CLINIC_ADMIN` yetkileri, `SUPER_ADMIN` kararı ve kararlı/belgeli yanıt modeli gerekiyor.
 
 ### 2026-07-22 — Link-buton erişilebilirlik semantiği
 **Yapılanlar:** Base UI `Button` bileşenine Next `Link` render eden 13 kullanım kaldırıldı. Randevu listesi/detayı, abonelik sonuçları, abonelik guard'ı ve admin klinik detayındaki navigasyon eylemleri gerçek `<a>` öğeleri olarak bırakılıp ortak `buttonVariants` ile görsel olarak butonlaştırıldı. Böylece Base UI native-button uyarısı giderilirken klavye ve ekran okuyucu link semantiği korundu. Anchor etiketi, `href` değerleri ve konsol uyarısının yokluğu için Playwright regresyon testi eklendi.
