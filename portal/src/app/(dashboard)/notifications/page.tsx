@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { useMarkNotificationRead, useNotifications } from '@/hooks/use-notifications'
-import type { ApiNotification } from '@/services/notifications.service'
+import { canAccessOwnerNotifications, type ApiNotification } from '@/services/notifications.service'
+import { useAuthStore } from '@/stores/auth.store'
 
 import { formatDate } from '@/lib/utils'
 import { Bell, Check, Stethoscope, Syringe, FlaskConical, Clock } from 'lucide-react'
@@ -18,7 +19,12 @@ const typeConfig: Record<ApiNotification['type'], { icon: typeof Bell; color: st
 
 export default function NotificationsPage() {
   const [localReadIds, setLocalReadIds] = useState<Set<string>>(() => new Set())
-  const notificationsQuery = useNotifications()
+  const user = useAuthStore(state => state.user)
+  const ownerNotificationsAvailable = canAccessOwnerNotifications(user?.role)
+  const notificationsQuery = useNotifications({
+    enabled: ownerNotificationsAvailable,
+    subjectId: user?.id,
+  })
   const markRead = useMarkNotificationRead()
   const notifications = (notificationsQuery.data ?? []).map(notification => (
     localReadIds.has(notification.id) ? { ...notification, isRead: true } : notification
@@ -33,6 +39,34 @@ export default function NotificationsPage() {
   const markOne = async (id: string) => {
     setLocalReadIds(prev => new Set(prev).add(id))
     await markRead.mutateAsync(id)
+  }
+
+  if (!ownerNotificationsAvailable) {
+    return (
+      <div>
+        <Header
+          title="Bildirimler"
+          subtitle="Klinik bildirim kanalı entegrasyon bekliyor"
+        />
+
+        <div className="max-w-3xl p-6">
+          <div className="rounded-2xl border border-blue-100 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50">
+              <Bell className="h-7 w-7 text-blue-600" />
+            </div>
+            <h2 className="mt-5 text-lg font-semibold text-foreground">Klinik bildirim servisi hazırlanıyor</h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              Mevcut bildirim servisi hayvan sahiplerine özeldir. Veteriner ve klinik bildirimleri,
+              klinik yetkisiyle sınırlandırılmış ayrı backend sözleşmesi tamamlandığında burada gösterilecek.
+            </p>
+            <div className="mx-auto mt-5 max-w-lg rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-left text-xs text-muted-foreground">
+              Portal, sahip bildirim endpoint&apos;ini klinik hesabıyla çağırmaz; böylece yetkisiz istek ve
+              yanıltıcı boş durum üretilmez.
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
