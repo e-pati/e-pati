@@ -44,7 +44,7 @@ export default function AdoptionListingPage() {
             <Field label="Sağlık durumu"><Input value="Kontrollü · Kısırlaştırıldı" readOnly /></Field>
             <div className="space-y-2 sm:col-span-2"><Label>Tanıtım metni</Label><textarea value={summary} onChange={event => setSummary(event.target.value)} rows={5} className="w-full resize-none rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-shadow focus:border-ring focus:ring-3 focus:ring-ring/20" /></div>
             <div className="sm:col-span-2"><Label>Karakter özellikleri</Label><div className="mt-2 flex flex-wrap gap-2">{demoStrayAnimal.temperament.map(item => <Badge key={item} variant="secondary">{item}</Badge>)}</div></div>
-            <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5 sm:col-span-2"><Link href="/belediye" className={buttonVariants({ variant: 'outline' })}>Taslağı kapat</Link><Button type="button" onClick={publish} disabled={summary.trim().length < 20} className="bg-rose-700 hover:bg-rose-800"><Send className="size-4" /> İlanı yayımla</Button></div>
+            <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:col-span-2 sm:flex-row sm:justify-end"><Link href="/belediye" className={buttonVariants({ variant: 'outline', className: 'h-11 w-full sm:w-auto' })}>Taslağı kapat</Link><Button type="button" onClick={publish} disabled={summary.trim().length < 20} className="h-11 w-full bg-rose-700 hover:bg-rose-800 sm:w-auto"><Send className="size-4" /> İlanı yayımla</Button></div>
           </CardContent>
         </Card>
         <aside className="space-y-4">

@@ -14,7 +14,10 @@ export default function MunicipalityLayout({ children }: { children: React.React
               <PawPrint className="size-5" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-black tracking-tight sm:text-base">VetCep Belediye Operasyonları</div>
+              <div className="text-sm font-black tracking-tight sm:text-base">
+                <span className="sm:hidden">VetCep Belediye</span>
+                <span className="hidden sm:inline">VetCep Belediye Operasyonları</span>
+              </div>
               <div className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 sm:block">Sahipsiz hayvan yaşam döngüsü</div>
             </div>
           </Link>

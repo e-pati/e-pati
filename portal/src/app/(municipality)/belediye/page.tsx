@@ -33,11 +33,11 @@ export default function MunicipalityDashboardPage() {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-cyan-50/75 sm:text-base">
               Belediyenin sahipsiz hayvan operasyonlarını tek HKN altında standartlaştıran demo deneyimi.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/belediye/barinak-giris" className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-bold text-[#153d58] transition-colors hover:bg-cyan-50">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link href="/belediye/barinak-giris" className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-white px-4 text-sm font-bold text-[#153d58] transition-colors hover:bg-cyan-50 sm:w-auto">
                 Demo akışını başlat <ArrowRight className="size-4" />
               </Link>
-              <Button type="button" variant="outline" onClick={resetDemo} className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <Button type="button" variant="outline" onClick={resetDemo} className="h-11 w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white sm:w-auto">
                 <RotateCcw className="size-4" /> Demo akışını sıfırla
               </Button>
             </div>
@@ -70,7 +70,7 @@ export default function MunicipalityDashboardPage() {
               <p className="mt-1 text-sm text-slate-500">{demoStrayAnimal.breed} · {demoStrayAnimal.sex} · {demoStrayAnimal.estimatedAge}</p>
               <p className="mt-3 text-xs text-slate-500">Bulunduğu bölge: {demoStrayAnimal.foundDistrict} / Ankara · Hassas konum paylaşılmaz</p>
             </div>
-            <Link href="/belediye/barinak-giris" className={buttonVariants({ className: 'bg-cyan-700 hover:bg-cyan-800' })}><HousePlus className="size-4" /> Kaydı aç</Link>
+            <Link href="/belediye/barinak-giris" className={buttonVariants({ className: 'h-11 w-full bg-cyan-700 hover:bg-cyan-800 md:w-auto' })}><HousePlus className="size-4" /> Kaydı aç</Link>
           </CardContent>
         </Card>
 

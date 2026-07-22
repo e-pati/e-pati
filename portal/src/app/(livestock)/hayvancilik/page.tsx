@@ -58,10 +58,10 @@ export default function LivestockDashboardPage() {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-emerald-50/75 sm:text-base">
               HAYBİS/TÜRKVET kayıt otoritesinin üzerinde çalışan modern üretici deneyimini dört adımda gösterin.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 href="/hayvancilik/isletmeler/yeni"
-                className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-bold text-[#123d2e] transition-colors hover:bg-emerald-50"
+                className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-lg bg-white px-4 text-sm font-bold text-[#123d2e] transition-colors hover:bg-emerald-50 sm:w-auto"
               >
                 Demo akışını başlat <ArrowRight className="size-4" />
               </Link>
@@ -69,7 +69,7 @@ export default function LivestockDashboardPage() {
                 type="button"
                 variant="outline"
                 onClick={resetDemo}
-                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                className="h-11 w-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white sm:w-auto"
               >
                 <RotateCcw className="size-4" /> Demo akışını sıfırla
               </Button>

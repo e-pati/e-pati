@@ -73,7 +73,7 @@ export default function ShelterAdmissionPage() {
               <Field label="Bulunduğu ilçe" error={errors.foundDistrict?.message}><Input {...register('foundDistrict')} /></Field>
               <Field label="Sağlık ön kontrolü" error={errors.healthStatus?.message}><Input {...register('healthStatus')} /></Field>
               <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4 sm:col-span-2"><div className="flex items-center gap-2 text-xs font-bold text-cyan-800"><Fingerprint className="size-4" /> Oluşturulacak HKN</div><div className="mt-2 font-mono text-sm font-black text-cyan-950">{demoStrayAnimal.hkn}</div><div className="mt-1 font-mono text-xs text-cyan-800/70">Mikroçip: {demoStrayAnimal.microchipNo}</div></div>
-              <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5 sm:col-span-2"><Link href="/belediye" className={buttonVariants({ variant: 'outline' })}>İptal</Link><Button type="submit" disabled={isSubmitting} className="bg-cyan-700 hover:bg-cyan-800"><Save className="size-4" /> Kabulü kaydet ve ilerle</Button></div>
+              <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:col-span-2 sm:flex-row sm:justify-end"><Link href="/belediye" className={buttonVariants({ variant: 'outline', className: 'h-11 w-full sm:w-auto' })}>İptal</Link><Button type="submit" disabled={isSubmitting} className="h-11 w-full bg-cyan-700 hover:bg-cyan-800 sm:w-auto"><Save className="size-4" /> Kabulü kaydet ve ilerle</Button></div>
             </CardContent>
           </Card>
         </form>
