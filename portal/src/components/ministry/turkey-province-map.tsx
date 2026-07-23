@@ -197,6 +197,16 @@ export function TurkeyProvinceMap({
                 %{previewProvince.vaccinationCoverage}
               </span>
             </p>
+            <p
+              className={cn(
+                'mt-1 text-[11px]',
+                previewProvince.activeAlerts > 0 ? 'font-semibold text-rose-200' : 'text-slate-400',
+              )}
+            >
+              {previewProvince.activeAlerts > 0
+                ? `${previewProvince.activeAlerts} aktif erken uyarı`
+                : 'Aktif erken uyarı yok'}
+            </p>
           </div>
         )}
 
