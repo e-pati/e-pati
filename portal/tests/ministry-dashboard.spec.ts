@@ -6,7 +6,8 @@ test.describe('Bakanlık konsolu', () => {
 
     await expect(page.getByRole('heading', { name: 'Ulusal Hayvan Sağlığı Görünümü' })).toBeVisible()
     await expect(page.getByText('Sentetik Veri · Demo', { exact: true })).toBeVisible()
-    await expect(page.locator('button[aria-label$="ilini seç"]')).toHaveCount(81)
+    await expect(page.getByTestId('province-shape')).toHaveCount(81)
+    await expect(page.getByText('T.C. Tarım ve Orman Bakanlığı CBS · TATUS İl Sınırları katmanı')).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Ankara' })).toBeVisible()
     await page.getByRole('button', { name: 'Konya ilini seç' }).click()

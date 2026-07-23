@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Bakanlık konsolu 1366×768 projektör doğrulaması tamamlandı
+- **Son güncelleme:** 23 Temmuz 2026 — Bakanlık konsoluna gerçek 81 il sınırlarıyla Türkiye haritası eklendi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip yalnız demo-kritik yeni bulguları ele almak; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
@@ -26,7 +26,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard ve tekilleştirilmiş refresh eklendi; backend yanıt gövdesindeki access token ve üretim cookie politikası Erol'da |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
-| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
+| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Gerçek 81 il sınırlarıyla Türkiye haritası
+**Yapılanlar:** Bakanlık konsolundaki şematik Türkiye silüeti ve il noktaları, T.C. Tarım ve Orman Bakanlığı CBS il sınırları katmanından yerel statik veriye dönüştürülen gerçek Türkiye haritasıyla değiştirildi. 81 ilin tamamı ayrı SVG alanı olarak risk düzeyine göre renklendirildi; fare, Enter ve Space ile il seçimi, seçili il vurgusu ve erişilebilir il açıklamaları eklendi. Harita çalışma zamanında dış servise istek atmıyor. Veri kaynağı ve sınırların gösterim amaçlı olduğu ekran üzerinde belirtildi. React 19'un SVG başlık uyarısı tek metin kullanılarak giderildi.
+**Dokunulan dosyalar:** `portal/src/components/ministry/turkey-province-map.tsx`, `portal/src/lib/turkey-province-map-data.ts`, `portal/src/lib/turkey-provinces.geojson.json`, `portal/tests/ministry-dashboard.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** `/bakanlik` üzerinde tam Türkiye silüeti, 81 tıklanabilir il alanı, Ankara varsayılan seçimi, Konya harita drill-down ve Kars erken uyarı geçişi çalışıyor. 1366×768 görünümde yatay taşma yok; tarayıcı geliştirme günlüğünde hata/uyarı kalmadı. Hedef Bakanlık Playwright paketi 2/2, lint ve production build başarılı.
+**Sıradaki:** Provaları şimdilik bekletmek; yalnız demo-kritik yeni bulguları ele almak ve Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak.
+**Erol'a not (varsa):** Faz 0 haritası yerel sentetik metriklerle bağımsız çalışıyor; yeni backend ihtiyacı yok. Pilot aşamasında canlı ulusal metrikler, il bazlı detaylar ve erken uyarı verileri için sözleşme gerekecek.
 
 ### 2026-07-23 — Bakanlık konsolu projektör görünümü doğrulaması
 **Yapılanlar:** Faz 0'ın para ekranı `/bakanlik`, tipik laptop/projektör çözünürlüğü olan 1366×768'de etkileşimli denetlendi. İlk karede ulusal başlık, dört KPI, 81 il haritası ve Ankara il panelinin birlikte görünür olduğu doğrulandı. Haritadan Konya seçimi aktif erken uyarı sinyalini gösterdi; bölgesel aşılama ve ulusal popülasyon grafikleri görünür kaldı. Kars erken uyarı kartı tıklanınca ekran il genel görünümüne kaydı, seçim `36 · Kars` oldu ve Kars detay paneli üstte okunur biçimde gösterildi. Yatay taşma veya sunum-kritik kesilme bulunmadığından uygulama koduna gereksiz değişiklik yapılmadı.
