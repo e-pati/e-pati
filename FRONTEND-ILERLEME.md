@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Pamuk + Sarıkız aşı kartı cihaz doğrulaması tamamlandı
+- **Son güncelleme:** 23 Temmuz 2026 — Bakanlık konsolu 1366×768 projektör doğrulaması tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip yalnız demo-kritik yeni bulguları ele almak; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
@@ -26,7 +26,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard ve tekilleştirilmiş refresh eklendi; backend yanıt gövdesindeki access token ve üretim cookie politikası Erol'da |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
-| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları ve tıklanabilir erken uyarı akışı tamamlandı |
+| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | 81 il, ulusal KPI, harita/drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Bakanlık konsolu projektör görünümü doğrulaması
+**Yapılanlar:** Faz 0'ın para ekranı `/bakanlik`, tipik laptop/projektör çözünürlüğü olan 1366×768'de etkileşimli denetlendi. İlk karede ulusal başlık, dört KPI, 81 il haritası ve Ankara il panelinin birlikte görünür olduğu doğrulandı. Haritadan Konya seçimi aktif erken uyarı sinyalini gösterdi; bölgesel aşılama ve ulusal popülasyon grafikleri görünür kaldı. Kars erken uyarı kartı tıklanınca ekran il genel görünümüne kaydı, seçim `36 · Kars` oldu ve Kars detay paneli üstte okunur biçimde gösterildi. Yatay taşma veya sunum-kritik kesilme bulunmadığından uygulama koduna gereksiz değişiklik yapılmadı.
+**Dokunulan dosyalar:** `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** 1366×768 ilk görünüm, Konya harita drill-down, iki analitik grafik, erken uyarı akışı ve Kars geri odaklanması çalışıyor. Hedef Bakanlık Playwright paketi 2/2, lint ve production build başarılı; build'in ilk sandbox port kısıtı izinli yeniden koşuda giderildi.
+**Sıradaki:** Provaları şimdilik bekletmek; yalnız demo-kritik yeni bulguları ele almak ve Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak.
+**Erol'a not (varsa):** Bakanlık konsolu sentetik veriyle bağımsız çalışıyor; bu doğrulamada yeni backend ihtiyacı çıkmadı.
 
 ### 2026-07-23 — Pamuk ve Sarıkız aşı kartı cihaz doğrulaması
 **Yapılanlar:** 0.8'in sunum odağı olan aşı kayıtları 390×844 dokunmatik cihaz bağlamında etkileşimli denetlendi. Pamuk'ta Aşı sekmesi açılarak Kuduz ve yaklaşan Karma (FVRCP) kayıtlarının uygulama/sonraki doz tarihleri, seri bilgileri ve pilot klinik etiketi doğrulandı; Kartı Paylaş hedefi 350×49px ölçüldü. Sarıkız'da %100 kapsam, Şap, Nodüler Ekzantem ve Brusella kayıtları ile seri/tarih alanları kaydırma sonrasında kontrol edildi. İki ekranda da yatay taşma veya içerik kesilmesi bulunmadığından uygulama koduna gereksiz değişiklik yapılmadı.
