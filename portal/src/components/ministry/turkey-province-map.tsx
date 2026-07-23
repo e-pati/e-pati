@@ -21,10 +21,14 @@ const riskClasses: Record<MinistryRiskLevel, string> = {
   high: 'fill-rose-600 stroke-rose-950/60 hover:fill-rose-500',
 }
 
-const legend = [
-  { label: 'Normal', className: 'bg-emerald-400' },
-  { label: 'İzleniyor', className: 'bg-amber-400' },
-  { label: 'Kritik', className: 'bg-rose-600' },
+const legend: Array<{
+  level: MinistryRiskLevel
+  label: string
+  className: string
+}> = [
+  { level: 'low', label: 'Normal', className: 'bg-emerald-400' },
+  { level: 'medium', label: 'İzleniyor', className: 'bg-amber-400' },
+  { level: 'high', label: 'Kritik', className: 'bg-rose-600' },
 ]
 
 const riskLabels: Record<MinistryRiskLevel, string> = {
@@ -54,6 +58,13 @@ export function TurkeyProvinceMap({
   const selectedProvince = provinceByPlateCode.get(selectedPlateCode)
   const previewProvince =
     provinceByPlateCode.get(previewPlateCode ?? selectedPlateCode) ?? selectedProvince
+  const provinceCountByRisk = provinces.reduce<Record<MinistryRiskLevel, number>>(
+    (counts, province) => {
+      counts[province.riskLevel] += 1
+      return counts
+    },
+    { low: 0, medium: 0, high: 0 },
+  )
   const selectedLabelWidth = Math.max(48, (selectedProvince?.name.length ?? 0) * 7 + 22)
 
   return (
@@ -191,9 +202,16 @@ export function TurkeyProvinceMap({
 
         <div className="absolute bottom-3 left-3 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-[10px] font-medium text-slate-600 shadow-sm backdrop-blur-sm">
           {legend.map((item) => (
-            <span key={item.label} className="flex items-center gap-1.5">
+            <span
+              key={item.level}
+              data-testid={`risk-legend-${item.level}`}
+              className="flex items-center gap-1.5"
+            >
               <span className={cn('size-2.5 rounded-sm', item.className)} />
               {item.label}
+              <strong className="font-semibold text-slate-900">
+                {provinceCountByRisk[item.level]} il
+              </strong>
             </span>
           ))}
         </div>

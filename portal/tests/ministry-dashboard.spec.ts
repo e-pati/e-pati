@@ -8,6 +8,9 @@ test.describe('Bakanlık konsolu', () => {
     await expect(page.getByText('Sentetik Veri · Demo', { exact: true })).toBeVisible()
     await expect(page.getByTestId('province-shape')).toHaveCount(81)
     await expect(page.getByText('T.C. Tarım ve Orman Bakanlığı CBS · TATUS İl Sınırları katmanı')).toBeVisible()
+    await expect(page.getByTestId('risk-legend-low')).toContainText('Normal39 il')
+    await expect(page.getByTestId('risk-legend-medium')).toContainText('İzleniyor41 il')
+    await expect(page.getByTestId('risk-legend-high')).toContainText('Kritik1 il')
 
     await expect(page.getByRole('heading', { name: 'Ankara' })).toBeVisible()
     await page.getByRole('button', { name: 'Konya ilini seç' }).hover()
