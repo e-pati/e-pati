@@ -10,6 +10,9 @@ test.describe('Bakanlık konsolu', () => {
     await expect(page.getByText('T.C. Tarım ve Orman Bakanlığı CBS · TATUS İl Sınırları katmanı')).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Ankara' })).toBeVisible()
+    await page.getByRole('button', { name: 'Konya ilini seç' }).hover()
+    await expect(page.getByTestId('province-map-tooltip')).toContainText('42 · Konya')
+    await expect(page.getByTestId('province-map-tooltip')).toContainText('Aşılama kapsamı %')
     await page.getByRole('button', { name: 'Konya ilini seç' }).click()
 
     await expect(page.getByRole('heading', { name: 'Konya' })).toBeVisible()
