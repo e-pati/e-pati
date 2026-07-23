@@ -17,9 +17,13 @@ test.describe('Bakanlık konsolu', () => {
     ).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Ankara' })).toBeVisible()
+    await expect(page.getByTestId('province-map-tooltip')).toContainText(
+      'Aktif erken uyarı yok',
+    )
     await page.getByRole('button', { name: 'Konya ilini seç' }).hover()
     await expect(page.getByTestId('province-map-tooltip')).toContainText('42 · Konya')
     await expect(page.getByTestId('province-map-tooltip')).toContainText('Aşılama kapsamı %')
+    await expect(page.getByTestId('province-map-tooltip')).toContainText('1 aktif erken uyarı')
     await page.getByRole('button', { name: 'Konya ilini seç' }).click()
 
     await expect(page.getByRole('heading', { name: 'Konya' })).toBeVisible()

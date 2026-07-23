@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Bakanlık haritasında risk ve aktif uyarı metrikleri ayrıştırıldı
+- **Son güncelleme:** 23 Temmuz 2026 — Bakanlık il bilgi balonuna aktif erken uyarı durumu eklendi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip yalnız demo-kritik yeni bulguları ele almak; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
@@ -26,7 +26,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard ve tekilleştirilmiş refresh eklendi; backend yanıt gövdesindeki access token ve üretim cookie politikası Erol'da |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
-| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, hover/klavye bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
+| 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — İl bilgi balonunda aktif erken uyarı
+**Yapılanlar:** Türkiye haritasındaki il bilgi balonuna risk statüsü ve aşılama kapsamından ayrı bir aktif erken uyarı satırı eklendi. Aktif sinyali bulunan Konya gibi illerde adet vurgulu biçimde gösteriliyor; Ankara gibi sinyali olmayan illerde `Aktif erken uyarı yok` ifadesi kullanılıyor. Böylece risk dağılımı ile operasyonel uyarı adedi aynı balonda ayrı metrikler olarak okunuyor. Her iki durumu koruyan Playwright beklentileri eklendi.
+**Dokunulan dosyalar:** `portal/src/components/ministry/turkey-province-map.tsx`, `portal/tests/ministry-dashboard.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** 1366×768 görünümde Konya tooltip'i `42 · Konya`, `Kritik`, `%74` ve `1 aktif erken uyarı` bilgilerini kompakt biçimde gösteriyor; haritayı veya il detayını kapatmıyor. Ankara varsayılan tooltip'inde aktif uyarı olmadığı açık. Yatay taşma ve tarayıcı hatası yok; hedef Bakanlık Playwright paketi 2/2, lint ve temiz production build başarılı.
+**Sıradaki:** Provaları şimdilik bekletmek; yalnız demo-kritik yeni bulguları ele almak ve Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak.
+**Erol'a not (varsa):** Bu adım mevcut sentetik `activeAlerts` alanını kullandı; yeni backend ihtiyacı yok. Pilot aşamasında değer il özet/erken uyarı sözleşmesinden beslenecek.
 
 ### 2026-07-23 — Bakanlık risk ve aktif uyarı metrik ayrımı
 **Yapılanlar:** Haritadaki 41 `İzleniyor` il ile üst KPI'daki 4 aktif erken uyarının aynı metrik sanılmasını önlemek için lejanta `İl risk dağılımı` başlığı eklendi. Harita altındaki açıklama, risk statüsünün aktif uyarı adedinden farklı olduğunu ve aşılama kapsamı ile sentetik sinyallerin birlikte değerlendirilmesiyle hesaplandığını açıkça belirtecek şekilde genişletildi. Harita verileri, sayılar ve etkileşim davranışları değiştirilmedi; ayrımı koruyan Playwright beklentileri eklendi.
