@@ -200,7 +200,12 @@ export function TurkeyProvinceMap({
           </div>
         )}
 
-        <div className="absolute bottom-3 left-3 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-[10px] font-medium text-slate-600 shadow-sm backdrop-blur-sm">
+        <div
+          data-testid="province-risk-legend"
+          className="absolute bottom-3 left-3 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-[10px] font-medium text-slate-600 shadow-sm backdrop-blur-sm"
+        >
+          <span className="font-semibold text-slate-900">İl risk dağılımı</span>
+          <span aria-hidden="true" className="h-3 w-px bg-slate-300" />
           {legend.map((item) => (
             <span
               key={item.level}
@@ -220,6 +225,10 @@ export function TurkeyProvinceMap({
       <p className="mt-3 text-xs leading-5 text-slate-500">
         İl alanları aşılama kapsamı ve sentetik erken uyarı sinyallerine göre renklendirilir.
         Sınırlar gösterim amaçlıdır; resmî idari karar veya saha bildirimi niteliği taşımaz.
+      </p>
+      <p className="mt-1 text-[11px] leading-4 text-slate-500">
+        Risk statüsü, aktif erken uyarı adedinden farklıdır; aşılama kapsamı ve sentetik
+        sinyallerin birlikte değerlendirilmesiyle hesaplanır.
       </p>
       <p className="mt-1 text-[10px] leading-4 text-slate-400">
         Geometri kaynağı: {TURKEY_PROVINCE_GEOMETRY_SOURCE}

@@ -11,6 +11,10 @@ test.describe('Bakanlık konsolu', () => {
     await expect(page.getByTestId('risk-legend-low')).toContainText('Normal39 il')
     await expect(page.getByTestId('risk-legend-medium')).toContainText('İzleniyor41 il')
     await expect(page.getByTestId('risk-legend-high')).toContainText('Kritik1 il')
+    await expect(page.getByTestId('province-risk-legend')).toContainText('İl risk dağılımı')
+    await expect(
+      page.getByText('Risk statüsü, aktif erken uyarı adedinden farklıdır;', { exact: false }),
+    ).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Ankara' })).toBeVisible()
     await page.getByRole('button', { name: 'Konya ilini seç' }).hover()
