@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import {
   TURKEY_PROVINCE_GEOMETRY_SOURCE,
   turkeyProvinceGeometries,
@@ -25,11 +27,24 @@ const legend = [
   { label: 'Kritik', className: 'bg-rose-600' },
 ]
 
+const riskLabels: Record<MinistryRiskLevel, string> = {
+  low: 'Normal',
+  medium: 'İzleniyor',
+  high: 'Kritik',
+}
+
+const riskBadgeClasses: Record<MinistryRiskLevel, string> = {
+  low: 'bg-emerald-100 text-emerald-800',
+  medium: 'bg-amber-100 text-amber-800',
+  high: 'bg-rose-100 text-rose-800',
+}
+
 export function TurkeyProvinceMap({
   provinces,
   selectedPlateCode,
   onSelect,
 }: TurkeyProvinceMapProps) {
+  const [previewPlateCode, setPreviewPlateCode] = useState<number | null>(null)
   const provinceByPlateCode = new Map(
     provinces.map((province) => [province.plateCode, province]),
   )
@@ -37,6 +52,8 @@ export function TurkeyProvinceMap({
     (geometry) => geometry.plateCode === selectedPlateCode,
   )
   const selectedProvince = provinceByPlateCode.get(selectedPlateCode)
+  const previewProvince =
+    provinceByPlateCode.get(previewPlateCode ?? selectedPlateCode) ?? selectedProvince
   const selectedLabelWidth = Math.max(48, (selectedProvince?.name.length ?? 0) * 7 + 22)
 
   return (
@@ -89,6 +106,10 @@ export function TurkeyProvinceMap({
                   aria-label={`${province.name} ilini seç`}
                   aria-pressed={selected}
                   onClick={() => onSelect(province)}
+                  onPointerEnter={() => setPreviewPlateCode(province.plateCode)}
+                  onPointerLeave={() => setPreviewPlateCode(null)}
+                  onFocus={() => setPreviewPlateCode(province.plateCode)}
+                  onBlur={() => setPreviewPlateCode(null)}
                   onKeyDown={(event) => {
                     if (event.key !== 'Enter' && event.key !== ' ') return
                     event.preventDefault()
@@ -104,13 +125,7 @@ export function TurkeyProvinceMap({
                     selected && 'stroke-slate-950 stroke-[2.8]',
                   )}
                 >
-                  <title>{`${province.name} · Aşılama %${province.vaccinationCoverage} · ${
-                    province.riskLevel === 'high'
-                      ? 'Kritik'
-                      : province.riskLevel === 'medium'
-                        ? 'İzleniyor'
-                        : 'Normal'
-                  }`}</title>
+                  <title>{`${province.name} · Aşılama %${province.vaccinationCoverage} · ${riskLabels[province.riskLevel]}`}</title>
                 </path>
               )
             })}
@@ -145,6 +160,34 @@ export function TurkeyProvinceMap({
             </g>
           )}
         </svg>
+
+        {previewProvince && (
+          <div
+            role="status"
+            data-testid="province-map-tooltip"
+            className="pointer-events-none absolute right-3 top-3 z-20 min-w-36 rounded-xl border border-white/80 bg-slate-950/95 px-3 py-2.5 text-white shadow-lg backdrop-blur-sm"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold">
+                {String(previewProvince.plateCode).padStart(2, '0')} · {previewProvince.name}
+              </p>
+              <span
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                  riskBadgeClasses[previewProvince.riskLevel],
+                )}
+              >
+                {riskLabels[previewProvince.riskLevel]}
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-slate-300">
+              Aşılama kapsamı{' '}
+              <span className="font-semibold text-white">
+                %{previewProvince.vaccinationCoverage}
+              </span>
+            </p>
+          </div>
+        )}
 
         <div className="absolute bottom-3 left-3 z-20 flex flex-wrap items-center gap-3 rounded-xl border border-white/80 bg-white/90 px-3 py-2 text-[10px] font-medium text-slate-600 shadow-sm backdrop-blur-sm">
           {legend.map((item) => (
