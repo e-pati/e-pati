@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — 0.1 httpOnly-cookie auth sözleşmesi yeniden denetlendi
+- **Son güncelleme:** 23 Temmuz 2026 — Şevval Dündar için sunumcu devir paketi hazırlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Erol'un auth yanıt gövdesi ve Origin/CSRF kapanışını beklemek; geldiğinde token-gövdesiz portal regresyonuyla doğrulamak
+- **Sıradaki adım:** Sunum paketini Şevval'e iletip Burak teknik kumandadayken ilk 25 dakikalık anlatımlı provayı yapmak; Erol'un auth kapanışını geldiğinde ayrıca doğrulamak
 
 ---
 
@@ -29,7 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
-| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak | ✅ | Teknik rota hazır; 13 rotalık mobil taşma/runtime ve üretici + belediye uçtan uca touch regresyonları doğrulandı |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı ve 13 sayfalık gönderilebilir sunumcu devir paketi hazır; demo regresyonları doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — Şevval Dündar sunumcu devir paketi
+**Yapılanlar:** Mevcut 25 dakikalık konuşma metni, teknik runbook ve canlı `/demo-akisi` rotası Şevval Dündar'ın Bakanlık sunumunu devralabileceği tek pakette birleştirildi. Şevval anlatıcı/Burak teknik kumanda rol dağılımı, 5 dakikalık hızlı başlangıç, kırmızı çizgiler, dakika dakika konuşma ve tıklama akışı, güncel gerçek Türkiye haritası anlatımı, 12 zor Bakanlık sorusu, teknik B planı, 20 dakikalık kısa rota, 30 dakika önce kontrol listesi, tek sayfalık konuşmacı kartı ve hazır WhatsApp mesajı eklendi. Düzenlenebilir Markdown, 13 sayfalık kurumsal PDF ve PDF + kaynak belgeleri içeren ZIP üretildi.
+**Dokunulan dosyalar:** `SEVVAL-SUNUM-PAKETI.md`, `output/pdf/SEVVAL-VETCEP-SUNUM-PAKETI.pdf`, `output/SEVVAL-VETCEP-SUNUM-PAKETI.zip`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün kodu değişmedi. PDF'in 13 sayfası PNG olarak render edilip görsel denetlendi; Türkçe karakter, başlık, tablo, sayfa sonu, kontrol kutusu ve metin bütünlüğü sorunları giderildi. PDF metin kontrolünde değiştirme karakteri yok; açılış, konumlandırma, Şevval adı ve WhatsApp bölümü mevcut. ZIP dört gönderilebilir dosyayı içeriyor.
+**Sıradaki:** Paketi Şevval'e iletmek; ilk provada metni ezberletmeden açılış, bölüm geçişleri, Bakanlık ekranı ve kapanışı 25 dakika içinde oturtmak.
+**Erol'a not (varsa):** Sunumcu paketi için yeni backend ihtiyacı yok. 0.1 auth kapanışı ve klinik bildirim sözleşmesiyle ilgili önceki notlar geçerli.
 
 ### 2026-07-23 — 0.1 httpOnly-cookie auth sözleşme denetimi
 **Yapılanlar:** Erol'un güncel `main` dalındaki backend auth controller, cookie seçenekleri, CORS/env doğrulaması ve portalın login, `/auth/me`, refresh, logout ve guard akışları karşılaştırıldı. Portalın access/refresh token JSON alanlarına ihtiyaç duymadığı doğrulandı; eski test mock'undaki token alanları kaldırıldı ve super-admin login yalnız `{ user }` gövdesiyle `/admin/dashboard` yönlendirmesini bekleyecek şekilde kararlılaştırıldı. İlk paralel koşuda sabit 2 saniyelik bekleme kaynaklı test yarışı tespit edilip hedef URL beklentisiyle giderildi. Backend koduna dokunulmadı.
