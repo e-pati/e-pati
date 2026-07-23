@@ -49,7 +49,7 @@ test.describe('Auth', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 })
   })
 
-  test('super admin login — mock API ile yönlendirme', async ({ page }) => {
+  test('token gövdesi olmadan super admin login — mock API ile yönlendirme', async ({ page }) => {
     let loginCalled = false
     await page.route('**/auth/clinic/login', async route => {
       loginCalled = true
@@ -59,8 +59,6 @@ test.describe('Auth', () => {
         contentType: 'application/json',
         headers: { 'Set-Cookie': 'epati-logged-in=1; Path=/' },
         body: JSON.stringify({
-          accessToken: 'mock-access-token',
-          refreshToken: 'mock-refresh-token',
           user: superAdminUser,
         }),
       })
@@ -76,12 +74,8 @@ test.describe('Auth', () => {
     await page.locator('input[type="email"]').fill('admin@vetcep.test')
     await page.locator('input[type="password"]').first().fill('secret-pass')
     await page.locator('button[type="submit"]').click()
-    // Mock API çağrıldı mı kontrol et
-    await page.waitForTimeout(2000)
+    await expect(page).toHaveURL('/admin/dashboard', { timeout: 10000 })
     expect(loginCalled).toBe(true)
-    // Kullanıcı login'den çıkmış mı (admin dashboard veya başka sayfaya gitmiş)
-    const url = page.url()
-    expect(url).not.toContain('/login')
     await expect.poll(() => page.evaluate(() => localStorage.getItem('epati-auth'))).toBeNull()
   })
 

@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Bakanlık il bilgi balonuna aktif erken uyarı durumu eklendi
+- **Son güncelleme:** 23 Temmuz 2026 — 0.1 httpOnly-cookie auth sözleşmesi yeniden denetlendi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Prova çalışmalarını şimdilik bekletip yalnız demo-kritik yeni bulguları ele almak; Erol'dan gelen backend sözleşmelerini geldiğinde doğrulamak
+- **Sıradaki adım:** Erol'un auth yanıt gövdesi ve Origin/CSRF kapanışını beklemek; geldiğinde token-gövdesiz portal regresyonuyla doğrulamak
 
 ---
 
@@ -23,7 +23,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 | # | Görev | Sorumlu | Durum | Not |
 |---|---|---|---|---|
-| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard ve tekilleştirilmiş refresh eklendi; backend yanıt gövdesindeki access token ve üretim cookie politikası Erol'da |
+| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard, tekilleştirilmiş refresh ve token-gövdesiz login regresyonu eklendi; backend yanıt gövdesindeki access token ile production Origin/CSRF politikası Erol'da |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
@@ -33,8 +33,8 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
-- 0.1 güvenlik kapanışı için `login`, `clinic/login`, `verify-otp` ve `refresh` yanıt gövdelerinden `accessToken` kaldırılmalı; token yalnızca httpOnly cookie ile taşınmalı.
-- Üretim için portal/API originleri, `CORS_ORIGINS`, cookie `Secure`/`SameSite`/`Domain` ayarları ve cookie tabanlı auth için CSRF/Origin doğrulama politikası birlikte netleştirilmeli. Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındadır.
+- 0.1 güvenlik kapanışı için `AuthController.withoutRefreshToken()` halen `{ accessToken, user }` döndürüyor. `login`, `clinic/login`, `verify-otp` ve `refresh` yanıt gövdelerinden `accessToken` kaldırılmalı; token yalnızca httpOnly cookie ile taşınmalı. Portal `{ user }` login yanıtıyla doğrulandı.
+- Production'da cookie `SameSite=None; Secure` oluyor ancak unsafe isteklerde Origin/CSRF doğrulaması yok. Portal/API originleri ve `CORS_ORIGINS` netleştirilmeli; `POST/PATCH/PUT/DELETE` için Origin/Referer allowlist veya belgeli CSRF token politikası eklenmeli. Aynı-site dağıtım seçilirse `SameSite=Lax` tercihinin uygunluğu ayrıca değerlendirilmelidir. Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındadır.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi gerekiyor. `VETERINARIAN` ve `CLINIC_ADMIN` yetkileri desteklenmeli; `SUPER_ADMIN` davranışı netleştirilmeli. Yanıt modeli `id`, `type`, `title`, `message`, `createdAt` ve `readAt` alanlarıyla belgelenmeli veya mevcut `body`/`payload`/`status` şekli sabit sözleşme olarak paylaşılmalı.
 
 ---
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-23 — 0.1 httpOnly-cookie auth sözleşme denetimi
+**Yapılanlar:** Erol'un güncel `main` dalındaki backend auth controller, cookie seçenekleri, CORS/env doğrulaması ve portalın login, `/auth/me`, refresh, logout ve guard akışları karşılaştırıldı. Portalın access/refresh token JSON alanlarına ihtiyaç duymadığı doğrulandı; eski test mock'undaki token alanları kaldırıldı ve super-admin login yalnız `{ user }` gövdesiyle `/admin/dashboard` yönlendirmesini bekleyecek şekilde kararlılaştırıldı. İlk paralel koşuda sabit 2 saniyelik bekleme kaynaklı test yarışı tespit edilip hedef URL beklentisiyle giderildi. Backend koduna dokunulmadı.
+**Dokunulan dosyalar:** `portal/tests/auth.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Token-gövdesiz login, httpOnly oturumu `/auth/me` ile doğrulama, tek refresh isteği, başarısız refresh'te login'e dönüş ve backend erişilemese de yerel logout çalışıyor. Auth Playwright paketi 12/12, lint ve temiz production build başarılı. 0.1, backend yanıt gövdesi ve Origin/CSRF kapanışı gelene kadar ⛔ durumda.
+**Sıradaki:** Erol `accessToken` gövdesini kaldırıp production Origin/CSRF politikasını eklediğinde gerçek backend ile login → refresh → logout smoke testi yapmak.
+**Erol'a not (varsa):** `withoutRefreshToken()` yalnız `{ user }` (refresh için gerekirse tokensız oturum metadatası) dönmeli. Production `SameSite=None; Secure` kullanılırken CORS tek başına CSRF koruması değildir; unsafe metotlarda Origin/Referer allowlist veya CSRF token doğrulaması ve bunların negatif testleri gerekir.
 
 ### 2026-07-23 — İl bilgi balonunda aktif erken uyarı
 **Yapılanlar:** Türkiye haritasındaki il bilgi balonuna risk statüsü ve aşılama kapsamından ayrı bir aktif erken uyarı satırı eklendi. Aktif sinyali bulunan Konya gibi illerde adet vurgulu biçimde gösteriliyor; Ankara gibi sinyali olmayan illerde `Aktif erken uyarı yok` ifadesi kullanılıyor. Böylece risk dağılımı ile operasyonel uyarı adedi aynı balonda ayrı metrikler olarak okunuyor. Her iki durumu koruyan Playwright beklentileri eklendi.
