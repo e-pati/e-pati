@@ -11,6 +11,8 @@ Bu paket bir PowerPoint sunumu değildir. VetCep'in çalışan ekranları sunumu
 
 ### Teknik ek ve B planı dosyaları
 
+- [`output/pdf/VETCEP-DANISMAN-INCELEME-VE-ONAY-MATRISI.pdf`](output/pdf/VETCEP-DANISMAN-INCELEME-VE-ONAY-MATRISI.pdf) — hukuk, KVKK, mali/kamu ihalesi ve teknik onayları tek A4 sayfada toplayan doldurulabilir karar formu.
+- [`DANISMAN-INCELEME-VE-ONAY-MATRISI.md`](DANISMAN-INCELEME-VE-ONAY-MATRISI.md) — danışman geri bildirimleri için düzenlenebilir matris kaynağı.
 - [`output/VETCEP-SUNUM-GUNU-CEVRIMDISI-PAKETI.zip`](output/VETCEP-SUNUM-GUNU-CEVRIMDISI-PAKETI.zip) — sunumcu PDF'i, teknik ek, yedek video, kontrol karesi, kılavuz ve manifesti tek kökte içeren sunum günü paketi.
 - [`SUNUM-GUNU-CEVRIMDISI-KILAVUZ.md`](SUNUM-GUNU-CEVRIMDISI-KILAVUZ.md) — bilgisayar/USB hazırlığı, canlı akıştan B planına geçiş ve 30 dakika önce kontrol listesi.
 - [`SUNUM-GUNU-DOSYA-MANIFESTI.md`](SUNUM-GUNU-DOSYA-MANIFESTI.md) — paketteki dış-paylaşıma güvenli dosyaların boyut ve SHA-256 değerleri.
