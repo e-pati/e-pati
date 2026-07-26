@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import { localizeDemoClinicalText } from '@/lib/demo-clinical-localization'
 
 export interface ApiLabResult {
   id: string
@@ -31,10 +32,25 @@ function unwrapList<T>(response: ListResponse<T>): T[] {
   return response.items
 }
 
+type RawLabResult = ApiLabResult & {
+  title?: string
+  notes?: string
+  collectedAt?: string
+}
+
+function normalizeLabResult(lab: RawLabResult): ApiLabResult {
+  return {
+    ...lab,
+    testType: localizeDemoClinicalText(lab.testType ?? lab.title) ?? 'Laboratuvar sonucu',
+    comment: localizeDemoClinicalText(lab.comment ?? lab.notes),
+    date: lab.date ?? lab.collectedAt,
+  }
+}
+
 export const labResultsService = {
   async getAll(params: LabResultListParams = {}): Promise<ApiLabResult[]> {
-    const { data } = await api.get<ListResponse<ApiLabResult>>('/lab-results', { params })
-    return unwrapList(data)
+    const { data } = await api.get<ListResponse<RawLabResult>>('/lab-results', { params })
+    return unwrapList(data).map(normalizeLabResult)
   },
 
   async getOne(id: string): Promise<ApiLabResult> {

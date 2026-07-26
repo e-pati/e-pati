@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:docker-smoke": "playwright test tests/docker-auth-smoke.spec.ts --config=playwright.docker.config.ts",
     "test:prod-smoke": "playwright test tests/prod-smoke.spec.ts --config=playwright.prod.config.ts"
   },
   "dependencies": {

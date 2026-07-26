@@ -2,6 +2,41 @@ import { test, expect } from '@playwright/test'
 import { clinicUser, superAdminUser } from './helpers/auth'
 
 test.describe('Auth', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/subscription/current', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'active',
+        cancelAtPeriodEnd: false,
+      }),
+    }))
+    await page.route('**/clinics/*/dashboard', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        stats: {
+          patientCount: 1,
+          examinationsToday: 0,
+          upcomingVaccinationCount: 0,
+          unreadNotificationCount: 0,
+        },
+        recentExaminations: [],
+        upcomingVaccinations: [],
+      }),
+    }))
+    await page.route('**/examinations?*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [], total: 0, page: 1, limit: 100 }),
+    }))
+    await page.route('**/vaccinations?*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [], total: 0, page: 1, limit: 100 }),
+    }))
+  })
+
   test('ana sayfa public landing olarak yüklenmeli', async ({ page }) => {
     await page.goto('/')
     await expect(page).toHaveURL(/\/$/)
@@ -116,7 +151,7 @@ test.describe('Auth', () => {
       })
     })
     await page.route('**/auth/refresh', route => {
-      refreshCallCount += 1
+      if (route.request().method() === 'POST') refreshCallCount += 1
       return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
     })
     await page.context().addCookies([{
@@ -168,6 +203,7 @@ test.describe('Auth', () => {
     }])
 
     await page.goto('/dashboard')
+    await expect(page.getByRole('heading', { name: 'Pano' })).toBeVisible()
     await page.getByRole('button', { name: /Dr\. Test Veteriner/ }).click()
 
     await expect(page).toHaveURL(/\/login$/, { timeout: 10000 })

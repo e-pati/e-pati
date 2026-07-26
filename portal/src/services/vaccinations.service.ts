@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import { localizeDemoClinicalText } from '@/lib/demo-clinical-localization'
 
 export interface ApiVaccination {
   id: string
@@ -36,15 +37,23 @@ function unwrapList<T>(response: ListResponse<T>): T[] {
   return response.items
 }
 
+function normalizeVaccination(vaccination: ApiVaccination): ApiVaccination {
+  return {
+    ...vaccination,
+    name: localizeDemoClinicalText(vaccination.name) ?? vaccination.name,
+    notes: localizeDemoClinicalText(vaccination.notes),
+  }
+}
+
 export const vaccinationsService = {
   async getAll(params: VaccinationListParams = {}): Promise<ApiVaccination[]> {
     const { data } = await api.get<ListResponse<ApiVaccination>>('/vaccinations', { params })
-    return unwrapList(data)
+    return unwrapList(data).map(normalizeVaccination)
   },
 
   async getUpcoming(): Promise<ApiVaccination[]> {
     const { data } = await api.get<ListResponse<ApiVaccination>>('/vaccinations/upcoming')
-    return unwrapList(data)
+    return unwrapList(data).map(normalizeVaccination)
   },
 
   async getOne(id: string): Promise<ApiVaccination> {

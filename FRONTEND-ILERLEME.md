@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Erol'un httpOnly-cookie, Origin koruması ve Docker düzeltmeleri doğrulandı
+- **Son güncelleme:** 26 Temmuz 2026 — Gerçek Docker klinik kabul turu ve Misket demo düzeltmeleri tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Erol'un Origin korumasında native mobil ve dış servis webhook'ları için güvenli istisna/alternatif doğrulama politikasını netleştirmesi; ardından gerçek Docker login → refresh → logout smoke testi yapmak
+- **Sıradaki adım:** Erol'un Origin korumasında native mobil ve dış servis webhook'ları için güvenli istisna/alternatif doğrulama politikasını netleştirmesi; Docker smoke testini sunum öncesi tek komutla yeniden çalıştırmak
 
 ---
 
@@ -35,6 +35,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
 - Erol'un `4b9b661` ve `9767a94` auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Ancak middleware şu an bütün `POST/PATCH/PUT/DELETE` isteklerini Originsiz durumda 403 ile reddediyor. React Native istemcisi ile WhatsApp/ödeme sağlayıcısı webhook'ları tarayıcı Origin/Referer başlığı göndermeyebilir; cookie-auth tarayıcı rotaları korunurken native Bearer-auth ve imzalı webhook rotaları için belgeli istisna/alternatif doğrulama ile negatif testler eklenmeli.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
+- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisini, muayene listesi veterinarian ilişkisini dönmeli; `GET /prescriptions?petId=...` liste rotası eklenmeli. Frontend Faz 0 için klinik hasta cache'i, `/pets/:id/summary` ve oturum kullanıcısı fallback'leriyle çalışıyor; pilot öncesi bu geçici uyumluluk katmanları belgeli API alanlarıyla sadeleştirilmeli.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi gerekiyor. `VETERINARIAN` ve `CLINIC_ADMIN` yetkileri desteklenmeli; `SUPER_ADMIN` davranışı netleştirilmeli. Yanıt modeli `id`, `type`, `title`, `message`, `createdAt` ve `readAt` alanlarıyla belgelenmeli veya mevcut `body`/`payload`/`status` şekli sabit sözleşme olarak paylaşılmalı.
 
 ---
@@ -53,6 +54,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Docker klinik kabul turu ve Misket demo cilası
+**Yapılanlar:** Docker Desktop üzerinde PostgreSQL, Redis, API ve portal production imajları sıfırdan derlendi; beş migration ve demo seed uygulandı. Gerçek klinik login yanıtında token bulunmadığı, access/refresh cookie'lerinin lokal HTTP için httpOnly + Lax + non-secure olduğu, sayfa yenilemede `/auth/me` oturumunun korunduğu, mock checkout ile 14 günlük demo aboneliğinin hazırlandığı, Misket profili/aşıları ve logout temizliği doğrulandı. Kalıcı `test:docker-smoke` komutu eklendi. Kabul turunda bulunan `Dr. Dr.`/`Merhaba, Dr.!` unvan tekrarları, eksik sahip bilgisi, olmayan reçete liste endpointine bağlı profil hatası, lab alan adı farkları, kırık uzak hasta fotoğrafı ve İngilizce demo klinik metinleri portal tarafında giderildi. Auth testleri gerçek API açıkken yan isteklerden etkilenmeyecek şekilde izole edildi.
+**Dokunulan dosyalar:** `portal/playwright.docker.config.ts`, `portal/tests/docker-auth-smoke.spec.ts`, `portal/tests/auth.spec.ts`, `portal/package.json`, `portal/src/app/(dashboard)/dashboard/page.tsx`, `portal/src/app/(dashboard)/patients/page.tsx`, `portal/src/app/(dashboard)/patients/[id]/page.tsx`, `portal/src/components/patients/patient-avatar.tsx`, `portal/src/hooks/use-pets.ts`, `portal/src/lib/demo-clinical-localization.ts`, `portal/src/services/examinations.service.ts`, `portal/src/services/vaccinations.service.ts`, `portal/src/services/prescriptions.service.ts`, `portal/src/services/lab-results.service.ts`, `output/docker-smoke/01-dashboard.png`, `output/docker-smoke/02-misket-profili.png`, `output/docker-smoke/03-asi-listesi.png`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Lokal `http://localhost:3001` üzerinde klinik giriş → demo aboneliği → Pano → yenileme → Hastalar → Misket → Kuduz aşı listesi → logout akışı geçti. Docker production build başarılı; hedef lint temiz; auth/hasta regresyonları 18/18 ve gerçek Docker smoke 1/1 geçti. Üç 1280×720 kanıt ekranı görsel denetlendi; kırık resim, İngilizce aşı metni ve eksik klinik özet bulunmuyor.
+**Sıradaki:** Erol Origin middleware kapsamını düzelttiğinde native mobil ve imzalı webhook senaryolarını eklemek; sunumdan önce `docker compose up --build -d`, migrate/seed ve `npm run test:docker-smoke` turunu tekrarlamak.
+**Erol'a not (varsa):** `GET /pets/:id` sahibi dahil etmiyor, `GET /prescriptions?petId=...` rotası yok ve muayene listesi veteriner ilişkisini dönmüyor; frontend demo için klinik hasta cache'i, `/pets/:id/summary` ve mevcut oturum kullanıcısıyla güvenli fallback uyguladı. Kalıcı API sözleşmesinde owner/veterinarian ilişkileri ile reçete listeleme eklenmeli. Origin middleware için native Bearer ve imzalı webhook kapsam notu geçerli.
 
 ### 2026-07-26 — Erol auth ve Docker push doğrulaması
 **Yapılanlar:** Erol'un `4b9b661`, `61e45f2` ve `9767a94` commitleri incelendi ve `feature/portal` dalına conflict olmadan fast-forward ile alındı. Login, clinic login, OTP ve refresh yanıtlarından access/refresh tokenların kaldırılıp yalnız `{ user }` döndüğü; httpOnly cookie seçeneklerinin production ve lokal Docker HTTP için ayrıldığı; unsafe isteklerde `CORS_ORIGINS` tabanlı Origin/Referer kontrolü eklendiği doğrulandı. Docker pnpm sürümü, Prisma client üretimi ve portal legacy peer bağımlılık kurulumu düzeltmeleri de kontrol edildi.

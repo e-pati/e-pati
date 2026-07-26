@@ -13,11 +13,11 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { useClinicPatients } from '@/hooks/use-clinic'
-import { formatDate, calculateAge, speciesEmoji, speciesLabel } from '@/lib/utils'
+import { formatDate, calculateAge, speciesLabel } from '@/lib/utils'
 import type { PetSpecies } from '@/types'
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { PatientAvatar } from '@/components/patients/patient-avatar'
 
 const PAGE_SIZE = 12
 
@@ -144,10 +144,12 @@ function PatientsContent() {
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
-                          {pet.photoUrl
-                            ? <Image src={pet.photoUrl} alt={pet.name} width={56} height={56} className="w-full h-full object-cover" unoptimized />
-                            : speciesEmoji(species)
-                          }
+                          <PatientAvatar
+                            name={pet.name}
+                            photoUrl={pet.photoUrl}
+                            species={species}
+                            size={56}
+                          />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">

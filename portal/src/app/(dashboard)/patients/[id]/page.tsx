@@ -3,7 +3,6 @@
 import { use, useState } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { toast } from 'sonner'
 import { Header } from '@/components/layout/header'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +19,7 @@ import { useExaminations } from '@/hooks/use-examinations'
 import { useVaccinations } from '@/hooks/use-vaccinations'
 import { usePrescriptions } from '@/hooks/use-prescriptions'
 import { useLabResults } from '@/hooks/use-lab-results'
+import { useAuthStore } from '@/stores/auth.store'
 import type { ApiExamination } from '@/services/examinations.service'
 import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
 import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
@@ -28,9 +28,10 @@ import { AddPrescriptionDialog } from '@/components/patients/add-prescription-di
 import { AddLabResultDialog } from '@/components/patients/add-lab-result-dialog'
 import { EditPatientDialog } from '@/components/patients/edit-patient-dialog'
 import { SendWhatsAppDialog } from '@/components/patients/send-whatsapp-dialog'
+import { PatientAvatar } from '@/components/patients/patient-avatar'
 import type { PetSpecies } from '@/types'
 import {
-  formatDate, formatDateShort, calculateAge, speciesEmoji, speciesLabel,
+  formatDate, formatDateShort, calculateAge, speciesLabel,
   isVaccinationDueSoon, isVaccinationOverdue,
 } from '@/lib/utils'
 import {
@@ -42,6 +43,7 @@ import {
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
+  const currentUser = useAuthStore(state => state.user)
   const [vaccinationDialogOpen, setVaccinationDialogOpen] = useState(false)
   const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(false)
   const [labDialogOpen, setLabDialogOpen] = useState(false)
@@ -133,10 +135,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             {/* Avatar + ad */}
             <div className="flex items-end gap-5 -mt-10 mb-5">
               <div className="w-20 h-20 rounded-2xl bg-white shadow-md border-4 border-white flex items-center justify-center text-5xl overflow-hidden flex-shrink-0">
-                {pet.photoUrl
-                  ? <Image src={pet.photoUrl} alt={pet.name} width={80} height={80} className="w-full h-full object-cover" unoptimized />
-                  : speciesEmoji(petSpecies)
-                }
+                <PatientAvatar
+                  name={pet.name}
+                  photoUrl={pet.photoUrl}
+                  species={petSpecies}
+                  size={80}
+                />
               </div>
               <div className="pb-1">
                 <h2 className="text-xl font-bold text-foreground">{pet.name}</h2>
@@ -293,7 +297,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                       <div>
                         <div className="text-sm font-semibold text-foreground">{formatDate(examinationDate(exam))}</div>
                         <div className="text-xs text-muted-foreground mt-0.5">
-                          {formatVetName(exam.vet)}
+                          {formatVetName(
+                            exam.vet,
+                            exam.veterinarianId === currentUser?.id ? currentUser?.fullName : undefined,
+                          )}
                         </div>
                       </div>
                       {exam.followUpDate && (
@@ -547,10 +554,12 @@ function labDate(lab: ApiLabResult): string {
   return lab.date ?? lab.createdAt ?? new Date().toISOString()
 }
 
-function formatVetName(vet: ApiExamination['vet']): string {
-  if (!vet) return 'Veteriner bilgisi yok'
+function formatVetName(vet: ApiExamination['vet'], fallbackName?: string): string {
+  if (!vet) return fallbackName ?? 'Veteriner bilgisi yok'
   if (vet.fullName) return `${vet.title ?? ''} ${vet.fullName}`.trim()
-  return `${vet.title ?? ''} ${vet.firstName ?? ''} ${vet.lastName ?? ''}`.trim() || 'Veteriner bilgisi yok'
+  return `${vet.title ?? ''} ${vet.firstName ?? ''} ${vet.lastName ?? ''}`.trim()
+    || fallbackName
+    || 'Veteriner bilgisi yok'
 }
 
 function PatientDetailSkeleton() {

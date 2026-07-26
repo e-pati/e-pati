@@ -20,10 +20,16 @@ const QUICK_ACTIONS = [
   { label: 'Lab Sonucu', icon: FlaskConical, href: '/lab-results', bg: 'bg-rose-500', text: 'text-white' },
 ]
 
+function withoutDoctorTitle(name: string): string {
+  return name.replace(/^Dr\.\s*/i, '').trim()
+}
+
 export default function DashboardPage() {
   const { data, isLoading } = useClinicDashboard()
   const user = useAuthStore(s => s.user)
-  const firstName = user?.fullName?.split(' ')[0] ?? 'Doktor'
+  const firstName = user?.fullName
+    ? withoutDoctorTitle(user.fullName).split(' ')[0]
+    : 'Doktor'
 
   const today = new Date().toLocaleDateString('tr-TR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -145,7 +151,9 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium text-foreground">{exam.pet.name}</span>
                             <span className="text-xs text-muted-foreground">·</span>
-                            <span className="text-xs text-muted-foreground truncate">Dr. {exam.veterinarian.fullName}</span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              Dr. {withoutDoctorTitle(exam.veterinarian.fullName)}
+                            </span>
                           </div>
                           {exam.complaint && (
                             <p className="text-xs text-muted-foreground truncate mt-0.5">{exam.complaint}</p>

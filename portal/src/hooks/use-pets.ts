@@ -15,7 +15,18 @@ export function usePet(id: string) {
   const qc = useQueryClient()
   return useQuery({
     queryKey: ['pets', id],
-    queryFn: () => petsService.getOne(id),
+    queryFn: async () => {
+      const pet = await petsService.getOne(id)
+      if (pet.owner) return pet
+
+      const cached = qc.getQueriesData<ClinicPatientsResponse>({ queryKey: ['clinic-patients'] })
+      for (const [, data] of cached) {
+        const found = data?.items?.find(item => item.id === id)
+        if (found?.owner) return { ...pet, owner: found.owner }
+      }
+
+      return pet
+    },
     enabled: !!id,
     placeholderData: (): ApiPet | undefined => {
       const cached = qc.getQueriesData<ClinicPatientsResponse>({ queryKey: ['clinic-patients'] })

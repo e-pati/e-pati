@@ -1,9 +1,11 @@
 import { api } from '@/lib/api'
+import { localizeDemoClinicalText } from '@/lib/demo-clinical-localization'
 
 export interface ApiExamination {
   id: string
   petId: string
   vetId?: string
+  veterinarianId?: string
   complaint: string
   findings: string
   assessment: string
@@ -43,10 +45,20 @@ function unwrapList<T>(response: ListResponse<T>): T[] {
   return response.items
 }
 
+function normalizeExamination(examination: ApiExamination): ApiExamination {
+  return {
+    ...examination,
+    complaint: localizeDemoClinicalText(examination.complaint) ?? examination.complaint,
+    findings: localizeDemoClinicalText(examination.findings) ?? examination.findings,
+    assessment: localizeDemoClinicalText(examination.assessment) ?? examination.assessment,
+    plan: localizeDemoClinicalText(examination.plan) ?? examination.plan,
+  }
+}
+
 export const examinationsService = {
   async getAll(params: ExaminationListParams = {}): Promise<ApiExamination[]> {
     const { data } = await api.get<ListResponse<ApiExamination>>('/examinations', { params })
-    return unwrapList(data)
+    return unwrapList(data).map(normalizeExamination)
   },
 
   async getOne(id: string): Promise<ApiExamination> {
