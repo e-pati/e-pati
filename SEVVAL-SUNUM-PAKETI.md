@@ -11,6 +11,8 @@ Bu paket bir PowerPoint sunumu değildir. VetCep'in çalışan ekranları sunumu
 
 ### Teknik ek dosyalar
 
+- [`output/pdf/VETCEP-BAKANLIK-TEKNIK-EKLER-TASLAK.pdf`](output/pdf/VETCEP-BAKANLIK-TEKNIK-EKLER-TASLAK.pdf) — mimari ile güvenlik/KVKK duruşunu birleştiren 10 sayfalık dış paylaşım taslağı.
+- [`output/VETCEP-BAKANLIK-TEKNIK-EKLER-DIS-PAYLASIM.zip`](output/VETCEP-BAKANLIK-TEKNIK-EKLER-DIS-PAYLASIM.zip) — fiyat dosyasını içermeyen, Şevval'e veya teknik değerlendiriciye iletilebilir paket.
 - [`BAKANLIK-TEKNIK-MIMARI.md`](BAKANLIK-TEKNIK-MIMARI.md) — Bakanlık teknik ekibiyle paylaşılabilir hedef mimari ve entegrasyon yaklaşımı.
 - [`GUVENLIK-KVKK-DURUS-NOTU.md`](GUVENLIK-KVKK-DURUS-NOTU.md) — mevcut durumu üretim uyumu gibi göstermeyen güvenlik/KVKK iyileştirme planı.
 - [`FAZLI-TESLIM-VE-FIYAT-CERCEVESI.md`](FAZLI-TESLIM-VE-FIYAT-CERCEVESI.md) — **iç müzakere taslağıdır; hukuk ve mali danışman onayı olmadan fiyat teklifi olarak paylaşılmaz.**
