@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Tek komutluk Faz 0 demo preflight akışı hazırlandı
+- **Son güncelleme:** 26 Temmuz 2026 — Bakanlık teknik mimari, güvenlik/KVKK ve fazlı teslim taslakları hazırlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Sunum öncesi `npm run test:demo` ve `npm run test:docker-smoke` ile go/no-go kontrolünü tekrarlamak; Erol'un Origin koruması kapsam düzeltmesini geldiğinde doğrulamak
+- **Sıradaki adım:** Teknik ekleri hukuk, mali müşavir/kamu ihalesi ve KVKK danışmanı incelemesinden geçirmek; onaylanan sürümleri PDF/basılı pakete dönüştürmek
 
 ---
 
@@ -29,6 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
+| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik mimari, güvenlik/KVKK duruşu ve fazlı teslim/fiyat iç taslakları hazır; Şevval paketine bağlandı. Hukuk/mali/KVKK onayı, onaylı PDF/baskı ve yedek video bekliyor |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır |
 
 **Erol'dan (backend) beklenenler:**
@@ -54,6 +55,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Bakanlık teknik ek dosyaları
+**Yapılanlar:** Faz 0 görev 0.11 kapsamında Bakanlık teknik görüşmesine uygun hedef mimari; mevcut demo sınırlarını gizlemeyen güvenlik/KVKK duruş ve iyileştirme planı; demo, pilot ve ulusal teslimi birbirinden ayıran fiyat/kapsam çerçevesi hazırlandı. HAYBİS, TÜRKVET, PETVET, İTS ve e-Devlet'in yerine değil üzerinde konumlanma korunarak entegrasyon sorumlulukları, modüler mimari, pilot kabul kapıları, veri yönetişimi, güvenlik takvimi, ekip büyümesi, kilometre taşları, IP/escrow ve SLA başlıkları yazıldı. KVKK ve kamu ihale iddiaları güncel resmî kaynaklarla kontrol edildi. Fiyat belgesi bağlayıcı teklif değil, danışman onayı gereken iç müzakere taslağı olarak ayrıldı; üç belge Şevval sunumcu kaynağına bağlandı ve dört düzenlenebilir kaynağı içeren iletilebilir taslak ZIP üretildi.
+**Dokunulan dosyalar:** `BAKANLIK-TEKNIK-MIMARI.md`, `GUVENLIK-KVKK-DURUS-NOTU.md`, `FAZLI-TESLIM-VE-FIYAT-CERCEVESI.md`, `SEVVAL-SUNUM-PAKETI.md`, `output/BAKANLIK-TEKNIK-EKLER-TASLAK.zip`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün ekranı veya backend değişmedi. Bakanlık teknik soru-cevap ve toplantı sonrası pilot görüşmesi için düzenlenebilir kaynak belgeler hazır; 0.11'in PDF/baskı ve yedek video kısmı henüz tamamlanmadı.
+**Sıradaki:** Belgeleri hukuk, mali müşavir/kamu ihalesi ve KVKK danışmanına inceletmek; onaylanan içerikten dışa paylaşılabilir PDF teknik ek paketi üretmek.
+**Erol'a not (varsa):** Belge hazırlığı için backend değişikliği gerekmiyor. Erol teknik doğrulamada entegrasyon bağımlılıkları, hedef API sınırları, barındırma/operasyon varsayımları ve pilot eforlarını gözden geçirmeli; onay beklemeden demo geliştirmesi ilerleyebilir.
 
 ### 2026-07-26 — Tek komutluk Faz 0 demo preflight
 **Yapılanlar:** Vatandaş girişi, sunum kumandası, büyükbaş hareketi, belediye sahiplendirme akışı, 81 il Bakanlık konsolu, mobil responsive görünüm ve dokunma hedeflerini kapsayan mevcut yedi Playwright paketi `npm run test:demo` komutunda birleştirildi. Teknik prova runbook'u doğrulanan Docker Compose kurulumuna göre yenilendi; frontend-only demo kabulü ile gerçek API kullanan Docker klinik smoke turu birbirinden açıkça ayrıldı ve go/no-go listesine eklendi.
