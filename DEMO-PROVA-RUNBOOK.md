@@ -1,6 +1,6 @@
 # VetCep — Faz 0 Demo Prova Runbook'u
 
-> Son teknik prova: **22 Temmuz 2026**  
+> Son teknik prova: **26 Temmuz 2026**
 > Sunum süresi: **25 dakika**  
 > Ana kumanda: `http://localhost:3001/demo-akisi`
 
@@ -10,7 +10,19 @@ Bu belge, Bakanlık sunumundan önce aynı ortamı ayağa kaldırmak ve demo ak�
 
 ## 1. Zorunlu ön kontrol
 
-Üç ayrı terminal kullanın. Önce Docker Desktop ve PostgreSQL bağlantısının hazır olduğundan emin olun. Bu provada Docker Desktop kapalı olduğu için backend mevcut `.env` veritabanına doğrudan NestJS ile bağlanarak doğrulandı.
+Önce Docker Desktop'ın açık olduğundan emin olun. Sunum ortamının tamamını proje kökünden tek Docker Compose yığını olarak ayağa kaldırın:
+
+```bash
+# Proje kökü
+docker compose up --build -d
+docker compose run --rm api pnpm db:migrate
+docker compose run --rm api pnpm db:seed
+docker compose ps
+```
+
+`db:seed` yalnız sunuma ayrılmış yerel/demo veritabanında çalıştırılmalıdır. Paylaşılan veya canlı veritabanında habersiz seed çalıştırmayın.
+
+Docker kullanılamıyorsa üç ayrı terminalde backend, portal ve mobil yüzeyleri yerel geliştirme modunda açın:
 
 ```bash
 # Terminal 1 — backend
@@ -39,13 +51,32 @@ Demo hesapları:
 
 Prisma şeması değişmişse `npm run db:generate` atlanmamalıdır. Demo verisi görünmüyorsa Burak ve Erol birlikte migration/seed durumunu kontrol etmelidir; paylaşılan veritabanında prova sırasında habersiz seed çalıştırılmamalıdır.
 
+### Tek komutluk teknik kabul
+
+Portal ayağa kalktıktan sonra frontend demo rotalarının tamamını backend'den bağımsız doğrulayın:
+
+```bash
+cd portal
+npm run test:demo
+```
+
+Komut; vatandaş girişini, sunum kumandasını, hayvancılık ve belediye senaryolarını, 81 il Bakanlık konsolunu, mobil responsive görünümü ve dokunma hedeflerini tek turda kontrol eder. Klinik hesabı ve gerçek Docker API sözleşmesi ayrıca şu komutla doğrulanır:
+
+```bash
+cd portal
+npm run test:docker-smoke
+```
+
+İki komuttan biri başarısızsa canlı sunuma geçmeden önce Playwright raporundaki ilk hatayı çözün. Testler yeni özellik eklemek için değil, mevcut 25 dakikalık senaryonun bozulmadığını kanıtlamak içindir.
+
 Sunumdan hemen önce:
 
-1. `/demo-akisi` sayfasını açın ve **Tüm demo verisini sıfırla** eylemini çalıştırın.
-2. Klinik hesabıyla ayrı bir sekmede giriş yapın.
-3. `/patients` ekranında `Misket` aramasının sonuç verdiğini kontrol edin.
-4. Mobilde `/pets`, `/pets/demo-pamuk` ve `/pets/producer-demo` rotalarını önceden açın.
-5. Tarayıcı yakınlaştırmasını `%100`, bildirimleri sessiz ve ekran paylaşımını hazır tutun.
+1. `npm run test:demo` ve `npm run test:docker-smoke` sonuçlarının geçtiğini görün.
+2. `/demo-akisi` sayfasını açın ve **Tüm demo verisini sıfırla** eylemini çalıştırın.
+3. Klinik hesabıyla ayrı bir sekmede giriş yapın.
+4. `/patients` ekranında `Misket` aramasının sonuç verdiğini kontrol edin.
+5. Mobilde `/pets`, `/pets/demo-pamuk` ve `/pets/producer-demo` rotalarını önceden açın.
+6. Tarayıcı yakınlaştırmasını `%100`, bildirimleri sessiz ve ekran paylaşımını hazır tutun.
 
 ## 2. 25 dakikalık sunum rotası
 
@@ -100,6 +131,7 @@ Pilot sözleşmesinde veri sahipliği Bakanlıkta kalmalı; açık veri dışa a
 - `/health`, `/health/ready` ve gerçek klinik login isteği HTTP 200 döndü.
 - Gerçek portal akışı: klinik giriş → pano → Misket araması → profil → aşı kaydı geçti.
 - Portal demo paketi: vatandaş, sunum kumandası, hayvancılık, belediye ve Bakanlık için **10/10 Playwright testi geçti**.
+- 26 Temmuz güncel preflight turunda vatandaş, sunum kumandası, hayvancılık, belediye, Bakanlık, responsive ve touch paketleri `npm run test:demo` ile **25/25**; gerçek Docker klinik kabulü `npm run test:docker-smoke` ile **1/1** geçti.
 - Mobil `npx tsc --noEmit` ve Expo production web export başarılı.
 - Portal lint başarılı.
 - İlk paralel test turundaki tek hayvancılık zaman aşımı, tek işçili tekrar ve tam turda tekrarlanmadı; ürün hatası olarak doğrulanmadı.
@@ -111,6 +143,7 @@ Pilot sözleşmesinde veri sahipliği Bakanlıkta kalmalı; açık veri dışa a
 Sunuma ancak aşağıdakilerin tümü “evet” ise canlı demoyla girin:
 
 - [ ] `origin/main` ve sunum dalı beklenen committe
+- [ ] `npm run test:demo` ve `npm run test:docker-smoke` geçti
 - [ ] Backend health ve readiness 200
 - [ ] Klinik login ve Misket araması çalışıyor
 - [ ] Pamuk ve Sarıkız mobil ekranları açık

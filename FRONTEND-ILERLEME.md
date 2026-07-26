@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Gerçek Docker klinik kabul turu ve Misket demo düzeltmeleri tamamlandı
+- **Son güncelleme:** 26 Temmuz 2026 — Tek komutluk Faz 0 demo preflight akışı hazırlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Erol'un Origin korumasında native mobil ve dış servis webhook'ları için güvenli istisna/alternatif doğrulama politikasını netleştirmesi; Docker smoke testini sunum öncesi tek komutla yeniden çalıştırmak
+- **Sıradaki adım:** Sunum öncesi `npm run test:demo` ve `npm run test:docker-smoke` ile go/no-go kontrolünü tekrarlamak; Erol'un Origin koruması kapsam düzeltmesini geldiğinde doğrulamak
 
 ---
 
@@ -29,7 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
-| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı ve 13 sayfalık gönderilebilir sunumcu devir paketi hazır; demo regresyonları doğrulandı |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -54,6 +54,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Tek komutluk Faz 0 demo preflight
+**Yapılanlar:** Vatandaş girişi, sunum kumandası, büyükbaş hareketi, belediye sahiplendirme akışı, 81 il Bakanlık konsolu, mobil responsive görünüm ve dokunma hedeflerini kapsayan mevcut yedi Playwright paketi `npm run test:demo` komutunda birleştirildi. Teknik prova runbook'u doğrulanan Docker Compose kurulumuna göre yenilendi; frontend-only demo kabulü ile gerçek API kullanan Docker klinik smoke turu birbirinden açıkça ayrıldı ve go/no-go listesine eklendi.
+**Dokunulan dosyalar:** `portal/package.json`, `DEMO-PROVA-RUNBOOK.md`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Yeni ürün özelliği eklenmedi. Mevcut 25 dakikalık Faz 0 rotasının tamamı artık tek komutla regresyon kontrolünden geçirilebiliyor. İlk gerçek çalıştırmada frontend demo preflight 25/25; httpOnly oturum, demo aboneliği, Misket profili/aşıları ve logout içeren Docker klinik kabulü 1/1 geçti.
+**Sıradaki:** Sunumdan hemen önce iki kabul komutunu çalıştırıp yalnız başarısız olan demo-kritik noktaları düzeltmek; yeni özellik eklememek.
+**Erol'a not (varsa):** Bu preflight işi backend değişikliği gerektirmiyor. Origin middleware'in native Bearer ve imzalı webhook kapsamı ile klinik detay sözleşmesine ilişkin önceki notlar geçerli.
 
 ### 2026-07-26 — Docker klinik kabul turu ve Misket demo cilası
 **Yapılanlar:** Docker Desktop üzerinde PostgreSQL, Redis, API ve portal production imajları sıfırdan derlendi; beş migration ve demo seed uygulandı. Gerçek klinik login yanıtında token bulunmadığı, access/refresh cookie'lerinin lokal HTTP için httpOnly + Lax + non-secure olduğu, sayfa yenilemede `/auth/me` oturumunun korunduğu, mock checkout ile 14 günlük demo aboneliğinin hazırlandığı, Misket profili/aşıları ve logout temizliği doğrulandı. Kalıcı `test:docker-smoke` komutu eklendi. Kabul turunda bulunan `Dr. Dr.`/`Merhaba, Dr.!` unvan tekrarları, eksik sahip bilgisi, olmayan reçete liste endpointine bağlı profil hatası, lab alan adı farkları, kırık uzak hasta fotoğrafı ve İngilizce demo klinik metinleri portal tarafında giderildi. Auth testleri gerçek API açıkken yan isteklerden etkilenmeyecek şekilde izole edildi.
