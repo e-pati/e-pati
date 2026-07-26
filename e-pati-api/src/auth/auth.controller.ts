@@ -69,7 +69,7 @@ export class AuthController {
     const auth = await this.authService.verifyOtp(dto);
     this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
-    return this.withoutRefreshToken(auth);
+    return this.withoutTokens(auth);
   }
 
   @Post('login')
@@ -82,7 +82,7 @@ export class AuthController {
     const auth = await this.authService.login(dto);
     this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
-    return this.withoutRefreshToken(auth);
+    return this.withoutTokens(auth);
   }
 
   @Post('clinic/login')
@@ -95,7 +95,7 @@ export class AuthController {
     const auth = await this.authService.loginClinic(dto);
     this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
-    return this.withoutRefreshToken(auth);
+    return this.withoutTokens(auth);
   }
 
   @Post('refresh')
@@ -108,7 +108,7 @@ export class AuthController {
     const auth = await this.authService.refresh(request.cookies?.refreshToken);
     this.setAccessCookie(response, auth.accessToken);
     this.setRefreshCookie(response, auth.refreshToken);
-    return this.withoutRefreshToken(auth);
+    return this.withoutTokens(auth);
   }
 
   @Post('logout')
@@ -161,13 +161,12 @@ export class AuthController {
     });
   }
 
-  private withoutRefreshToken(auth: {
+  private withoutTokens(auth: {
     accessToken: string;
     refreshToken: string;
     user: unknown;
   }) {
     return {
-      accessToken: auth.accessToken,
       user: auth.user,
     };
   }

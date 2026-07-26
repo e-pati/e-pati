@@ -4,14 +4,20 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import {
+  createUnsafeRequestOriginGuard,
+  parseTrustedOrigins,
+} from './security/origin-guard.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  const corsOrigins = parseTrustedOrigins(process.env.CORS_ORIGINS);
 
   app.use(helmet());
   app.use(cookieParser());
+  app.use(createUnsafeRequestOriginGuard(corsOrigins));
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()),
+    origin: corsOrigins,
     credentials: true,
   });
   app.useGlobalPipes(

@@ -20,7 +20,7 @@ QR_TOKEN_SECRET="change-me-to-a-long-random-value"
 CORS_ORIGINS="http://localhost:3000,http://localhost:3001,http://localhost:5173,http://localhost:8081,https://e-pati.vercel.app"
 ```
 
-Use a development PostgreSQL database and keep the real host, username, and password outside Git.
+Use a development PostgreSQL database and keep the real host, username, and password outside Git. `CORS_ORIGINS` is also the trusted Origin/Referer allowlist for unsafe requests.
 
 ## Database
 
@@ -73,7 +73,7 @@ Mobile registration now uses email OTP:
 ```text
 POST /auth/register    { fullName, email, password, phone? } -> creates/updates a pending owner and sends OTP
 POST /auth/send-otp    { email } -> resends a 6-digit email OTP
-POST /auth/verify-otp  { email, code } -> verifies the owner and returns tokens
+POST /auth/verify-otp  { email, code } -> verifies the owner, sets httpOnly cookies, and returns { user }
 ```
 
 OTP codes are stored in Redis for 5 minutes and sent with Resend.

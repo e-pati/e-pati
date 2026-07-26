@@ -66,6 +66,8 @@ Kisa vadede Supabase + Upstash kullanilabilir. Bakanlik/pilot fazinda veri yerle
 
 Production API `DATABASE_URL`, `REDIS_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `QR_TOKEN_SECRET` ve `CORS_ORIGINS` olmadan acilmaz. Bu bilerek yapildi; placeholder secret ile deploy etmek yerine uygulama erken hata verir.
 
+`CORS_ORIGINS` sadece CORS icin degil, POST/PATCH/PUT/DELETE isteklerinde Origin/Referer dogrulamasi icin de kullanilir. Production portal domainleri bu listeye eksiksiz eklenmelidir; baska originlerden gelen unsafe cookie-auth istekleri 403 ile reddedilir.
+
 Secret uretimi icin:
 
 ```bash
