@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Faz 0 canlı demo akışı çevrimdışı yedek video ve kullanım paketi olarak hazırlandı
+- **Son güncelleme:** 26 Temmuz 2026 — Sunumcu PDF, teknik ek ve yedek video tek çevrimdışı sunum günü paketinde birleştirildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Teknik ekleri hukuk, mali müşavir/kamu ihalesi ve KVKK danışmanı incelemesinden geçirmek; sunum bilgisayarı ve USB üzerinde çevrimdışı paket açılışını doğrulamak
+- **Sıradaki adım:** Çevrimdışı ZIP'i sunum bilgisayarı ve USB'ye kopyalayıp fiziksel ortamda açmak; teknik ekleri hukuk, mali müşavir/kamu ihalesi ve KVKK danışmanı incelemesinden geçirmek
 
 ---
 
@@ -29,7 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
-| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik mimari, güvenlik/KVKK duruşu ve fazlı teslim/fiyat iç taslakları hazır; dış-paylaşım PDF/ZIP'i ile 4:27'lik çevrimdışı yedek video paketi doğrulandı. Hukuk/mali/KVKK onayı ve onaylı baskı bekliyor |
+| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik mimari, güvenlik/KVKK duruşu ve fazlı teslim/fiyat iç taslakları hazır; dış-paylaşım PDF/ZIP'i, 4:27'lik video ve sekiz dosyalı sunum günü çevrimdışı paketi doğrulandı. Hukuk/mali/KVKK onayı ve onaylı baskı bekliyor |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır |
 
 **Erol'dan (backend) beklenenler:**
@@ -55,6 +55,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Sunum günü çevrimdışı teslim paketi
+**Yapılanlar:** Şevval'in sunumcu PDF'i, 10 sayfalık Bakanlık teknik ek taslağı, 4 dakika 27 saniyelik yedek demo videosu, video kontrol karesi, kullanım notu ve teknik runbook tek köklü çevrimdışı ZIP'te birleştirildi. Pakete bilgisayar/USB hazırlığını, arıza geçiş cümlesini, bölüm zamanlarını, anlatım kırmızı çizgilerini ve 30 dakika önce kontrol listesini içeren başlangıç kılavuzu eklendi. Yedi ana dosyanın boyut ve SHA-256 değerleri manifestte kaydedildi; manifest dahil sekiz dosyanın tamamı arşivden açılarak bütünlük kontrolünden geçirildi. Fiyat/iç müzakere belgesi, gerçek kimlik bilgisi, parola, kaynak kod, `.env` ve veritabanı dökümü paketin dışında bırakıldı.
+**Dokunulan dosyalar:** `SUNUM-GUNU-CEVRIMDISI-KILAVUZ.md`, `SUNUM-GUNU-DOSYA-MANIFESTI.md`, `output/VETCEP-SUNUM-GUNU-CEVRIMDISI-PAKETI.zip`, `SEVVAL-SUNUM-PAKETI.md`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün kodu değişmedi. Tek ZIP çıkarıldığında sunumcu metni, teknik ek ve canlı demo B planı internet olmadan aynı klasörden açılabiliyor. Teknik ek açıkça taslak; video ve belgelerde sentetik/simülasyon sınırı korunuyor.
+**Sıradaki:** ZIP'i gerçek sunum bilgisayarına ve ayrı USB belleğe kopyalayıp internet kapalıyken PDF/MP4 açılışını doğrulamak; danışman onaylarından sonra teknik ekin `TASLAK` etiketli sürümünü onaylı baskıya çevirmek.
+**Erol'a not (varsa):** Çevrimdışı paket backend değişikliği gerektirmiyor. Sunum günü Erol yalnız gerçek klinik servisinde teknik soru veya arıza çıkarsa destek verecek.
 
 ### 2026-07-26 — Faz 0 çevrimdışı yedek demo videosu
 **Yapılanlar:** Canlı portal, mobil veya backend bağlantısı kesildiğinde Şevval'in anlatımı sürdürebilmesi için mevcut Faz 0 ekranlarından 4 dakika 27 saniyelik sessiz yedek video hazırlandı. Akış açılış, simülasyon etiketli vatandaş girişi, Pamuk/Sarıkız mobil kayıtları, klinik, üretici hareketi, belediye yaşam döngüsü, gerçek Türkiye silüeti üzerindeki 81 il Bakanlık görünümü ve pilot kapanışını kapsıyor. Video H.264 1920×1080/25 fps MP4'e dönüştürüldü, baştan sona hatasız decode edildi ve sekiz ana bölüm karesi görsel olarak incelendi. Gerçek parola/T.C. Kimlik No, kişisel veri ve fiyat bilgisi görüntüye alınmadı. Bölüm zamanları, arıza geçiş cümlesi ve çevrimdışı kontrol listesi yazıldı; video, kullanım notu ve kontrol kareleri tek ZIP'te paketlendi.

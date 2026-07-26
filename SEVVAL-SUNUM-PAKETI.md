@@ -11,6 +11,9 @@ Bu paket bir PowerPoint sunumu değildir. VetCep'in çalışan ekranları sunumu
 
 ### Teknik ek ve B planı dosyaları
 
+- [`output/VETCEP-SUNUM-GUNU-CEVRIMDISI-PAKETI.zip`](output/VETCEP-SUNUM-GUNU-CEVRIMDISI-PAKETI.zip) — sunumcu PDF'i, teknik ek, yedek video, kontrol karesi, kılavuz ve manifesti tek kökte içeren sunum günü paketi.
+- [`SUNUM-GUNU-CEVRIMDISI-KILAVUZ.md`](SUNUM-GUNU-CEVRIMDISI-KILAVUZ.md) — bilgisayar/USB hazırlığı, canlı akıştan B planına geçiş ve 30 dakika önce kontrol listesi.
+- [`SUNUM-GUNU-DOSYA-MANIFESTI.md`](SUNUM-GUNU-DOSYA-MANIFESTI.md) — paketteki dış-paylaşıma güvenli dosyaların boyut ve SHA-256 değerleri.
 - [`output/pdf/VETCEP-BAKANLIK-TEKNIK-EKLER-TASLAK.pdf`](output/pdf/VETCEP-BAKANLIK-TEKNIK-EKLER-TASLAK.pdf) — mimari ile güvenlik/KVKK duruşunu birleştiren 10 sayfalık dış paylaşım taslağı.
 - [`output/VETCEP-BAKANLIK-TEKNIK-EKLER-DIS-PAYLASIM.zip`](output/VETCEP-BAKANLIK-TEKNIK-EKLER-DIS-PAYLASIM.zip) — fiyat dosyasını içermeyen, Şevval'e veya teknik değerlendiriciye iletilebilir paket.
 - [`output/demo-backup/VETCEP-FAZ0-YEDEK-DEMO.mp4`](output/demo-backup/VETCEP-FAZ0-YEDEK-DEMO.mp4) — canlı bağlantı kesilirse Şevval'in anlatımına eşlik edecek 4 dakika 27 saniyelik sessiz yedek kayıt.
@@ -403,6 +406,7 @@ Asla atlama:
 - [ ] Kars erken uyarı kartı il detayına götürüyor
 - [ ] Yedek ekran görüntüleri çevrimdışı erişilebilir
 - [ ] Yedek MP4 sunum bilgisayarında ve USB'de açılıyor; bölüm zamanlarına atlanabiliyor
+- [ ] Sunum günü ZIP'i tamamen çıkarıldı; manifestteki sekiz dosya aynı klasörde
 
 ### Şevval'in sunum kontrolü
 
@@ -464,6 +468,8 @@ Asla atlama:
 
 - Ayrıntılı konuşma metni: `DEMO-PROVA-KONUSMA-METNI.md`
 - Teknik runbook: `DEMO-PROVA-RUNBOOK.md`
+- Sunum günü çevrimdışı kılavuzu: `SUNUM-GUNU-CEVRIMDISI-KILAVUZ.md`
+- Sunum günü çevrimdışı paketi: `output/VETCEP-SUNUM-GUNU-CEVRIMDISI-PAKETI.zip`
 - Yedek video kullanım notu: `YEDEK-DEMO-VIDEO-KULLANIM.md`
 - Çevrimdışı yedek video paketi: `output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip`
 - Canlı sunum kumandası: `portal/src/app/(demo)/demo-akisi/page.tsx`
