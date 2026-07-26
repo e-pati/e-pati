@@ -9,10 +9,13 @@
 
 Bu paket bir PowerPoint sunumu değildir. VetCep'in çalışan ekranları sunumun görselidir. Bu belge, Şevval'in ne söyleyeceğini, Burak'ın hangi ekranı açacağını ve soru-cevap bölümünde hangi sınırların korunacağını tek yerde toplar.
 
-### Teknik ek dosyalar
+### Teknik ek ve B planı dosyaları
 
 - [`output/pdf/VETCEP-BAKANLIK-TEKNIK-EKLER-TASLAK.pdf`](output/pdf/VETCEP-BAKANLIK-TEKNIK-EKLER-TASLAK.pdf) — mimari ile güvenlik/KVKK duruşunu birleştiren 10 sayfalık dış paylaşım taslağı.
 - [`output/VETCEP-BAKANLIK-TEKNIK-EKLER-DIS-PAYLASIM.zip`](output/VETCEP-BAKANLIK-TEKNIK-EKLER-DIS-PAYLASIM.zip) — fiyat dosyasını içermeyen, Şevval'e veya teknik değerlendiriciye iletilebilir paket.
+- [`output/demo-backup/VETCEP-FAZ0-YEDEK-DEMO.mp4`](output/demo-backup/VETCEP-FAZ0-YEDEK-DEMO.mp4) — canlı bağlantı kesilirse Şevval'in anlatımına eşlik edecek 4 dakika 27 saniyelik sessiz yedek kayıt.
+- [`YEDEK-DEMO-VIDEO-KULLANIM.md`](YEDEK-DEMO-VIDEO-KULLANIM.md) — bölüm zamanları, B planına geçiş cümlesi ve çevrimdışı kontrol listesi.
+- [`output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip`](output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip) — video, kullanım notu ve kontrol karelerini tek dosyada taşıyan çevrimdışı paket.
 - [`BAKANLIK-TEKNIK-MIMARI.md`](BAKANLIK-TEKNIK-MIMARI.md) — Bakanlık teknik ekibiyle paylaşılabilir hedef mimari ve entegrasyon yaklaşımı.
 - [`GUVENLIK-KVKK-DURUS-NOTU.md`](GUVENLIK-KVKK-DURUS-NOTU.md) — mevcut durumu üretim uyumu gibi göstermeyen güvenlik/KVKK iyileştirme planı.
 - [`FAZLI-TESLIM-VE-FIYAT-CERCEVESI.md`](FAZLI-TESLIM-VE-FIYAT-CERCEVESI.md) — **iç müzakere taslağıdır; hukuk ve mali danışman onayı olmadan fiyat teklifi olarak paylaşılmaz.**
@@ -399,6 +402,7 @@ Asla atlama:
 - [ ] Konya tooltip'inde kritik, %74 ve 1 aktif uyarı görünüyor
 - [ ] Kars erken uyarı kartı il detayına götürüyor
 - [ ] Yedek ekran görüntüleri çevrimdışı erişilebilir
+- [ ] Yedek MP4 sunum bilgisayarında ve USB'de açılıyor; bölüm zamanlarına atlanabiliyor
 
 ### Şevval'in sunum kontrolü
 
@@ -460,5 +464,7 @@ Asla atlama:
 
 - Ayrıntılı konuşma metni: `DEMO-PROVA-KONUSMA-METNI.md`
 - Teknik runbook: `DEMO-PROVA-RUNBOOK.md`
+- Yedek video kullanım notu: `YEDEK-DEMO-VIDEO-KULLANIM.md`
+- Çevrimdışı yedek video paketi: `output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip`
 - Canlı sunum kumandası: `portal/src/app/(demo)/demo-akisi/page.tsx`
 - Güncel proje durumu: `FRONTEND-ILERLEME.md`

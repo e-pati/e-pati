@@ -100,12 +100,14 @@ Sunumdan hemen önce:
 
 ## 3. Arıza anı B planı
 
+Canlı akış iki kısa denemede dönmezse [`output/demo-backup/VETCEP-FAZ0-YEDEK-DEMO.mp4`](output/demo-backup/VETCEP-FAZ0-YEDEK-DEMO.mp4) açılır. Video sessizdir; Şevval anlatıma devam eder. Bölüm zamanları ve güvenli geçiş cümlesi [`YEDEK-DEMO-VIDEO-KULLANIM.md`](YEDEK-DEMO-VIDEO-KULLANIM.md) dosyasındadır. Tam çevrimdışı paket: [`output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip`](output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip).
+
 | Sorun | Hızlı karar |
 |---|---|
-| Backend veya veritabanı açılamıyor | Klinik bölümünü atlamayın; önceden alınmış Misket ekran görüntülerini kullanın. Vatandaş, üretici, belediye ve Bakanlık yüzeyleri sentetik veriyle backend'den bağımsızdır. |
-| Mobil Expo bağlantısı kopuyor | Expo web çıktısını veya önceden açık Pamuk/Sarıkız sekmelerini gösterin. Yeni paket kurmayın. |
+| Backend veya veritabanı açılamıyor | Yedek videoyu `01:17` klinik bölümünden başlatın. Vatandaş, üretici, belediye ve Bakanlık yüzeyleri sentetik veriyle backend'den bağımsızdır. |
+| Mobil Expo bağlantısı kopuyor | Yedek videoyu `00:18` vatandaş ve mobil bölümünden başlatın. Yeni paket kurmayın. |
 | İnternet kesiliyor | Yerel portal ve mobil servislerle devam edin; dış görsel/servis bağımlılığı üzerinden canlı iddia kurmayın. |
-| Demo adımı yarıda kalıyor | `/demo-akisi` üzerinden tüm demo verisini sıfırlayın ve ilgili bölümün başlangıç rotasına dönün. |
+| Demo adımı yarıda kalıyor | Tekrar güvenliyse `/demo-akisi` üzerinden veriyi sıfırlayın; değilse yedek videoda ilgili bölüm zamanına atlayın. |
 | Süre 2 dakikadan fazla geride | Klinik ayrıntılarını ve belediye ilan önizlemesini kısaltın; Bakanlık karar-destek ekranını ve pilot kapanışını koruyun. |
 
 ## 4. Zor sorulara kısa cevaplar
@@ -151,3 +153,4 @@ Sunuma ancak aşağıdakilerin tümü “evet” ise canlı demoyla girin:
 - [ ] Bakanlık haritasında 81 il ve grafikler görünüyor
 - [ ] Bir tam kronometreli prova 25 dakika içinde bitti
 - [ ] Yedek ekran görüntüleri yerel diskte hazır
+- [ ] Yedek MP4 internet kapalıyken açıldı ve ilgili bölüm zamanlarına atlandı
