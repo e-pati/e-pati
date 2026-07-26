@@ -14,6 +14,7 @@ const authResponse = {
 };
 
 describe('AuthController', () => {
+  const originalEnv = process.env;
   let controller: AuthController;
   let authService: {
     verifyOtp: jest.Mock;
@@ -25,6 +26,7 @@ describe('AuthController', () => {
   let response: Response;
 
   beforeEach(() => {
+    process.env = { ...originalEnv };
     authService = {
       verifyOtp: jest.fn().mockResolvedValue(authResponse),
       login: jest.fn().mockResolvedValue(authResponse),
@@ -37,6 +39,10 @@ describe('AuthController', () => {
     } as unknown as Response;
 
     controller = new AuthController(authService as unknown as AuthService);
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   it('returns only the user from owner login while setting auth cookies', async () => {
@@ -84,5 +90,25 @@ describe('AuthController', () => {
         response,
       ),
     ).resolves.toEqual({ user: authResponse.user });
+  });
+
+  it('supports non-secure lax cookies for local Docker HTTP login', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.AUTH_COOKIE_SECURE = 'false';
+    process.env.AUTH_COOKIE_SAME_SITE = 'lax';
+
+    await controller.login(
+      { email: 'owner@example.com', password: 'password' },
+      response,
+    );
+
+    expect(cookie).toHaveBeenCalledWith(
+      'accessToken',
+      authResponse.accessToken,
+      expect.objectContaining({
+        secure: false,
+        sameSite: 'lax',
+      }),
+    );
   });
 });

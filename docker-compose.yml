@@ -48,6 +48,8 @@ services:
       JWT_REFRESH_SECRET: local-compose-refresh-secret-please-replace-in-real-deploy
       QR_TOKEN_SECRET: local-compose-qr-secret-please-replace-in-real-deploy
       CORS_ORIGINS: http://localhost:3001
+      AUTH_COOKIE_SECURE: "false"
+      AUTH_COOKIE_SAME_SITE: lax
       MAIL_FROM: VetCep <onboarding@resend.dev>
       NOTIFICATION_WORKER_ENABLED: "false"
     ports:

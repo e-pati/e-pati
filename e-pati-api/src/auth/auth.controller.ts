@@ -38,8 +38,8 @@ const ACCESS_COOKIE_NAME = 'accessToken';
 const REFRESH_COOKIE_NAME = 'refreshToken';
 const ACCESS_COOKIE_MAX_AGE_MS = 15 * 60 * 1000;
 const REFRESH_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const COOKIE_SAME_SITE = IS_PRODUCTION ? 'none' : 'lax';
+const COOKIE_SAME_SITE_VALUES = ['lax', 'none', 'strict'] as const;
+type CookieSameSite = (typeof COOKIE_SAME_SITE_VALUES)[number];
 
 @ApiTags('auth')
 @Controller('auth')
@@ -118,8 +118,8 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     await this.authService.logout(request.cookies?.refreshToken);
-    response.clearCookie(ACCESS_COOKIE_NAME, { path: '/' });
-    response.clearCookie(REFRESH_COOKIE_NAME, { path: '/auth' });
+    response.clearCookie(ACCESS_COOKIE_NAME, this.getCookieOptions('/'));
+    response.clearCookie(REFRESH_COOKIE_NAME, this.getCookieOptions('/auth'));
   }
 
   @Get('me')
@@ -143,22 +143,49 @@ export class AuthController {
 
   private setRefreshCookie(response: Response, refreshToken: string): void {
     response.cookie(REFRESH_COOKIE_NAME, refreshToken, {
-      httpOnly: true,
-      sameSite: COOKIE_SAME_SITE,
-      secure: IS_PRODUCTION,
+      ...this.getCookieOptions('/auth'),
       maxAge: REFRESH_COOKIE_MAX_AGE_MS,
-      path: '/auth',
     });
   }
 
   private setAccessCookie(response: Response, accessToken: string): void {
     response.cookie(ACCESS_COOKIE_NAME, accessToken, {
-      httpOnly: true,
-      sameSite: COOKIE_SAME_SITE,
-      secure: IS_PRODUCTION,
+      ...this.getCookieOptions('/'),
       maxAge: ACCESS_COOKIE_MAX_AGE_MS,
-      path: '/',
     });
+  }
+
+  private getCookieOptions(path: string) {
+    return {
+      httpOnly: true,
+      sameSite: this.getCookieSameSite(),
+      secure: this.getCookieSecure(),
+      path,
+    };
+  }
+
+  private getCookieSecure(): boolean {
+    const configured = process.env.AUTH_COOKIE_SECURE?.toLowerCase();
+
+    if (configured === 'true') {
+      return true;
+    }
+
+    if (configured === 'false') {
+      return false;
+    }
+
+    return process.env.NODE_ENV === 'production';
+  }
+
+  private getCookieSameSite(): CookieSameSite {
+    const configured = process.env.AUTH_COOKIE_SAME_SITE?.toLowerCase();
+
+    if (COOKIE_SAME_SITE_VALUES.includes(configured as CookieSameSite)) {
+      return configured as CookieSameSite;
+    }
+
+    return process.env.NODE_ENV === 'production' ? 'none' : 'lax';
   }
 
   private withoutTokens(auth: {
