@@ -10,7 +10,7 @@
 |---|---|---|---|
 | İlk 2 saat | İç toplantı notlarını birleştir; sorular, itirazlar ve sözlü talepleri ayır | Burak + Şevval + Erol | Tek iç toplantı kaydı |
 | İlk 24 saat | Teşekkür ve görüşme özeti e-postasını gönder | Şevval / Burak | Yazılı konumlandırma ve sonraki adım |
-| 24-48 saat | Teknik çalışma oturumu için tarih ve katılımcı öner | Burak | 90 dakikalık oturum daveti |
+| 24-48 saat | Teknik çalışma oturumu için tarih ve katılımcı öner | Burak | 90 dakikalık oturum daveti + boş pilot ön çerçevesi |
 | 3 iş günü | İstenen ekleri danışman/paylaşım kontrolünden geçir | Burak + danışmanlar | Onaylı ek listesi |
 | 5 iş günü | Yanıt yoksa kısa ve baskısız takip mesajı gönder | Şevval / Burak | Durum teyidi |
 | Teknik oturum +1 gün | Karar ve aksiyon tutanağını paylaş | Burak + Erol | Sorumlu, tarih ve açık karar listesi |
@@ -29,6 +29,7 @@
 - Kaynak kod, `.env`, veritabanı dökümü, gerçek hesap/parola ve kişisel veri gönderilmez.
 - Toplantıda konuşulan sözlü talep, yazılı kapsam ve sorumlu teyidi olmadan geliştirme taahhüdüne dönüşmez.
 - “Yapabiliriz” yerine “pilot kapsamı, veri erişimi ve kabul ölçütleri netleştiğinde planlayabiliriz” denir.
+- `VETCEP-PILOT-ON-CERCEVESI.pdf` toplantı öncesi doldurulmuş karar gibi değil, birlikte tamamlanacak keşif formu olarak paylaşılır.
 
 ## İç toplantı kayıt şablonu
 

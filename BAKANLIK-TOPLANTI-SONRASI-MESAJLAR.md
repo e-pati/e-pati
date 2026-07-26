@@ -46,6 +46,8 @@ Köşeli parantezli alanları gerçek toplantı notuna göre doldurun. Bakanlı�
 >
 > Önerilen tarih aralıkları: [Tarih 1] / [Tarih 2] / [Tarih 3]
 >
+> Ekli boş Pilot Ön Çerçevesi; fiyat, ihale veya entegrasyon izni niteliğinde değildir. Oturumda pilot il/kurum, yetkili veri kaynakları, canlı veri kapıları ve kabul ölçütlerini birlikte kaydetmek için kullanılacaktır.
+>
 > Uygun tarih ve katılımcıları teyit etmeniz hâlinde karar odaklı nihai gündemi paylaşacağız.
 >
 > Saygılarımızla,

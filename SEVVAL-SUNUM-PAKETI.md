@@ -11,7 +11,8 @@ Bu paket bir PowerPoint sunumu değildir. VetCep'in çalışan ekranları sunumu
 
 ### Teknik ek ve B planı dosyaları
 
-- [`output/VETCEP-BAKANLIK-TOPLANTI-SONRASI-TAKIP-PAKETI.zip`](output/VETCEP-BAKANLIK-TOPLANTI-SONRASI-TAKIP-PAKETI.zip) — ilk 24 saat teşekkür e-postası, teknik oturum talebi, takip mesajları ve 90 dakikalık pilot keşif gündemi.
+- [`output/VETCEP-BAKANLIK-TOPLANTI-SONRASI-TAKIP-PAKETI.zip`](output/VETCEP-BAKANLIK-TOPLANTI-SONRASI-TAKIP-PAKETI.zip) — ilk 24 saat teşekkür e-postası, teknik oturum talebi, takip mesajları, 90 dakikalık gündem ve tek sayfalık pilot formu.
+- [`output/pdf/VETCEP-PILOT-ON-CERCEVESI.pdf`](output/pdf/VETCEP-PILOT-ON-CERCEVESI.pdf) — pilot il/kurum, yetkili kaynak, canlı veri kapıları, başarı kriterleri ve ön mutabakat için fiyat içermeyen keşif formu.
 - [`BAKANLIK-TOPLANTI-SONRASI-MESAJLAR.md`](BAKANLIK-TOPLANTI-SONRASI-MESAJLAR.md) — Şevval ve Burak için toplantı notuna göre doldurulacak hazır takip metinleri.
 - [`output/pdf/VETCEP-DANISMAN-INCELEME-VE-ONAY-MATRISI.pdf`](output/pdf/VETCEP-DANISMAN-INCELEME-VE-ONAY-MATRISI.pdf) — hukuk, KVKK, mali/kamu ihalesi ve teknik onayları tek A4 sayfada toplayan doldurulabilir karar formu.
 - [`DANISMAN-INCELEME-VE-ONAY-MATRISI.md`](DANISMAN-INCELEME-VE-ONAY-MATRISI.md) — danışman geri bildirimleri için düzenlenebilir matris kaynağı.
@@ -477,5 +478,6 @@ Asla atlama:
 - Yedek video kullanım notu: `YEDEK-DEMO-VIDEO-KULLANIM.md`
 - Çevrimdışı yedek video paketi: `output/VETCEP-FAZ0-YEDEK-DEMO-PAKETI.zip`
 - Toplantı sonrası takip paketi: `output/VETCEP-BAKANLIK-TOPLANTI-SONRASI-TAKIP-PAKETI.zip`
+- Pilot ön çerçevesi: `output/pdf/VETCEP-PILOT-ON-CERCEVESI.pdf`
 - Canlı sunum kumandası: `portal/src/app/(demo)/demo-akisi/page.tsx`
 - Güncel proje durumu: `FRONTEND-ILERLEME.md`

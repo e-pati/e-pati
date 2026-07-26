@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Bakanlık toplantısından sonraki 24-48 saat için takip mesajları ve pilot teknik oturum gündemi hazırlandı
+- **Son güncelleme:** 26 Temmuz 2026 — Fiyat içermeyen, doldurulabilir tek sayfalık Pilot Ön Çerçevesi hazırlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Gerçek toplantı tarihi/katılımcıları belli olduğunda hazır mesaj alanlarını doldurmak; danışman kararlarını ve Bakanlık teknik temasını yazılı kayda bağlamak
+- **Sıradaki adım:** Gerçek toplantı ve teknik birim bilgileri belli olduğunda Pilot Ön Çerçevesini birlikte doldurmak; yazılı sponsor, veri kaynağı ve kabul kararlarını toplamak
 
 ---
 
@@ -29,7 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
-| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik/dış-paylaşım/sunum/yedek materyalleri, gizli danışman paketi ve toplantı sonrası 24-48 saat takip paketi doğrulandı. Yazılı uzman onayları, gerçek toplantı bilgileri ve onaylı baskı bekliyor |
+| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik/dış-paylaşım/sunum/yedek materyalleri, gizli danışman paketi, toplantı sonrası takip paketi ve tek sayfalık Pilot Ön Çerçevesi doğrulandı. Yazılı uzman/Bakanlık kararları, gerçek toplantı bilgileri ve onaylı baskı bekliyor |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır |
 
 **Erol'dan (backend) beklenenler:**
@@ -55,6 +55,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Tek sayfalık Pilot Ön Çerçevesi
+**Yapılanlar:** Bakanlık teknik çalışma oturumunda fiyat veya ulusal taahhüt vermeden sınırlı pilot kararlarını kaydetmek için Pilot Ön Çerçevesi hazırlandı. Pilot il/kurum, sponsor, teknik temas, kullanıcı ve hayvan grubu, keşif/pilot süresi, kapsam ve kapsam dışı alanlar; HAYBİS/TÜRKVET, PETVET, İTS/e-Reçete ve e-Devlet/KPS için yetkili kaynak-yön-sahip kararları; canlı veriye geçiş kapıları; başlangıç/hedef/kanıt/kabul sahibi içeren başarı kriterleri; aksiyon ve ön mutabakat alanları eklendi. Düzenlenebilir Markdown kaynak, kurumsal tek sayfalık A4 yatay PDF'e dönüştürüldü. İlk render'da alt tabloların karar çubuğuyla örtüştüğü görülerek satırlar sıkıştırıldı ve karar/ön mutabakat tabloları yan yana yerleştirildi; ikinci render 150 ve 300 dpi'da görsel olarak doğrulandı. PDF fiyat/ihale/entegrasyon izni olmadığını açıkça belirtiyor. Toplantı sonrası takip mesajı ve kılavuzu forma bağlandı; ZIP altı dosyayla yeniden üretildi ve hash/bütünlük kontrolünden geçti.
+**Dokunulan dosyalar:** `PILOT-ON-CERCEVESI.md`, `output/pdf/VETCEP-PILOT-ON-CERCEVESI.pdf`, `BAKANLIK-TOPLANTI-SONRASI-TAKIP-KILAVUZU.md`, `BAKANLIK-TOPLANTI-SONRASI-MESAJLAR.md`, `BAKANLIK-TOPLANTI-SONRASI-PAKET-MANIFESTI.md`, `output/VETCEP-BAKANLIK-TOPLANTI-SONRASI-TAKIP-PAKETI.zip`, `SEVVAL-SUNUM-PAKETI.md`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün kodu değişmedi. Tek sayfalık form toplantıda basılı veya PDF olarak doldurulabilir; kapsam, canlı veri, entegrasyon ve kabul kriterleri yazılı kapanmadan pilot geliştirme başlangıcı verilmiyor. Tablolarda taşma, örtüşme ve bozuk Türkçe karakter yok.
+**Sıradaki:** Bakanlık sponsoru, pilot il/kurum, veri sahibi teknik birimler ve tarih aralığı netleştiğinde boş formu çalışma oturumunda doldurmak; yazılı teyitlerden sonra keşif planını çıkarmak.
+**Erol'a not (varsa):** Yeni backend geliştirmesi gerekmiyor. Erol formdaki yetkili kaynak, entegrasyon yönü, teknik temas, canlı veri kapıları ve kabul kanıtı alanlarının teknik sahipliğini üstlenmeli.
 
 ### 2026-07-26 — Bakanlık toplantısı sonrası takip paketi
 **Yapılanlar:** Bakanlık görüşmesinden sonraki ilk 2 saat, 24 saat, 48 saat, 3 ve 5 iş günü için takip zaman çizelgesi hazırlandı. Şevval/Burak adına teşekkür ve görüşme özeti e-postası, teknik çalışma oturumu talebi, yanıtsızlık takibi, güvenli fiyat cevabı, kısa WhatsApp mesajı ve kapsam kayması yanıtı yazıldı. İlgili Bakanlık birimleri, istenecek ön bilgiler, dakika dakika karar başlıkları, pilot kabul alanları, kapsam dışı konular ve sorumlu/tarihli karar kaydı içeren 90 dakikalık teknik çalışma oturumu gündemi oluşturuldu. Fiyat belgesi, teknik ek ve kaynak kodu içermeyen dört dosyalı iç takip ZIP'i üretildi; üç payload hash'i ve arşiv bütünlüğü doğrulandı.
