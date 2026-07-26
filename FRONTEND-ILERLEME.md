@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Hukuk, KVKK, mali/kamu ihalesi ve teknik kararları için tek sayfalık danışman onay matrisi hazırlandı
+- **Son güncelleme:** 26 Temmuz 2026 — Danışman onay matrisi, hazır iletim mesajları ve gizli inceleme ekleri tek pakette toplandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Onay matrisini ilgili danışmanlara iletip yazılı kararları toplamak; çevrimdışı ZIP'i sunum bilgisayarı ve USB üzerinde açmak
+- **Sıradaki adım:** Alıcı bazlı ek tablosuna göre danışman paketini iletip yazılı kararları toplamak; gelen görüşleri matris satırlarına bağlamak
 
 ---
 
@@ -29,7 +29,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
-| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik mimari, güvenlik/KVKK duruşu, fazlı teslim/fiyat iç taslakları, dış-paylaşım PDF/ZIP'i, yedek video, sunum günü paketi ve tek sayfalık danışman karar formu hazır. Yazılı hukuk/mali/KVKK onayı ve onaylı baskı bekliyor |
+| 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik/dış-paylaşım/sunum materyalleri, yedek video, danışman karar formu ve hukuk-KVKK-mali/ihale için hazır mesajlarla 9 dosyalı gizli inceleme paketi doğrulandı. Yazılı uzman onayları ve onaylı baskı bekliyor |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır |
 
 **Erol'dan (backend) beklenenler:**
@@ -55,6 +55,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Gizli danışman iletim paketi
+**Yapılanlar:** Hukuk, KVKK, mali müşavir/kamu ihalesi ve Erol'un teknik incelemesi için alıcıya özel hazır e-posta/WhatsApp metinleri ile standart yanıt şablonu yazıldı. Hangi danışmana hangi eklerin zorunlu veya ihtiyaca bağlı gönderileceği belirtildi; iç fiyat çerçevesinin herkese otomatik iletilmemesi kuralı eklendi. Onay matrisi PDF/Markdown, mimari, güvenlik/KVKK notu, iç fiyat çerçevesi ve teknik ek taslağı; kullanım notu, hazır mesajlar ve SHA-256 manifestiyle 9 dosyalı `GİZLİ İÇ İNCELEME` ZIP'inde toplandı. Arşiv bütünlüğü, tüm payload hashleri ve tek sayfalık matris PDF'i ZIP içinden yeniden açılarak doğrulandı.
+**Dokunulan dosyalar:** `DANISMAN-ILETIM-PAKETI-KULLANIM.md`, `DANISMAN-ILETIM-MESAJLARI.md`, `DANISMAN-ILETIM-PAKETI-MANIFESTI.md`, `output/VETCEP-DANISMAN-ILETIM-PAKETI-GIZLI.zip`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün kodu değişmedi. Paket 227 KB ve çevrimdışı açılabilir. Bakanlığa veya üçüncü kişilere doğrudan gönderilmemesi; her danışmana yalnız görevine gerekli eklerin seçilmesi açıkça yazılı.
+**Sıradaki:** Köşeli parantezli alıcı ve tarih alanlarını doldurup paket kullanım tablosuna göre ilgili danışmanlara iletmek; gelen yanıtları satır/dosya/bölüm referansıyla onay matrisine işlemek.
+**Erol'a not (varsa):** Erol için hazır teknik inceleme mesajı `DANISMAN-ILETIM-MESAJLARI.md` içinde. Barındırma, entegrasyon sınırı, SLA/operasyon, teslim takvimi ve escrow uygulanabilirliği için yazılı teknik sonuç bekleniyor; yeni backend geliştirmesi gerekmiyor.
 
 ### 2026-07-26 — Danışman inceleme ve onay matrisi
 **Yapılanlar:** Bakanlık görüşmesi öncesinde açık kalmaması gereken hukuk, KVKK, mali/kamu ihalesi ve teknik kararları tek matriste toplandı. Veri sorumlusu/veri işleyen rolleri, işleme şartı ve aydınlatma, VERBİS, saklama-imha, Türkiye barındırma ve yurt dışı aktarım, kamu alım modeli, KDV/vergi ve fiyat farkı, IP/lisans/escrow, SLA-fesih-geçiş ve sunum dili için dokuz yazılı karar kapısı tanımlandı. Her uzman için ad-soyad/kurum, sonuç, tarih ve imza/e-posta referansı alanı eklendi. KVKK ve Kamu İhale Kurumunun 26 Temmuz 2026 itibarıyla güncel resmî kaynakları doğrulandı. Düzenlenebilir Markdown kaynak, kurumsal tek sayfalık A4 PDF'e dönüştürüldü; PDF render edilerek tablo, Türkçe karakter, baskı not alanları ve sayfa taşması görsel olarak kontrol edildi.
