@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 23 Temmuz 2026 — Şevval Dündar için sunumcu devir paketi hazırlandı
+- **Son güncelleme:** 26 Temmuz 2026 — Erol'un httpOnly-cookie, Origin koruması ve Docker düzeltmeleri doğrulandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Sunum paketini Şevval'e iletip Burak teknik kumandadayken ilk 25 dakikalık anlatımlı provayı yapmak; Erol'un auth kapanışını geldiğinde ayrıca doğrulamak
+- **Sıradaki adım:** Erol'un Origin korumasında native mobil ve dış servis webhook'ları için güvenli istisna/alternatif doğrulama politikasını netleştirmesi; ardından gerçek Docker login → refresh → logout smoke testi yapmak
 
 ---
 
@@ -23,7 +23,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 | # | Görev | Sorumlu | Durum | Not |
 |---|---|---|---|---|
-| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal tamamlandı: localStorage persist kaldırıldı, `/auth/me` guard, tekilleştirilmiş refresh ve token-gövdesiz login regresyonu eklendi; backend yanıt gövdesindeki access token ile production Origin/CSRF politikası Erol'da |
+| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal ve temel backend sözleşmesi tamamlandı: tokenlar yalnız httpOnly cookie'de, yanıt gövdesi `{ user }`, Origin/Referer allowlist mevcut; native mobil ve dış servis webhook'larının Originsiz unsafe istekleri için kapsam düzeltmesi Erol'da |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
@@ -33,8 +33,8 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
-- 0.1 güvenlik kapanışı için `AuthController.withoutRefreshToken()` halen `{ accessToken, user }` döndürüyor. `login`, `clinic/login`, `verify-otp` ve `refresh` yanıt gövdelerinden `accessToken` kaldırılmalı; token yalnızca httpOnly cookie ile taşınmalı. Portal `{ user }` login yanıtıyla doğrulandı.
-- Production'da cookie `SameSite=None; Secure` oluyor ancak unsafe isteklerde Origin/CSRF doğrulaması yok. Portal/API originleri ve `CORS_ORIGINS` netleştirilmeli; `POST/PATCH/PUT/DELETE` için Origin/Referer allowlist veya belgeli CSRF token politikası eklenmeli. Aynı-site dağıtım seçilirse `SameSite=Lax` tercihinin uygunluğu ayrıca değerlendirilmelidir. Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındadır.
+- Erol'un `4b9b661` ve `9767a94` auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Ancak middleware şu an bütün `POST/PATCH/PUT/DELETE` isteklerini Originsiz durumda 403 ile reddediyor. React Native istemcisi ile WhatsApp/ödeme sağlayıcısı webhook'ları tarayıcı Origin/Referer başlığı göndermeyebilir; cookie-auth tarayıcı rotaları korunurken native Bearer-auth ve imzalı webhook rotaları için belgeli istisna/alternatif doğrulama ile negatif testler eklenmeli.
+- Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi gerekiyor. `VETERINARIAN` ve `CLINIC_ADMIN` yetkileri desteklenmeli; `SUPER_ADMIN` davranışı netleştirilmeli. Yanıt modeli `id`, `type`, `title`, `message`, `createdAt` ve `readAt` alanlarıyla belgelenmeli veya mevcut `body`/`payload`/`status` şekli sabit sözleşme olarak paylaşılmalı.
 
 ---
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > ```
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
+
+### 2026-07-26 — Erol auth ve Docker push doğrulaması
+**Yapılanlar:** Erol'un `4b9b661`, `61e45f2` ve `9767a94` commitleri incelendi ve `feature/portal` dalına conflict olmadan fast-forward ile alındı. Login, clinic login, OTP ve refresh yanıtlarından access/refresh tokenların kaldırılıp yalnız `{ user }` döndüğü; httpOnly cookie seçeneklerinin production ve lokal Docker HTTP için ayrıldığı; unsafe isteklerde `CORS_ORIGINS` tabanlı Origin/Referer kontrolü eklendiği doğrulandı. Docker pnpm sürümü, Prisma client üretimi ve portal legacy peer bağımlılık kurulumu düzeltmeleri de kontrol edildi.
+**Dokunulan dosyalar:** `FRONTEND-ILERLEME.md` (Erol'un pushundaki 13 dosya fast-forward ile çalışma dalına alındı)
+**Ekran/akış durumu:** Backend auth ve Origin hedef testleri 11/11, portal auth Playwright paketi 12/12 geçti. Dal Erol'un güncel `main`iyle `9767a94` üzerinde eşitlendi. Tarayıcı cookie-auth sözleşmesi çalışıyor; middleware'in bütün unsafe istekleri Origin/Referer zorunluluğuna bağlaması native mobil ve dış webhook akışlarında 403 riski oluşturuyor.
+**Sıradaki:** Erol kapsam düzeltmesini yaptıktan sonra Docker ortamında klinik login → `/auth/me` → refresh → logout ve native mobil/webhook regresyonlarını doğrulamak.
+**Erol'a not (varsa):** Origin kontrolünü yalnız tarayıcı cookie-auth tehdidine göre kapsamlandır; React Native Bearer istekleri ile Meta/ödeme webhook'larını imza/secret doğrulamasına bırak ve Originsiz kötü istek, geçerli native Bearer, geçerli webhook imzası senaryoları için test ekle.
 
 ### 2026-07-23 — Şevval Dündar sunumcu devir paketi
 **Yapılanlar:** Mevcut 25 dakikalık konuşma metni, teknik runbook ve canlı `/demo-akisi` rotası Şevval Dündar'ın Bakanlık sunumunu devralabileceği tek pakette birleştirildi. Şevval anlatıcı/Burak teknik kumanda rol dağılımı, 5 dakikalık hızlı başlangıç, kırmızı çizgiler, dakika dakika konuşma ve tıklama akışı, güncel gerçek Türkiye haritası anlatımı, 12 zor Bakanlık sorusu, teknik B planı, 20 dakikalık kısa rota, 30 dakika önce kontrol listesi, tek sayfalık konuşmacı kartı ve hazır WhatsApp mesajı eklendi. Düzenlenebilir Markdown, 13 sayfalık kurumsal PDF ve PDF + kaynak belgeleri içeren ZIP üretildi.
