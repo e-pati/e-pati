@@ -1,5 +1,18 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -20,6 +33,27 @@ export class RegistryController {
   @ApiOkResponse({ description: 'Registry overview counts for dashboards.' })
   overview(@CurrentUser() user: TokenPayload) {
     return this.registryService.overview(user);
+  }
+
+  @Get('national-summary')
+  @ApiOkResponse({ description: 'National registry summary for oversight.' })
+  nationalSummary(@CurrentUser() user: TokenPayload) {
+    return this.registryService.nationalSummary(user);
+  }
+
+  @Get('provinces/:province/summary')
+  @ApiOkResponse({ description: 'Province-level registry summary.' })
+  provinceSummary(
+    @CurrentUser() user: TokenPayload,
+    @Param('province') province: string,
+  ) {
+    return this.registryService.provinceSummary(user, province);
+  }
+
+  @Get('early-warnings')
+  @ApiOkResponse({ description: 'Synthetic early warning candidates.' })
+  earlyWarnings(@CurrentUser() user: TokenPayload) {
+    return this.registryService.earlyWarnings(user);
   }
 
   @Get('premises')
@@ -47,8 +81,13 @@ export class RegistryController {
   }
 
   @Post('animals')
-  @ApiCreatedResponse({ description: 'Animal created in national registry core.' })
-  createAnimal(@CurrentUser() user: TokenPayload, @Body() dto: CreateAnimalDto) {
+  @ApiCreatedResponse({
+    description: 'Animal created in national registry core.',
+  })
+  createAnimal(
+    @CurrentUser() user: TokenPayload,
+    @Body() dto: CreateAnimalDto,
+  ) {
     return this.registryService.createAnimal(user, dto);
   }
 

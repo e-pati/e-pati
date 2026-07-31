@@ -1,15 +1,21 @@
 import {
+  AdoptionListingStatus,
   AnimalClass,
   AnimalIdentifierType,
   AnimalSex,
+  AnimalStatus,
+  MunicipalityCaseStatus,
   MovementReason,
+  PremiseType,
   Role,
 } from '@prisma/client';
+import { ForbiddenException } from '@nestjs/common';
 import { RegistryService } from './registry.service';
 
 describe('RegistryService', () => {
   const prisma = {
     animal: {
+      count: jest.fn(),
       create: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
@@ -17,11 +23,27 @@ describe('RegistryService', () => {
     },
     premise: {
       count: jest.fn(),
+      findMany: jest.fn(),
+      groupBy: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
     },
     animalMovement: {
+      count: jest.fn(),
       create: jest.fn(),
+      groupBy: jest.fn(),
+    },
+    municipalityAnimalCase: {
+      groupBy: jest.fn(),
+    },
+    adoptionListing: {
+      groupBy: jest.fn(),
+    },
+    vaccination: {
+      count: jest.fn(),
+    },
+    pet: {
+      count: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -30,6 +52,12 @@ describe('RegistryService', () => {
     sub: 'owner-1',
     email: 'owner@example.com',
     role: Role.OWNER,
+  };
+
+  const superAdminUser = {
+    sub: 'admin-1',
+    email: 'admin@example.com',
+    role: Role.SUPER_ADMIN,
   };
 
   beforeEach(() => {
@@ -105,6 +133,100 @@ describe('RegistryService', () => {
       expect.objectContaining({
         where: { id: 'premise-b' },
       }),
+    );
+  });
+
+  it('builds a national oversight summary for super admins', async () => {
+    prisma.animal.count.mockResolvedValue(2);
+    prisma.animal.groupBy
+      .mockResolvedValueOnce([
+        { class: AnimalClass.CATTLE, _count: { _all: 1 } },
+        { class: AnimalClass.STRAY, _count: { _all: 1 } },
+      ])
+      .mockResolvedValueOnce([
+        { status: AnimalStatus.ACTIVE, _count: { _all: 2 } },
+      ]);
+    prisma.premise.count.mockResolvedValue(2);
+    prisma.premise.groupBy
+      .mockResolvedValueOnce([
+        { type: PremiseType.FARM, _count: { _all: 1 } },
+        { type: PremiseType.SHELTER, _count: { _all: 1 } },
+      ])
+      .mockResolvedValueOnce([{ province: 'Ankara', _count: { _all: 2 } }]);
+    prisma.animalMovement.count.mockResolvedValue(3);
+    prisma.animalMovement.groupBy.mockResolvedValue([
+      { reason: MovementReason.SHELTER_INTAKE, _count: { _all: 1 } },
+    ]);
+    prisma.municipalityAnimalCase.groupBy.mockResolvedValue([
+      { status: MunicipalityCaseStatus.ADOPTION_READY, _count: { _all: 1 } },
+    ]);
+    prisma.adoptionListing.groupBy.mockResolvedValue([
+      { status: AdoptionListingStatus.PUBLISHED, _count: { _all: 1 } },
+    ]);
+    prisma.vaccination.count.mockResolvedValue(4);
+    prisma.pet.count.mockResolvedValue(5);
+    const service = new RegistryService(prisma as never);
+
+    const result = await service.nationalSummary(superAdminUser);
+
+    expect(result.population.totalAnimals).toBe(2);
+    expect(result.premises.topProvinces).toEqual([
+      { province: 'Ankara', count: 2 },
+    ]);
+    expect(result.clinicalCoverage).toEqual({
+      clinicalPets: 5,
+      vaccinationRecords: 4,
+    });
+  });
+
+  it('rejects national oversight summary for owners', async () => {
+    const service = new RegistryService(prisma as never);
+
+    await expect(service.nationalSummary(ownerUser)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
+
+  it('returns early warning candidates from registry aggregates', async () => {
+    prisma.municipalityAnimalCase.groupBy
+      .mockResolvedValueOnce([
+        {
+          foundProvince: 'Ankara',
+          foundDistrict: 'Cankaya',
+          status: MunicipalityCaseStatus.INTAKE,
+          _count: { _all: 2 },
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          foundProvince: 'Ankara',
+          foundDistrict: 'Cankaya',
+          _count: { _all: 1 },
+        },
+      ]);
+    prisma.animalMovement.groupBy.mockResolvedValue([
+      { reason: MovementReason.SHELTER_INTAKE, _count: { _all: 2 } },
+    ]);
+    prisma.vaccination.count.mockResolvedValue(1);
+    const service = new RegistryService(prisma as never);
+
+    const result = await service.earlyWarnings(superAdminUser);
+
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'MUNICIPALITY_INTAKE_WATCH',
+          province: 'Ankara',
+        }),
+        expect.objectContaining({
+          type: 'ADOPTION_BACKLOG',
+          district: 'Cankaya',
+        }),
+        expect.objectContaining({
+          type: 'CLINICAL_VACCINATION_OVERDUE',
+          count: 1,
+        }),
+      ]),
     );
   });
 });

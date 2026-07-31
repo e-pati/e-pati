@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Public landing ile aynı kurumsal kayıt dili portal girişine taşındı; tema kontrastı, responsive form ve erişilebilirlik regresyonları production ortamında doğrulandı
+- **Son güncelleme:** 1 Ağustos 2026 — Backend registry ulusal özet, il detayı ve erken uyarı endpoint sözleşmeleri eklendi; frontend portal giriş production doğrulaması main'den dev/backend'e alındı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Canlı portal ve demo ekranlarını aynı kurumsal UI/UX standardına göre sırayla denetlemek; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
@@ -32,11 +32,12 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.11    | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket                                     | Burak + Erol + danışman | 🟡    | Teknik/dış-paylaşım/sunum/yedek materyalleri, gizli danışman paketi, toplantı sonrası takip paketi ve tek sayfalık Pilot Ön Çerçevesi doğrulandı. Yazılı uzman/Bakanlık kararları, gerçek toplantı bilgileri ve onaylı baskı bekliyor                                |
 | Demo    | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı              | Burak + Şevval          | ✅    | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
 | Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları  | Burak                   | ✅    | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli `vetcep.com` production ortamında doğrulandı                                                              |
-| Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                        | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                           |
+| Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                           | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                         |
 
 **Erol'dan (backend) beklenenler:**
 
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Belediye canlı akışı için vaka açma, kısırlaştırma kaydı, sahiplendirme ilanı ve ilan statü güncelleme endpoint çekirdeği backend tarafında eklendi; frontend hâlâ Faz 0 için sentetik akışı koruyabilir, pilot öncesi gerçek ekrana bağlanabilir.
+- Bakanlık konsolu pilot API çekirdeği için `GET /registry/national-summary`, `GET /registry/provinces/:province/summary` ve `GET /registry/early-warnings` eklendi. Endpointler şimdilik yalnız `SUPER_ADMIN` erişiminde; mevcut registry, belediye, klinik aşı ve hareket verilerinden özet/uyarı adayı üretir.
 - Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. Billing webhook artık `x-vetcep-event-id`, `x-vetcep-timestamp` ve `x-vetcep-signature` ile HMAC doğrulaması ve Redis replay kilidi olmadan işlenmez; gerçek ödeme sağlayıcısına özel adapter ayrıca bağlanabilir.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
 - Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisi ve muayene liste/detay yanıtlarında veterinarian ilişkisi backend tarafında tamamlandı. `GET /prescriptions?petId=...` liste rotası da eklendi; frontend Faz 0 için kalan klinik hasta cache'i ve `/pets/:id/summary` uyumluluk katmanı pilot öncesi sadeleştirilebilir.
@@ -56,6 +57,14 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-01 — Registry Bakanlık özet ve erken uyarı endpointleri
+
+**Yapılanlar:** Bakanlık konsolu için pilot öncesi backend sözleşmesi genişletildi. `GET /registry/national-summary` ulusal hayvan/popülasyon, premise, klinik aşı kaydı, belediye vaka ve hareket özetlerini döner. `GET /registry/provinces/:province/summary` il bazında premise, hayvan sınıfı/statüsü, belediye vaka ve sahiplendirme durumlarını verir. `GET /registry/early-warnings` son 30 gün belediye vaka yoğunluğu, sahiplendirme bekleyen vaka birikimi, hareket aktivitesi ve tarihi geçmiş aşı kayıtlarından uyarı adayı üretir.
+**Dokunulan dosyalar:** `e-pati-api/src/registry/registry.controller.ts`, `e-pati-api/src/registry/registry.service.ts`, `e-pati-api/src/registry/registry.service.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Portal Bakanlık ekranı hâlâ sentetik frontend veri setiyle çalışabilir; pilot öncesi gerçek API bağlamak için backend uçları hazır. Endpointler ulusal veri yüzeyi olduğu için şimdilik yalnız `SUPER_ADMIN` rolüne açık.
+**Sıradaki:** Backend tarafında merkezi audit-log kapsamını genişletmek veya gerçek entegrasyon simülasyon adaptörlerini (`HAYBİS`/`PETVET`/`e-Devlet`) servis sınırı olarak eklemek.
+**Erol'a not (varsa):** Registry hedef Jest, full backend Jest ve backend build başarılı.
 
 ### 2026-07-31 — Portal giriş ekranı kurumsal yeniden tasarımı
 
@@ -87,6 +96,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 **Ekran/akış durumu:** `npm run build` ✅, `npx tsc --noEmit` ✅, landing Playwright 5/5 ✅, `npm run test:demo` 25/25 ✅. 1440×900 ve 390×844 görsel inceleme yapıldı; yatay taşma yok (390=390), klavye odak sırası mantıklı ve tüm duraklarda görünür focus ring var. OG görseli ve `icon.svg` 200 dönüyor.
 
 **Açık konular:**
+
 - **Hukuki içerik onay bekliyor:** KVKK aydınlatma, gizlilik politikası ve kullanım şartları metinleri **yazılmadı**. Avukat onaylı içerik olmadığı için sahte hukuk sayfası veya yanlış hedefli footer linki eklenmedi. Onaylı metin geldiğinde footer'a gerçek linkler eklenecek.
 - **Mevcut lint hatası (bu turdan bağımsız):** `npm run lint`, `origin/main` üzerinde de "react-hooks plugin bulunamadı" hatası veriyor. ESLint yapılandırma/bağımlılık kayması; bu turda kapsam dışı bırakıldı, `tsc --noEmit` temiz.
 - `portal/src/components/ministry/turkey-province-map.tsx:244` bakanlık demo rotasında geometri kaynağı olarak bir kamu kurumu adı yazıyor. Landing'de görünmüyor; ayrı bir karar konusu.

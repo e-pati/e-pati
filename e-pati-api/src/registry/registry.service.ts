@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import {
   AnimalIdentifierType,
+  MunicipalityCaseStatus,
   Prisma,
   Role,
 } from '@prisma/client';
@@ -22,6 +23,17 @@ type NormalizedIdentifier = {
   issuedBy?: string;
   issuedAt?: Date;
   isPrimary: boolean;
+};
+
+type RegistryWarning = {
+  id: string;
+  type: string;
+  severity: 'low' | 'medium' | 'high';
+  count: number;
+  message: string;
+  province?: string;
+  district?: string;
+  reason?: string;
 };
 
 const animalInclude = {
@@ -50,6 +62,8 @@ const movementPremiseSelect = {
   ministryCode: true,
   currentAnimalCount: true,
 } satisfies Prisma.PremiseSelect;
+
+const WARNING_WINDOW_DAYS = 30;
 
 @Injectable()
 export class RegistryService {
@@ -80,6 +94,273 @@ export class RegistryService {
         count: row._count._all,
       })),
       premiseCount,
+    };
+  }
+
+  async nationalSummary(user: TokenPayload) {
+    this.ensureNationalOversight(user);
+    const since = this.daysAgo(WARNING_WINDOW_DAYS);
+    const [
+      totalAnimals,
+      animalsByClass,
+      animalsByStatus,
+      totalPremises,
+      premisesByType,
+      premisesByProvince,
+      movementsLast30Days,
+      movementsByReason,
+      municipalityCasesByStatus,
+      adoptionListingsByStatus,
+      vaccinationRecords,
+      clinicalPets,
+    ] = await Promise.all([
+      this.prisma.animal.count({ where: { deletedAt: null } }),
+      this.prisma.animal.groupBy({
+        by: ['class'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.animal.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.premise.count({ where: { deletedAt: null } }),
+      this.prisma.premise.groupBy({
+        by: ['type'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.premise.groupBy({
+        by: ['province'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.animalMovement.count({
+        where: { occurredAt: { gte: since } },
+      }),
+      this.prisma.animalMovement.groupBy({
+        by: ['reason'],
+        where: { occurredAt: { gte: since } },
+        _count: { _all: true },
+      }),
+      this.prisma.municipalityAnimalCase.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.adoptionListing.groupBy({
+        by: ['status'],
+        _count: { _all: true },
+      }),
+      this.prisma.vaccination.count({ where: { deletedAt: null } }),
+      this.prisma.pet.count({ where: { deletedAt: null } }),
+    ]);
+
+    return {
+      generatedAt: new Date().toISOString(),
+      windowDays: WARNING_WINDOW_DAYS,
+      population: {
+        totalAnimals,
+        byClass: this.countRows(animalsByClass, 'class'),
+        byStatus: this.countRows(animalsByStatus, 'status'),
+      },
+      premises: {
+        total: totalPremises,
+        byType: this.countRows(premisesByType, 'type'),
+        topProvinces: this.topCountRows(premisesByProvince, 'province'),
+      },
+      clinicalCoverage: {
+        clinicalPets,
+        vaccinationRecords,
+      },
+      municipality: {
+        casesByStatus: this.countRows(municipalityCasesByStatus, 'status'),
+        adoptionListingsByStatus: this.countRows(
+          adoptionListingsByStatus,
+          'status',
+        ),
+      },
+      movements: {
+        last30Days: movementsLast30Days,
+        byReason: this.countRows(movementsByReason, 'reason'),
+      },
+    };
+  }
+
+  async provinceSummary(user: TokenPayload, province: string) {
+    this.ensureNationalOversight(user);
+    const provinceFilter = {
+      equals: province.trim(),
+      mode: 'insensitive' as const,
+    };
+    const [
+      premises,
+      animalsByClass,
+      animalsByStatus,
+      municipalityCasesByStatus,
+      adoptionListingsByStatus,
+      movementsIntoProvince,
+    ] = await Promise.all([
+      this.prisma.premise.findMany({
+        where: { province: provinceFilter, deletedAt: null },
+        select: {
+          id: true,
+          type: true,
+          name: true,
+          district: true,
+          currentAnimalCount: true,
+        },
+        orderBy: [{ district: 'asc' }, { name: 'asc' }],
+      }),
+      this.prisma.animal.groupBy({
+        by: ['class'],
+        where: {
+          deletedAt: null,
+          currentPremise: { province: provinceFilter, deletedAt: null },
+        },
+        _count: { _all: true },
+      }),
+      this.prisma.animal.groupBy({
+        by: ['status'],
+        where: {
+          deletedAt: null,
+          currentPremise: { province: provinceFilter, deletedAt: null },
+        },
+        _count: { _all: true },
+      }),
+      this.prisma.municipalityAnimalCase.groupBy({
+        by: ['status'],
+        where: { foundProvince: provinceFilter, deletedAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.adoptionListing.groupBy({
+        by: ['status'],
+        where: { case: { foundProvince: provinceFilter, deletedAt: null } },
+        _count: { _all: true },
+      }),
+      this.prisma.animalMovement.count({
+        where: { toPremise: { province: provinceFilter, deletedAt: null } },
+      }),
+    ]);
+
+    return {
+      province: province.trim(),
+      population: {
+        byClass: this.countRows(animalsByClass, 'class'),
+        byStatus: this.countRows(animalsByStatus, 'status'),
+      },
+      premises: {
+        total: premises.length,
+        byDistrict: this.countBy(premises, 'district'),
+        items: premises,
+      },
+      municipality: {
+        casesByStatus: this.countRows(municipalityCasesByStatus, 'status'),
+        adoptionListingsByStatus: this.countRows(
+          adoptionListingsByStatus,
+          'status',
+        ),
+      },
+      movements: {
+        intoProvince: movementsIntoProvince,
+      },
+    };
+  }
+
+  async earlyWarnings(user: TokenPayload) {
+    this.ensureNationalOversight(user);
+    const since = this.daysAgo(WARNING_WINDOW_DAYS);
+    const [
+      recentMunicipalityCases,
+      adoptionReadyBacklog,
+      movementActivity,
+      overdueVaccinations,
+    ] = await Promise.all([
+      this.prisma.municipalityAnimalCase.groupBy({
+        by: ['foundProvince', 'foundDistrict', 'status'],
+        where: {
+          deletedAt: null,
+          intakeAt: { gte: since },
+          status: {
+            in: [
+              MunicipalityCaseStatus.INTAKE,
+              MunicipalityCaseStatus.UNDER_TREATMENT,
+            ],
+          },
+        },
+        _count: { _all: true },
+      }),
+      this.prisma.municipalityAnimalCase.groupBy({
+        by: ['foundProvince', 'foundDistrict'],
+        where: {
+          deletedAt: null,
+          status: MunicipalityCaseStatus.ADOPTION_READY,
+        },
+        _count: { _all: true },
+      }),
+      this.prisma.animalMovement.groupBy({
+        by: ['reason'],
+        where: { occurredAt: { gte: since } },
+        _count: { _all: true },
+      }),
+      this.prisma.vaccination.count({
+        where: {
+          deletedAt: null,
+          dueAt: { lte: new Date() },
+        },
+      }),
+    ]);
+
+    const warnings: RegistryWarning[] = [
+      ...recentMunicipalityCases.map((row) => ({
+        id: `municipality-${row.foundProvince}-${row.foundDistrict}-${row.status}`,
+        type: 'MUNICIPALITY_INTAKE_WATCH',
+        severity:
+          row._count._all >= 5 ? ('high' as const) : ('medium' as const),
+        province: row.foundProvince,
+        district: row.foundDistrict,
+        count: row._count._all,
+        message:
+          'Recent stray animal intake or treatment activity requires municipal review.',
+      })),
+      ...adoptionReadyBacklog.map((row) => ({
+        id: `adoption-backlog-${row.foundProvince}-${row.foundDistrict}`,
+        type: 'ADOPTION_BACKLOG',
+        severity: row._count._all >= 10 ? ('high' as const) : ('low' as const),
+        province: row.foundProvince,
+        district: row.foundDistrict,
+        count: row._count._all,
+        message: 'Adoption-ready municipality cases are waiting for placement.',
+      })),
+      ...movementActivity.map((row) => ({
+        id: `movement-${row.reason}`,
+        type: 'REGISTRY_MOVEMENT_ACTIVITY',
+        severity:
+          row._count._all >= 20 ? ('medium' as const) : ('low' as const),
+        reason: row.reason,
+        count: row._count._all,
+        message:
+          'Recent animal movement volume is available for oversight review.',
+      })),
+    ];
+
+    if (overdueVaccinations > 0) {
+      warnings.push({
+        id: 'clinical-overdue-vaccinations',
+        type: 'CLINICAL_VACCINATION_OVERDUE',
+        severity: overdueVaccinations >= 25 ? 'high' : 'medium',
+        count: overdueVaccinations,
+        message:
+          'Clinical vaccination records have due dates that need follow-up.',
+      });
+    }
+
+    return {
+      generatedAt: new Date().toISOString(),
+      windowDays: WARNING_WINDOW_DAYS,
+      source: 'registry-and-clinical-demo-data',
+      warnings,
     };
   }
 
@@ -321,7 +602,8 @@ export class RegistryService {
 
     const hasHkn = normalized.some(
       (identifier) =>
-        identifier.type === AnimalIdentifierType.HKN && identifier.value === hkn,
+        identifier.type === AnimalIdentifierType.HKN &&
+        identifier.value === hkn,
     );
 
     if (!hasHkn) {
@@ -344,5 +626,56 @@ export class RegistryService {
 
   private generateHkn(): string {
     return `HKN-${new Date().getFullYear()}-${randomBytes(5).toString('hex').toUpperCase()}`;
+  }
+
+  private ensureNationalOversight(user: TokenPayload): void {
+    if (user.role === Role.SUPER_ADMIN) {
+      return;
+    }
+
+    throw new ForbiddenException(
+      'National registry overview requires admin access.',
+    );
+  }
+
+  private daysAgo(days: number): Date {
+    return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  }
+
+  private countRows<T extends Record<string, unknown>, K extends keyof T>(
+    rows: Array<T & { _count: { _all: number } }>,
+    key: K,
+  ) {
+    return rows.map((row) => ({
+      [key]: row[key],
+      count: row._count._all,
+    }));
+  }
+
+  private topCountRows<T extends Record<string, unknown>, K extends keyof T>(
+    rows: Array<T & { _count: { _all: number } }>,
+    key: K,
+    limit = 10,
+  ) {
+    return this.countRows(rows, key)
+      .sort((left, right) => right.count - left.count)
+      .slice(0, limit);
+  }
+
+  private countBy<T extends Record<string, unknown>, K extends keyof T>(
+    rows: T[],
+    key: K,
+  ) {
+    const counts = new Map<string, number>();
+
+    for (const row of rows) {
+      const value = String(row[key] ?? 'UNKNOWN');
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+    }
+
+    return Array.from(counts.entries()).map(([value, count]) => ({
+      [key]: value,
+      count,
+    }));
   }
 }
