@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowUpRight, Mail } from 'lucide-react'
 
+import { SYNTHETIC_DATASET_DATE, SYNTHETIC_DATASET_VERSION } from '@/lib/synthetic-health-dataset'
 import { BrandMark } from './brand-mark'
 
 export function SiteFooter() {
@@ -15,7 +16,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Platform</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Platform</h3>
           <div className="mt-5 grid gap-3 text-sm font-bold text-slate-600">
             <Link href="#platform" className="hover:text-[#0f766e]">Genel bakış</Link>
             <Link href="#use-cases" className="hover:text-[#0f766e]">Kullanım alanları</Link>
@@ -25,13 +26,13 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">İletişim</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">İletişim</h3>
           <div className="mt-5 grid gap-3 text-sm font-bold text-slate-600">
             <a href="mailto:hello@vetcep.com" className="inline-flex items-center gap-2 hover:text-[#0f766e]">
               <Mail className="size-4" />
               hello@vetcep.com
             </a>
-            <Link href="/clinic-onboarding" className="inline-flex items-center gap-2 hover:text-[#0f766e]">
+            <Link href="/demo-talep" className="inline-flex items-center gap-2 hover:text-[#0f766e]">
               Demo görüşmesi
               <ArrowUpRight className="size-3.5" />
             </Link>
@@ -41,11 +42,16 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-slate-200">
-        <div className="mx-auto flex max-w-[1280px] flex-col gap-3 px-5 py-5 text-[11px] font-semibold leading-5 text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-3 px-5 py-5 text-[11px] font-medium leading-5 text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
           <span>© 2026 VetCep. Bağımsız teknoloji platformu.</span>
           <span className="max-w-3xl md:text-right">
             Bu sayfadaki ekranlar ve veriler sentetik demonstrasyondur. Gerçek entegrasyonlar ilgili izin, protokol ve teknik değerlendirmelere tabidir.
           </span>
+        </div>
+        <div className="mx-auto max-w-[1280px] px-5 pb-5 sm:px-8 lg:px-10">
+          <p className="font-mono text-[10px] leading-4 text-slate-400">
+            Demo ortamı · {SYNTHETIC_DATASET_VERSION} · {SYNTHETIC_DATASET_DATE}
+          </p>
         </div>
       </div>
     </footer>

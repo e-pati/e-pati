@@ -56,6 +56,32 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
 
+### 2026-07-31 — Landing "Kayıt Defteri" tasarım turu (P0 + P1)
+
+**Yapılanlar:** Landing sayfası kurumsal denetim raporu doğrultusunda "Kayıt Defteri" görsel yönüne taşındı.
+
+- **Font (P0):** `--font-sans: Inter` tanımlıydı ama hiçbir webfont yüklenmiyordu; sayfa sistem fontuna düşüyor ve `font-weight: 900` isteniyordu. Inter Variable + JetBrains Mono `next/font/google` ile yüklendi (`latin-ext` altkümesi Türkçe karakterler için). Ağırlık ölçeği 400/500/600/700'e indirildi; landing genelinde `font-black`/`font-extrabold` kaldırıldı.
+- **Harita (P0):** İl renkleri `plateCode % 7` dekoratif hesabıyla belirleniyordu. `portal/src/lib/synthetic-health-dataset.ts` eklendi: 81 il için `plateCode`, `vaccinationRate`, `animalPopulation`, `activeSignalCount`, `riskLevel`; sabit tohumlu deterministik üreteç. Renkler ve tüm KPI'lar (81 / %85 / 16) bu kümeden hesaplanıyor. Renk lejantı, sürüm/tarih damgası ve "gerçek sağlık verisi değildir" notu eklendi; her ilde `<title>` ile erişilebilir detay.
+- **CTA/rota (P0):** Tüm ana CTA'lar "Demo görüşmesi talep et" olarak birleştirildi; yeni nötr `/demo-talep` rotası mevcut `/api/demo-request` akışını yeniden kullanıyor. `/clinic-onboarding` bozulmadan yerinde bırakıldı.
+- **Hero (P0):** Başlık üzerinden geçen dekoratif çemberler ve mobilde keskin dikey sınır oluşturan gradyan kaldırıldı; yerine maskeli ince grid dokusu. Mobilde ürün görseli CTA'lardan hemen sonra gösteriliyor.
+- **Ritim ve hiyerarşi (P1):** 7 bölümde tekrarlanan tek `py` değeri üç kademeye ayrıldı (yoğun/standart/ağır). `SectionHeading`'e `level` prop'u eklendi (primary/secondary/tertiary).
+- **Mimari bölümü (P1):** Jenerik üçlü kart grid'i, dikey omurgayla bağlanan katman yığınına dönüştürüldü.
+- **Kimlik imzası (P2):** Kayıt numarası formatı (`34-2026-1842`), zaman damgası ve veri kümesi sürümü mono fontla ürün kartı, harita ve footer'da tekrarlanıyor.
+- **Mobil menü (P2):** Escape tuşu ve dışarı tıklama ile kapanma eklendi; odak açan düğmeye dönüyor.
+
+**Dokunulan dosyalar:** `portal/src/app/layout.tsx`, `portal/src/app/globals.css`, `portal/src/app/page.tsx`, `portal/src/app/opengraph-image.tsx`, `portal/src/app/(auth)/demo-talep/page.tsx` (yeni), `portal/src/lib/synthetic-health-dataset.ts` (yeni), `portal/src/components/landing/{platform-visuals,section-heading,site-header,site-footer,mobile-nav}.tsx`, `portal/tests/landing.spec.ts`
+
+**Ekran/akış durumu:** `npm run build` ✅, `npx tsc --noEmit` ✅, landing Playwright 5/5 ✅, `npm run test:demo` 25/25 ✅. 1440×900 ve 390×844 görsel inceleme yapıldı; yatay taşma yok (390=390), klavye odak sırası mantıklı ve tüm duraklarda görünür focus ring var. OG görseli ve `icon.svg` 200 dönüyor.
+
+**Açık konular:**
+- **Hukuki içerik onay bekliyor:** KVKK aydınlatma, gizlilik politikası ve kullanım şartları metinleri **yazılmadı**. Avukat onaylı içerik olmadığı için sahte hukuk sayfası veya yanlış hedefli footer linki eklenmedi. Onaylı metin geldiğinde footer'a gerçek linkler eklenecek.
+- **Mevcut lint hatası (bu turdan bağımsız):** `npm run lint`, `origin/main` üzerinde de "react-hooks plugin bulunamadı" hatası veriyor. ESLint yapılandırma/bağımlılık kayması; bu turda kapsam dışı bırakıldı, `tsc --noEmit` temiz.
+- `portal/src/components/ministry/turkey-province-map.tsx:244` bakanlık demo rotasında geometri kaynağı olarak bir kamu kurumu adı yazıyor. Landing'de görünmüyor; ayrı bir karar konusu.
+
+**Sıradaki:** Portal içi ekranları aynı ağırlık/köşe/ritim sistemine hizalamak.
+
+**Erol'a not:** Backend tarafında değişiklik yok; `e-pati-api/` klasörüne dokunulmadı. `/demo-talep` mevcut `/api/demo-request` uç noktasını kullanıyor.
+
 ### 2026-07-31 — Belediye canlı endpoint çekirdeği
 
 **Yapılanlar:** Sahipsiz hayvan belediye akışını pilot öncesi canlı API'ye bağlayabilmek için `MunicipalityAnimalCase`, `SterilizationRecord` ve `AdoptionListing` veri modelleri eklendi. `/municipality/cases`, `/municipality/cases/:id/sterilizations`, `/municipality/cases/:id/adoption-listings` ve `/municipality/adoption-listings/:id/status` endpointleri klinik/shelter scope'u ve super admin erişimiyle açıldı. Vaka açılışında sahipsiz hayvanın barınak premise'ine alınması hareket kaydına bağlandı; tamamlanan kısırlaştırma vakayı `STERILIZED`, yayımlanan ilan vakayı `ADOPTION_READY`, tamamlanan sahiplendirme vakayı ve hayvanı `ADOPTED` durumuna taşıyor. Seed'e Tarcin için sentetik belediye vaka, kısırlaştırma ve yayımdaki sahiplendirme ilanı eklendi.

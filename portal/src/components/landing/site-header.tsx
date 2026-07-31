@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { ArrowUpRight, Menu } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 import { BrandMark } from './brand-mark'
+import { MobileNav } from './mobile-nav'
 
 const navigation = [
   { label: 'Platform', href: '#platform' },
@@ -33,44 +34,20 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 sm:flex">
           <Link
             href="/login"
-            className="inline-flex h-10 items-center justify-center rounded-lg px-4 text-[13px] font-extrabold text-[#102a43] transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
+            className="inline-flex h-10 items-center justify-center rounded-lg px-4 text-[13px] font-semibold text-[#102a43] transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
           >
             Portal girişi
           </Link>
           <Link
-            href="/clinic-onboarding"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#102a43] px-4 text-[13px] font-extrabold text-white transition-colors hover:bg-[#173f5f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
+            href="/demo-talep"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#102a43] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#173f5f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
           >
-            Demo talep et
+            Demo talebi
             <ArrowUpRight className="size-3.5" />
           </Link>
         </div>
 
-        <details className="group relative sm:hidden">
-          <summary
-            aria-label="Navigasyon menüsünü aç"
-            className="flex size-11 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-200 bg-white text-[#102a43] shadow-sm marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
-          >
-            <Menu className="size-5" />
-          </summary>
-          <div className="absolute right-0 top-14 w-[min(320px,calc(100vw-40px))] rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-950/10">
-            <nav aria-label="Mobil navigasyon" className="grid">
-              {navigation.map((item) => (
-                <Link key={item.href} href={item.href} className="rounded-xl px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-[#0f766e]">
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
-              <Link href="/login" className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 text-xs font-extrabold text-[#102a43]">
-                Portal girişi
-              </Link>
-              <Link href="/clinic-onboarding" className="inline-flex h-11 items-center justify-center rounded-xl bg-[#102a43] text-xs font-extrabold text-white">
-                Demo talep et
-              </Link>
-            </div>
-          </div>
-        </details>
+        <MobileNav navigation={navigation} />
       </div>
     </header>
   )

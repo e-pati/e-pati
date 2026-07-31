@@ -25,13 +25,46 @@ test.describe('VetCep landing page', () => {
     await expect(page.getByRole('heading', { name: 'Yerine geçen değil, izinle birlikte çalışan bir katman.' })).toBeVisible()
     await expect(page.getByText('Bu sayfa herhangi bir kurumla mevcut bağlantı, yetkilendirme veya onay iddiası taşımaz.')).toBeVisible()
 
-    await expect(page.getByRole('link', { name: 'Ürün demosu talep et' })).toHaveAttribute('href', '/clinic-onboarding')
+    await expect(page.getByRole('link', { name: 'Demo görüşmesi talep et' }).first()).toHaveAttribute('href', '/demo-talep')
     await expect(page.getByRole('link', { name: 'Portal girişi' }).first()).toHaveAttribute('href', '/login')
+
+    // Eski klinik-SaaS konumlandırmasına ait rota kullanılmamalı.
+    await expect(page.locator('a[href="/clinic-onboarding"]')).toHaveCount(0)
 
     await expect(page.getByText('PatiLife')).toHaveCount(0)
     await expect(page.getByText('Fiyatlandırma', { exact: true })).toHaveCount(0)
     await expect(page.getByText('KVKK', { exact: true })).toHaveCount(0)
     expect(pageErrors).toEqual([])
+  })
+
+  test('bölgesel harita sentetik veri kümesinden türetilmiş olmalı', async ({ page }) => {
+    await page.goto('/')
+
+    // Lejant: renklerin anlamı sayfada yazılı olmalı.
+    await expect(page.getByText('Yüksek kapsam')).toBeVisible()
+    await expect(page.getByText('Orta kapsam')).toBeVisible()
+    await expect(page.getByText('İzlenen bölge').first()).toBeVisible()
+
+    // Sürüm/tarih damgası ve sentetik uyarısı görünür olmalı.
+    await expect(page.getByText(/Sentetik veri kümesi · v1\.0 · Temmuz 2026/)).toBeVisible()
+    await expect(page.getByText(/gerçek sağlık verisi değildir/)).toBeVisible()
+
+    // 81 il çizilmeli (grid deseni hariç, yalnız il katmanı).
+    await expect(
+      page.locator('svg[aria-label="Sentetik bölgesel hayvan sağlığı risk haritası"] > g > path[d]'),
+    ).toHaveCount(81)
+  })
+
+  test('mobil menü Escape tuşu ile kapanmalı', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+
+    const menu = page.getByLabel('Navigasyon menüsünü aç')
+    await menu.click()
+    await expect(page.getByRole('navigation', { name: 'Mobil navigasyon' })).toBeVisible()
+
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('navigation', { name: 'Mobil navigasyon' })).toBeHidden()
   })
 
   test('390px mobil görünümde taşmamalı ve temel aksiyonlar dokunulabilir olmalı', async ({ page }) => {
@@ -46,7 +79,7 @@ test.describe('VetCep landing page', () => {
 
     expect(viewportMetrics.documentWidth).toBeLessThanOrEqual(viewportMetrics.viewportWidth + 1)
 
-    const primaryCta = page.getByRole('link', { name: 'Ürün demosu talep et' })
+    const primaryCta = page.getByRole('link', { name: 'Demo görüşmesi talep et' }).first()
     const portalCta = page.locator('main').getByRole('link', { name: 'Portal girişi' })
     const mobileMenu = page.getByLabel('Navigasyon menüsünü aç')
 

@@ -151,49 +151,53 @@ export default function LandingPage() {
 
       <main>
         <section className="relative overflow-hidden border-b border-slate-200 bg-[#f8fafc]">
-          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="absolute inset-y-0 right-0 w-[48%] bg-[linear-gradient(135deg,transparent_0%,rgba(204,251,241,0.48)_100%)]" />
-            <div className="absolute left-[8%] top-28 size-64 rounded-full border border-[#0f766e]/8" />
-            <div className="absolute left-[4%] top-44 size-40 rounded-full border border-[#0f766e]/8" />
-          </div>
+          {/* Kayıt defteri dokusu: dekoratif değil, sayfanın görsel dilini kurar. */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.55] [background-image:linear-gradient(to_right,rgba(15,118,110,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,118,110,0.05)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_at_70%_35%,black_0%,transparent_72%)]"
+            aria-hidden="true"
+          />
 
-          <div className="relative mx-auto grid max-w-[1280px] gap-12 px-5 pb-16 pt-16 sm:px-8 sm:pt-20 lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:gap-16 lg:px-10 lg:pb-24 lg:pt-24">
-            <div>
-              <div className="inline-flex items-center gap-2.5 rounded-full border border-[#0f766e]/20 bg-white px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#0f766e] shadow-sm">
+          <div className="relative mx-auto grid max-w-[1280px] gap-10 px-5 pb-16 pt-14 sm:px-8 sm:pt-16 lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:gap-16 lg:px-10 lg:pb-24 lg:pt-24">
+            <div className="order-1">
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-[#0f766e]/20 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0f766e] shadow-sm">
                 <span className="size-1.5 rounded-full bg-[#0f766e]" />
                 Bağımsız hayvan sağlığı teknolojisi
               </div>
 
-              <h1 className="mt-7 max-w-3xl text-balance text-[42px] font-black leading-[0.98] tracking-[-0.055em] text-[#102a43] sm:text-6xl lg:text-[68px]">
+              <h1 className="mt-7 max-w-3xl text-balance text-[40px] font-bold leading-[1.0] tracking-[-0.04em] text-[#102a43] sm:text-6xl lg:text-[64px]">
                 Hayvan sağlığında yaşam boyu dijital kayıt.
               </h1>
-              <p className="mt-7 max-w-xl text-pretty text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+              <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
                 VetCep; veterinerler, hayvan sahipleri, üreticiler ve saha ekipleri için kimlik, sağlık ve yaşam döngüsü kayıtlarını tek, anlaşılır deneyimde buluşturmayı hedefler.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/clinic-onboarding"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#0f766e] px-6 text-sm font-extrabold text-white shadow-[0_12px_30px_rgba(15,118,110,0.2)] transition-colors hover:bg-[#0b655f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
+                  href="/demo-talep"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#0f766e] px-6 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(15,118,110,0.2)] transition-colors hover:bg-[#0b655f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
                 >
-                  Ürün demosu talep et
+                  Demo görüşmesi talep et
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link
                   href="/login"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-6 text-sm font-extrabold text-[#102a43] transition-colors hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-6 text-sm font-semibold text-[#102a43] transition-colors hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
                 >
                   Portal girişi
                 </Link>
               </div>
-
-              <div className="mt-8 flex items-start gap-3 border-l-2 border-[#0f766e]/30 pl-4 text-xs font-semibold leading-5 text-slate-500">
-                <BadgeCheck className="mt-0.5 size-4 shrink-0 text-[#0f766e]" />
-                <span>Ürün ekranları sentetik kayıtlarla hazırlanır. Gerçek veri bağlantıları izin ve teknik değerlendirmeye tabidir.</span>
-              </div>
             </div>
 
-            <HeroProductVisual />
+            {/* Mobilde ürün görseli metinden hemen sonra gelir; sentetik uyarı en sonda kalır.
+                Masaüstünde görsel sağ sütuna, uyarı sol sütunun altına yerleşir. */}
+            <div className="order-2 lg:order-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center">
+              <HeroProductVisual />
+            </div>
+
+            <div className="order-3 flex items-start gap-3 border-l-2 border-[#0f766e]/30 pl-4 text-xs font-medium leading-5 text-slate-500 lg:order-2 lg:col-start-1 lg:row-start-2 lg:-mt-4">
+              <BadgeCheck className="mt-0.5 size-4 shrink-0 text-[#0f766e]" />
+              <span>Ürün ekranları sentetik kayıtlarla hazırlanır. Gerçek veri bağlantıları izin ve teknik değerlendirmeye tabidir.</span>
+            </div>
           </div>
 
           <div className="relative border-t border-slate-200 bg-white/75">
@@ -205,7 +209,7 @@ export default function LandingPage() {
                 ['Yetkiye bağlı bağlantı', 'Entegrasyon öncesi izin ve protokol'],
               ].map(([title, text]) => (
                 <div key={title} className="px-0 py-5 sm:px-5 lg:px-6">
-                  <div className="text-xs font-black text-[#102a43]">{title}</div>
+                  <div className="text-xs font-bold text-[#102a43]">{title}</div>
                   <div className="mt-1.5 text-[11px] font-semibold leading-5 text-slate-500">{text}</div>
                 </div>
               ))}
@@ -213,11 +217,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="platform" className="scroll-mt-24 bg-white py-20 sm:py-24 lg:py-28">
+        {/* Ritim kademesi: yoğun (py-14/16) — bağlam kuran giriş bölümü */}
+        <section id="platform" className="scroll-mt-24 bg-white py-14 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8 lg:px-10">
             <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-end lg:gap-20">
               <SectionHeading
                 eyebrow="Platform yaklaşımı"
+                level="secondary"
                 title="Kayıt tutmanın ötesinde, ortak bir sağlık görünümü."
                 description="VetCep, farklı kullanım alanlarında oluşan olayları tek bir ürün diliyle görünür kılmayı; kullanıcıya yalnız ihtiyacı olan doğru bilgiyi sunmayı amaçlar."
               />
@@ -230,7 +236,7 @@ export default function LandingPage() {
               {platformPrinciples.map((item) => (
                 <article key={item.title} className="border-b border-slate-200 py-8 last:border-b-0 md:border-b-0 md:px-8 md:first:pl-0 md:last:pr-0">
                   <item.icon className="size-6 text-[#0f766e]" strokeWidth={1.8} />
-                  <h3 className="mt-6 text-lg font-black tracking-[-0.025em] text-[#102a43]">{item.title}</h3>
+                  <h3 className="mt-6 text-lg font-bold tracking-[-0.025em] text-[#102a43]">{item.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
                 </article>
               ))}
@@ -238,7 +244,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="use-cases" className="scroll-mt-24 border-y border-slate-200 bg-[#eef3f6] py-20 sm:py-24 lg:py-28">
+        {/* Ritim kademesi: ağır (py-24/32) — sayfanın ana argüman bölümü */}
+        <section id="use-cases" className="scroll-mt-24 border-y border-slate-200 bg-[#eef3f6] py-24 sm:py-28 lg:py-32">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8 lg:px-10">
             <SectionHeading
               eyebrow="Kullanım alanları"
@@ -257,7 +264,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-black tracking-[-0.03em] text-[#102a43] sm:text-2xl">{item.title}</h3>
+                    <h3 className="text-xl font-bold tracking-[-0.03em] text-[#102a43] sm:text-2xl">{item.title}</h3>
                     <p className="mt-2 text-xs font-bold text-[#0f766e]">{item.detail}</p>
                   </div>
                   <p className="max-w-xl text-sm leading-7 text-slate-600">{item.description}</p>
@@ -268,10 +275,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-white py-20 sm:py-24 lg:py-28">
+        {/* Ritim kademesi: yoğun — diyagram bölümü */}
+        <section className="bg-white py-14 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8 lg:px-10">
             <SectionHeading
               eyebrow="Dijital yaşam döngüsü"
+              level="secondary"
               title="Her olay, aynı hayvan kaydının devamı."
               description="VetCep, parçalı işlemleri birbirinden kopuk ekranlar olarak değil; kimlikten geçmişe uzanan tutarlı bir yaşam döngüsü olarak ele alır."
               align="center"
@@ -289,7 +298,7 @@ export default function LandingPage() {
                     </span>
                   </div>
                   <div className="lg:mt-5">
-                    <h3 className="text-sm font-black text-[#102a43]">{item.title}</h3>
+                    <h3 className="text-sm font-bold text-[#102a43]">{item.title}</h3>
                     <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-500">{item.text}</p>
                   </div>
                 </div>
@@ -298,7 +307,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="overflow-hidden bg-[#102a43] py-20 text-white sm:py-24 lg:py-28">
+        {/* Ritim kademesi: ağır — karar-destek kabiliyeti bölümü */}
+        <section className="overflow-hidden bg-[#102a43] py-24 text-white sm:py-28 lg:py-32">
           <div className="mx-auto grid max-w-[1280px] gap-12 px-5 sm:px-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-20 lg:px-10">
             <div>
               <SectionHeading
@@ -327,7 +337,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="approach" className="scroll-mt-24 bg-white py-20 sm:py-24 lg:py-28">
+        {/* Ritim kademesi: standart (py-20/24) */}
+        <section id="approach" className="scroll-mt-24 bg-white py-20 lg:py-24">
           <div className="mx-auto max-w-[1280px] px-5 sm:px-8 lg:px-10">
             <SectionHeading
               eyebrow="Birlikte çalışma yaklaşımı"
@@ -337,30 +348,52 @@ export default function LandingPage() {
               className="max-w-4xl"
             />
 
-            <div className="mt-14 grid gap-4 lg:grid-cols-3">
+            {/* Katmanlı mimari yatay kartlarla değil, dikey yığınla anlatılır:
+                üstte kaynaklar, ortada VetCep katmanı, altta ürün yüzeyleri. */}
+            <div className="mx-auto mt-14 max-w-4xl border-t border-slate-200">
               {architectureLayers.map((layer, index) => (
-                <article key={layer.title} className="relative border border-slate-200 bg-[#f8fafc] p-6 sm:p-8">
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="flex size-11 items-center justify-center rounded-xl bg-white text-[#0f766e] shadow-sm ring-1 ring-slate-200">
+                <article
+                  key={layer.title}
+                  className="relative grid gap-4 border-b border-slate-200 py-7 sm:grid-cols-[56px_1fr] sm:gap-7 sm:py-8"
+                >
+                  {/* Katmanları görsel olarak birbirine bağlayan dikey omurga. */}
+                  {index < architectureLayers.length - 1 && (
+                    <span
+                      className="absolute left-[22px] top-[76px] hidden h-[calc(100%-44px)] w-px bg-slate-200 sm:block"
+                      aria-hidden="true"
+                    />
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <span className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#0f766e] ring-1 ring-slate-200">
                       <layer.icon className="size-5" strokeWidth={1.8} />
                     </span>
-                    <span className="font-mono text-xs font-bold text-slate-300">0{index + 1}</span>
+                    <span className="font-mono text-xs font-medium text-slate-400 sm:hidden">
+                      0{index + 1}
+                    </span>
                   </div>
-                  <div className="mt-8 text-[10px] font-extrabold uppercase tracking-[0.17em] text-[#0f766e]">{layer.label}</div>
-                  <h3 className="mt-2 text-xl font-black tracking-[-0.03em] text-[#102a43]">{layer.title}</h3>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">{layer.text}</p>
+
+                  <div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="hidden font-mono text-[10px] font-medium text-slate-400 sm:inline">0{index + 1}</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.17em] text-[#0f766e]">{layer.label}</span>
+                    </div>
+                    <h3 className="mt-2 text-xl font-bold tracking-[-0.025em] text-[#102a43]">{layer.title}</h3>
+                    <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">{layer.text}</p>
+                  </div>
                 </article>
               ))}
             </div>
 
-            <div className="mt-5 flex items-start gap-3 border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-950">
+            <div className="mx-auto mt-6 flex max-w-4xl items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-950">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-amber-700" />
-              <p><strong>Şeffaflık ilkesi:</strong> Bu sayfa herhangi bir kurumla mevcut bağlantı, yetkilendirme veya onay iddiası taşımaz. Gerçek bağlantılar ayrı sözleşme ve teknik değerlendirme gerektirir.</p>
+              <p><strong className="font-semibold">Şeffaflık ilkesi:</strong> Bu sayfa herhangi bir kurumla mevcut bağlantı, yetkilendirme veya onay iddiası taşımaz. Gerçek bağlantılar ayrı sözleşme ve teknik değerlendirme gerektirir.</p>
             </div>
           </div>
         </section>
 
-        <section id="trust" className="scroll-mt-24 border-y border-slate-200 bg-[#eef3f6] py-20 sm:py-24 lg:py-28">
+        {/* Ritim kademesi: standart */}
+        <section id="trust" className="scroll-mt-24 border-y border-slate-200 bg-[#eef3f6] py-20 lg:py-24">
           <div className="mx-auto grid max-w-[1280px] gap-14 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-10">
             <div>
               <SectionHeading
@@ -382,8 +415,8 @@ export default function LandingPage() {
             <div className="border border-slate-200 bg-white p-5 shadow-[0_20px_60px_rgba(15,35,55,0.08)] sm:p-8">
               <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-5">
                 <div>
-                  <div className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-slate-400">Ürün olgunluk çizgisi</div>
-                  <div className="mt-1 text-lg font-black text-[#102a43]">Demo → Pilot → Üretim</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-400">Ürün olgunluk çizgisi</div>
+                  <div className="mt-1 text-lg font-bold text-[#102a43]">Demo → Pilot → Üretim</div>
                 </div>
                 <LockKeyhole className="size-6 text-[#0f766e]" strokeWidth={1.7} />
               </div>
@@ -396,8 +429,8 @@ export default function LandingPage() {
                       {stage.active ? <Check className="size-4" /> : <span className="size-2 rounded-full bg-current" />}
                     </span>
                     <div>
-                      <div className={`text-[10px] font-extrabold uppercase tracking-[0.15em] ${stage.active ? 'text-[#0f766e]' : 'text-slate-400'}`}>{stage.status}</div>
-                      <h3 className="mt-1 text-base font-black text-[#102a43]">{stage.title}</h3>
+                      <div className={`text-[10px] font-semibold uppercase tracking-[0.15em] ${stage.active ? 'text-[#0f766e]' : 'text-slate-400'}`}>{stage.status}</div>
+                      <h3 className="mt-1 text-base font-bold text-[#102a43]">{stage.title}</h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">{stage.text}</p>
                     </div>
                   </div>
@@ -407,12 +440,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-white px-5 py-20 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
-          <div className="mx-auto max-w-[1180px] overflow-hidden rounded-[32px] bg-[#0f766e] text-white shadow-[0_30px_70px_rgba(15,118,110,0.2)]">
+        {/* Ritim kademesi: ağır — kapanış */}
+        <section className="bg-white px-5 py-24 sm:px-8 sm:py-28 lg:px-10 lg:py-32">
+          <div className="mx-auto max-w-[1180px] overflow-hidden rounded-2xl bg-[#0f766e] text-white shadow-[0_30px_70px_rgba(15,118,110,0.2)]">
             <div className="grid gap-8 p-7 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end lg:p-14">
               <div>
-                <div className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#99f6e4]">Ürün değerlendirmesi</div>
-                <h2 className="mt-4 max-w-3xl text-balance text-3xl font-black leading-[1.05] tracking-[-0.045em] sm:text-4xl lg:text-5xl">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#99f6e4]">Ürün değerlendirmesi</div>
+                <h2 className="mt-4 max-w-3xl text-balance text-3xl font-bold leading-[1.05] tracking-[-0.045em] sm:text-4xl lg:text-5xl">
                   Hayvan sağlığı kayıtları için ortak bir dijital deneyimi birlikte değerlendirelim.
                 </h2>
                 <p className="mt-5 max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
@@ -420,11 +454,14 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                <Link href="/clinic-onboarding" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 text-sm font-extrabold text-[#0f766e] transition-colors hover:bg-[#f0fdfa]">
+                <Link
+                  href="/demo-talep"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 text-sm font-semibold text-[#0f766e] transition-colors hover:bg-[#f0fdfa] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f766e]"
+                >
                   Demo görüşmesi talep et
                   <ArrowRight className="size-4" />
                 </Link>
-                <a href="mailto:hello@vetcep.com" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-sm font-extrabold text-white transition-colors hover:bg-white/10">
+                <a href="mailto:hello@vetcep.com" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/10">
                   hello@vetcep.com
                 </a>
               </div>

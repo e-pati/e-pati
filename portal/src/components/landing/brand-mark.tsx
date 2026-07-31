@@ -33,7 +33,7 @@ export function BrandMark({
 
       {!compact && (
         <span className="grid leading-none">
-          <span className={cn('text-[17px] font-black tracking-[-0.03em] text-[#102a43]', inverse && 'text-white')}>
+          <span className={cn('text-[17px] font-bold tracking-[-0.03em] text-[#102a43]', inverse && 'text-white')}>
             VetCep
           </span>
           <span className={cn('mt-1 text-[8px] font-bold uppercase tracking-[0.23em] text-slate-500', inverse && 'text-white/58')}>
