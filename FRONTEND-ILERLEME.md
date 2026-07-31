@@ -66,7 +66,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Dokunulan dosyalar:** `portal/src/app/(dashboard)/dashboard/page.tsx`, `portal/src/components/shared/dashboard-chart.tsx`, `portal/src/components/layout/header.tsx`, `portal/tests/dashboard-design.spec.ts`, `portal/tests/auth.spec.ts`, `portal/tests/notifications.spec.ts`, `FRONTEND-ILERLEME.md`
 
-**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil renderlar görsel olarak incelendi; mobil KPI'lar 2×2 kompakt düzende ve yatay taşma yok. Dashboard hedef testi 2/2, auth/bildirim/dashboard regresyonu 16/16, Faz 0 demo paketi 25/25, portal lint, TypeScript ve Next.js production build başarılı. Production doğrulaması Git pushundan sonra yapılacak.
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil renderlar görsel olarak incelendi; mobil KPI'lar 2×2 kompakt düzende ve yatay taşma yok. Dashboard hedef testi 2/2, auth/bildirim/dashboard regresyonu 16/16, Faz 0 demo paketi 25/25, portal lint, TypeScript ve Next.js production build başarılı. `a7930e1` Vercel production deploymentı `Ready` durumuna geçti ve `vetcep.com` aliaslarını aldı. Canlı smoke turunda beş public demo rotası geçti; admin senaryosu ortam kimlik bilgisi olmadığı için atlandı. Korumalı `/dashboard` rotası oturumsuz erişimi `/login?next=%2Fdashboard` hedefine yönlendiriyor; yetkili production görünümü klinik kimlik bilgisi olmadan açılmadı.
 
 **Sıradaki:** Hasta listesi (`/patients`) ve ardından hasta detayını (`/patients/[id]`) aynı kurumsal ağırlık, boş/hata durumu ve responsive ritimle yenilemek.
 
