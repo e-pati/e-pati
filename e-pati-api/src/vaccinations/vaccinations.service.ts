@@ -68,10 +68,25 @@ export class VaccinationsService {
         ownerId: pet.ownerId,
         title: 'Aşı hatırlatması planlandı',
         body: `${pet.name} için ${vaccination.name} aşı hatırlatması oluşturuldu.`,
-        payload: { vaccinationId: vaccination.id, petId: pet.id },
+        payload: {
+          type: 'vaccination',
+          vaccinationId: vaccination.id,
+          petId: pet.id,
+        },
         scheduledAt: vaccination.dueAt,
       });
     }
+
+    await this.notificationsService.createClinicNotification({
+      clinicId: user.clinicId!,
+      title: 'Aşı kaydı oluşturuldu',
+      body: `${pet.name} için ${vaccination.name} aşı kaydı klinik arşivine eklendi.`,
+      payload: {
+        type: 'vaccination',
+        vaccinationId: vaccination.id,
+        petId: pet.id,
+      },
+    });
 
     return vaccination;
   }

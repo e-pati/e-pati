@@ -31,6 +31,7 @@ const ids = {
   medication: 'seed-medication-misket-amoxicillin',
   labResult: 'seed-lab-misket-blood-panel',
   notification: 'seed-notification-vaccine-reminder',
+  clinicNotification: 'seed-notification-clinic-misket-vaccine',
   auditLog: 'seed-audit-log-demo',
   cattlePremise: 'seed-premise-cankaya-farm',
   shelterPremise: 'seed-premise-cankaya-shelter',
@@ -264,7 +265,11 @@ async function main() {
       status: NotificationStatus.SENT,
       title: 'Misket icin asi hatirlatmasi',
       body: 'Kuduz asisinin bir sonraki dozu yaklasiyor.',
-      payload: { petId: ids.pet, vaccinationId: ids.vaccination },
+      payload: {
+        type: 'vaccination',
+        petId: ids.pet,
+        vaccinationId: ids.vaccination,
+      },
       scheduledAt: nextYear,
       sentAt: now,
       readAt: null,
@@ -276,8 +281,44 @@ async function main() {
       status: NotificationStatus.SENT,
       title: 'Misket icin asi hatirlatmasi',
       body: 'Kuduz asisinin bir sonraki dozu yaklasiyor.',
-      payload: { petId: ids.pet, vaccinationId: ids.vaccination },
+      payload: {
+        type: 'vaccination',
+        petId: ids.pet,
+        vaccinationId: ids.vaccination,
+      },
       scheduledAt: nextYear,
+      sentAt: now,
+    },
+  });
+
+  await prisma.notification.upsert({
+    where: { id: ids.clinicNotification },
+    update: {
+      clinicId: ids.clinic,
+      channel: NotificationChannel.PUSH,
+      status: NotificationStatus.SENT,
+      title: 'Misket asi kaydi tamamlandi',
+      body: 'Kuduz asisi ve bir sonraki doz hatirlatmasi klinik arsivine eklendi.',
+      payload: {
+        type: 'vaccination',
+        petId: ids.pet,
+        vaccinationId: ids.vaccination,
+      },
+      sentAt: now,
+      readAt: null,
+    },
+    create: {
+      id: ids.clinicNotification,
+      clinicId: ids.clinic,
+      channel: NotificationChannel.PUSH,
+      status: NotificationStatus.SENT,
+      title: 'Misket asi kaydi tamamlandi',
+      body: 'Kuduz asisi ve bir sonraki doz hatirlatmasi klinik arsivine eklendi.',
+      payload: {
+        type: 'vaccination',
+        petId: ids.pet,
+        vaccinationId: ids.vaccination,
+      },
       sentAt: now,
     },
   });

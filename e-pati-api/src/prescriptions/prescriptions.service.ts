@@ -48,7 +48,22 @@ export class PrescriptionsService {
       ownerId: pet.ownerId,
       title: 'Yeni reçete',
       body: `${pet.name} için yeni reçete oluşturuldu.`,
-      payload: { prescriptionId: prescription.id, petId: pet.id },
+      payload: {
+        type: 'prescription',
+        prescriptionId: prescription.id,
+        petId: pet.id,
+      },
+    });
+
+    await this.notificationsService.createClinicNotification({
+      clinicId: user.clinicId!,
+      title: 'Reçete oluşturuldu',
+      body: `${pet.name} için yeni reçete klinik arşivine eklendi.`,
+      payload: {
+        type: 'prescription',
+        prescriptionId: prescription.id,
+        petId: pet.id,
+      },
     });
 
     return prescription;

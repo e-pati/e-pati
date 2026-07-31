@@ -66,7 +66,22 @@ export class ExaminationsService {
       ownerId: pet.ownerId,
       title: 'Yeni muayene kaydı',
       body: `${pet.name} için yeni muayene kaydı oluşturuldu.`,
-      payload: { examinationId: examination.id, petId: pet.id },
+      payload: {
+        type: 'examination',
+        examinationId: examination.id,
+        petId: pet.id,
+      },
+    });
+
+    await this.notificationsService.createClinicNotification({
+      clinicId: user.clinicId!,
+      title: 'Muayene kaydı oluşturuldu',
+      body: `${pet.name} için yeni muayene kaydı klinik arşivine eklendi.`,
+      payload: {
+        type: 'examination',
+        examinationId: examination.id,
+        petId: pet.id,
+      },
     });
 
     return examination;

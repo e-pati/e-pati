@@ -8,7 +8,12 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NotificationChannel, Prisma, Role } from '@prisma/client';
+import {
+  NotificationChannel,
+  NotificationStatus,
+  Prisma,
+  Role,
+} from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListNotificationsQueryDto } from './dto/list-notifications-query.dto';
@@ -22,6 +27,13 @@ type CreateOwnerNotificationInput = {
   body: string;
   payload?: Prisma.InputJsonObject;
   scheduledAt?: Date;
+};
+
+type CreateClinicNotificationInput = {
+  clinicId: string;
+  title: string;
+  body: string;
+  payload?: Prisma.InputJsonObject;
 };
 
 @Injectable()
@@ -54,14 +66,9 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async findAll(query: ListNotificationsQueryDto, user: TokenPayload) {
-    this.ensureOwner(user);
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
-    const where = {
-      ownerId: user.sub,
-      ...(query.status === 'read' ? { readAt: { not: null } } : {}),
-      ...(query.status === 'unread' ? { readAt: null } : {}),
-    };
+    const where = this.notificationScope(query, user);
 
     const [items, total] = await Promise.all([
       this.prisma.notification.findMany({
@@ -77,9 +84,8 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async markRead(id: string, user: TokenPayload) {
-    this.ensureOwner(user);
     const notification = await this.prisma.notification.findFirst({
-      where: { id, ownerId: user.sub },
+      where: { id, ...this.notificationScope({}, user) },
     });
 
     if (!notification) {
@@ -186,6 +192,20 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     return this.sendExistingNotification(notification.id);
   }
 
+  createClinicNotification(input: CreateClinicNotificationInput) {
+    return this.prisma.notification.create({
+      data: {
+        clinicId: input.clinicId,
+        channel: NotificationChannel.PUSH,
+        status: NotificationStatus.SENT,
+        title: input.title,
+        body: input.body,
+        payload: input.payload,
+        sentAt: new Date(),
+      },
+    });
+  }
+
   async sendDueScheduledNotifications(limit = 25): Promise<void> {
     const notifications = await this.prisma.notification.findMany({
       where: {
@@ -210,6 +230,10 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
     });
 
     if (!notification || notification.status !== 'PENDING') {
+      return notification;
+    }
+
+    if (!notification.ownerId) {
       return notification;
     }
 
@@ -291,6 +315,35 @@ export class NotificationsService implements OnModuleInit, OnModuleDestroy {
 
   private booleanPreference(value: unknown, fallback: boolean) {
     return typeof value === 'boolean' ? value : fallback;
+  }
+
+  private notificationScope(
+    query: Pick<ListNotificationsQueryDto, 'status'>,
+    user: TokenPayload,
+  ): Prisma.NotificationWhereInput {
+    const statusScope =
+      query.status === 'read'
+        ? { readAt: { not: null } }
+        : query.status === 'unread'
+          ? { readAt: null }
+          : {};
+
+    if (user.role === Role.SUPER_ADMIN) {
+      return statusScope;
+    }
+
+    if (user.role === Role.OWNER) {
+      return { ownerId: user.sub, ...statusScope };
+    }
+
+    if (
+      (user.role === Role.VETERINARIAN || user.role === Role.CLINIC_ADMIN) &&
+      user.clinicId
+    ) {
+      return { clinicId: user.clinicId, ...statusScope };
+    }
+
+    throw new ForbiddenException('You cannot access notifications.');
   }
 
   private ensureOwner(user: TokenPayload): void {

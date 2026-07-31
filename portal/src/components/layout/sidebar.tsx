@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/auth.store'
 import { useNotifications } from '@/hooks/use-notifications'
-import { canAccessOwnerNotifications } from '@/services/notifications.service'
+import { canAccessNotifications } from '@/services/notifications.service'
 
 const navItems = [
   { href: '/dashboard', label: 'Pano', icon: LayoutDashboard },
@@ -42,7 +42,7 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
   const router = useRouter()
   const { user, clearUser } = useAuthStore()
   const notificationsQuery = useNotifications({
-    enabled: canAccessOwnerNotifications(user?.role),
+    enabled: canAccessNotifications(user?.role),
     subjectId: user?.id,
   })
   const unreadCount = notificationsQuery.data?.filter(n => !n.isRead && !n.readAt).length ?? 0

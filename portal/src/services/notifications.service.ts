@@ -6,6 +6,7 @@ export interface ApiNotification {
   id: string
   petId?: string
   ownerId?: string
+  clinicId?: string
   type: ApiNotificationType
   title: string
   message: string
@@ -18,6 +19,7 @@ export interface ApiNotification {
 interface NotificationApiRecord {
   id: string
   ownerId?: string
+  clinicId?: string
   title: string
   body?: string
   message?: string
@@ -62,6 +64,7 @@ function normalizeNotification(notification: NotificationApiRecord): ApiNotifica
   return {
     id: notification.id,
     ownerId: notification.ownerId,
+    clinicId: notification.clinicId,
     petId: typeof payload.petId === 'string' ? payload.petId : undefined,
     type,
     title: notification.title,
@@ -73,8 +76,8 @@ function normalizeNotification(notification: NotificationApiRecord): ApiNotifica
   }
 }
 
-export function canAccessOwnerNotifications(role?: string): boolean {
-  return role === 'OWNER'
+export function canAccessNotifications(role?: string): boolean {
+  return role === 'OWNER' || role === 'VETERINARIAN' || role === 'CLINIC_ADMIN' || role === 'SUPER_ADMIN'
 }
 
 export const notificationsService = {

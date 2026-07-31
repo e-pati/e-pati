@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { useMarkNotificationRead, useNotifications } from '@/hooks/use-notifications'
-import { canAccessOwnerNotifications, type ApiNotification } from '@/services/notifications.service'
+import { canAccessNotifications, type ApiNotification } from '@/services/notifications.service'
 import { useAuthStore } from '@/stores/auth.store'
 
 import { formatDate } from '@/lib/utils'
@@ -20,9 +20,9 @@ const typeConfig: Record<ApiNotification['type'], { icon: typeof Bell; color: st
 export default function NotificationsPage() {
   const [localReadIds, setLocalReadIds] = useState<Set<string>>(() => new Set())
   const user = useAuthStore(state => state.user)
-  const ownerNotificationsAvailable = canAccessOwnerNotifications(user?.role)
+  const notificationsAvailable = canAccessNotifications(user?.role)
   const notificationsQuery = useNotifications({
-    enabled: ownerNotificationsAvailable,
+    enabled: notificationsAvailable,
     subjectId: user?.id,
   })
   const markRead = useMarkNotificationRead()
@@ -41,12 +41,12 @@ export default function NotificationsPage() {
     await markRead.mutateAsync(id)
   }
 
-  if (!ownerNotificationsAvailable) {
+  if (!notificationsAvailable) {
     return (
       <div>
         <Header
           title="Bildirimler"
-          subtitle="Klinik bildirim kanalı entegrasyon bekliyor"
+          subtitle="Bildirim yetkisi bulunamadı"
         />
 
         <div className="max-w-3xl p-6">
@@ -54,14 +54,14 @@ export default function NotificationsPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50">
               <Bell className="h-7 w-7 text-blue-600" />
             </div>
-            <h2 className="mt-5 text-lg font-semibold text-foreground">Klinik bildirim servisi hazırlanıyor</h2>
+            <h2 className="mt-5 text-lg font-semibold text-foreground">Bildirimler bu hesap için açık değil</h2>
             <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Mevcut bildirim servisi hayvan sahiplerine özeldir. Veteriner ve klinik bildirimleri,
-              klinik yetkisiyle sınırlandırılmış ayrı backend sözleşmesi tamamlandığında burada gösterilecek.
+              Bu sayfa hayvan sahibi, veteriner, klinik yöneticisi ve super admin hesapları için
+              yetkili bildirimleri gösterir.
             </p>
             <div className="mx-auto mt-5 max-w-lg rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-left text-xs text-muted-foreground">
-              Portal, sahip bildirim endpoint&apos;ini klinik hesabıyla çağırmaz; böylece yetkisiz istek ve
-              yanıltıcı boş durum üretilmez.
+              Backend, bildirimleri oturum rolüne göre owner veya clinic kapsamıyla sınırlar; yetkisiz
+              hesaplar liste ve okundu işaretleme akışına alınmaz.
             </div>
           </div>
         </div>

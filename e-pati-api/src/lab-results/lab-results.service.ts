@@ -41,7 +41,14 @@ export class LabResultsService {
       ownerId: pet.ownerId,
       title: 'Yeni laboratuvar sonucu',
       body: `${pet.name} için yeni laboratuvar sonucu yüklendi.`,
-      payload: { labResultId: labResult.id, petId: pet.id },
+      payload: { type: 'lab', labResultId: labResult.id, petId: pet.id },
+    });
+
+    await this.notificationsService.createClinicNotification({
+      clinicId: user.clinicId!,
+      title: 'Laboratuvar sonucu yüklendi',
+      body: `${pet.name} için yeni laboratuvar sonucu klinik arşivine eklendi.`,
+      payload: { type: 'lab', labResultId: labResult.id, petId: pet.id },
     });
 
     return labResult;
