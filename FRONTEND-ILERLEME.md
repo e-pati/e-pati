@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Public landing production ortamında doğrulandı; backend hasta detay, muayene veteriner, reçete liste, klinik bildirim, billing webhook güvenliği ve belediye canlı endpoint çekirdeği tamamlandı
+- **Son güncelleme:** 31 Temmuz 2026 — Public landing ile aynı kurumsal kayıt dili portal girişine taşındı; tema kontrastı, responsive form ve erişilebilirlik regresyonları kapatıldı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Canlı portal ve demo ekranlarını aynı kurumsal UI/UX standardına göre sırayla denetlemek; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
@@ -32,6 +32,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.11    | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket                                     | Burak + Erol + danışman | 🟡    | Teknik/dış-paylaşım/sunum/yedek materyalleri, gizli danışman paketi, toplantı sonrası takip paketi ve tek sayfalık Pilot Ön Çerçevesi doğrulandı. Yazılı uzman/Bakanlık kararları, gerçek toplantı bilgileri ve onaylı baskı bekliyor                                |
 | Demo    | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı              | Burak + Şevval          | ✅    | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
 | Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları  | Burak                   | ✅    | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli `vetcep.com` production ortamında doğrulandı                                                              |
+| Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                        | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                           |
 
 **Erol'dan (backend) beklenenler:**
 
@@ -55,6 +56,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-07-31 — Portal giriş ekranı kurumsal yeniden tasarımı
+
+**Yapılanlar:** `/login` ekranı eski klinik-SaaS sunumundan çıkarılarak VetCep'in güncel “Kayıt Defteri” tasarım diline taşındı. Emoji/pati kutuları, dekoratif daireler ve görünürlüğü tema tokenlarına bağlı beyaz kart kaldırıldı. Masaüstünde kayıt, sağlık işlemi ve rol bazlı erişim omurgasını anlatan lacivert portal yüzeyi; mobilde doğrudan forma odaklanan sade bir düzen kuruldu. Form alanları açık/koyu sistem tercihinden bağımsız, yüksek kontrastlı renklere sabitlendi. E-posta/şifre validasyonu, API hata mesajı, yüklenme durumu, şifre görünürlüğü, güvenli `next` yönlendirmesi ve rol bazlı hedef seçimi korundu. Eski `/clinic-onboarding` bağlantısı nötr `/demo-talep` rotasına taşındı; login rotasına özel `noindex` metadata eklendi.
+
+**Dokunulan dosyalar:** `portal/src/app/(auth)/login/page.tsx`, `portal/src/app/(auth)/login/layout.tsx`, `portal/tests/login.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** 1440×900 masaüstü ve 390×844 mobil görsel inceleme tamamlandı; yatay taşma yok ve form koyu sistem tercihinde de beyaz zemin/koyu metin kontrastını koruyor. Login Playwright testleri 4/4, Faz 0 demo paketi 25/25, portal lint ve Next.js production build başarılı. Şifre desteği mevcut sözleşmeye uygun olarak kullanıcıyı klinik sistem yöneticisine yönlendiren bilgilendirme mesajını koruyor.
+
+**Sıradaki:** Canlı `/login` production deploymentını doğrulamak; ardından portal içi ekranları aynı ağırlık, köşe, kontrast ve ritim sistemine sırayla hizalamak.
+
+**Erol'a not (varsa):** Backend değişikliği gerekmiyor. Mevcut `/auth/clinic/login` httpOnly-cookie sözleşmesi ve rol yönlendirmeleri aynen korundu.
 
 ### 2026-07-31 — Landing "Kayıt Defteri" tasarım turu (P0 + P1)
 
