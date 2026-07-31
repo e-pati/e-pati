@@ -3,12 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Pet, Role } from '@prisma/client';
+import { Pet, Prisma, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadsService } from '../uploads/uploads.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+import { ListPrescriptionsQueryDto } from './dto/list-prescriptions-query.dto';
 
 @Injectable()
 export class PrescriptionsService {
@@ -51,6 +52,48 @@ export class PrescriptionsService {
     });
 
     return prescription;
+  }
+
+  async findAll(query: ListPrescriptionsQueryDto, user: TokenPayload) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const where: Prisma.PrescriptionWhereInput = {
+      deletedAt: null,
+      ...(query.petId ? { petId: query.petId } : {}),
+      ...this.prescriptionScope(user),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.prescription.findMany({
+        where,
+        include: {
+          medications: true,
+          clinic: { select: { id: true, name: true } },
+          veterinarian: { select: { id: true, fullName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.prescription.count({ where }),
+    ]);
+
+    return {
+      items: items.map((prescription) => ({
+        ...prescription,
+        date: prescription.createdAt,
+        vet: prescription.veterinarian
+          ? {
+              id: prescription.veterinarian.id,
+              fullName: prescription.veterinarian.fullName,
+              title: 'Dr.',
+            }
+          : undefined,
+      })),
+      total,
+      page,
+      limit,
+    };
   }
 
   async findOne(id: string, user: TokenPayload) {
@@ -115,6 +158,27 @@ export class PrescriptionsService {
     }
 
     throw new ForbiddenException('You cannot access this prescription.');
+  }
+
+  private prescriptionScope(user: TokenPayload): Prisma.PrescriptionWhereInput {
+    if (user.role === Role.SUPER_ADMIN) {
+      return {};
+    }
+
+    if (user.role === Role.OWNER) {
+      return { pet: { ownerId: user.sub, deletedAt: null } };
+    }
+
+    if (user.clinicId) {
+      return {
+        OR: [
+          { clinicId: user.clinicId },
+          { pet: { clinicId: user.clinicId, deletedAt: null } },
+        ],
+      };
+    }
+
+    throw new ForbiddenException('You cannot access prescriptions.');
   }
 
   private ensureVeterinarian(user: TokenPayload): void {

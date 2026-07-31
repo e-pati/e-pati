@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -9,6 +17,7 @@ import type { TokenPayload } from '../auth/types/token-payload';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+import { ListPrescriptionsQueryDto } from './dto/list-prescriptions-query.dto';
 import { PrescriptionsService } from './prescriptions.service';
 
 @ApiTags('prescriptions')
@@ -25,6 +34,15 @@ export class PrescriptionsController {
     @CurrentUser() user: TokenPayload,
   ) {
     return this.prescriptionsService.create(dto, user);
+  }
+
+  @Get()
+  @ApiOkResponse({ description: 'Paginated prescriptions.' })
+  findAll(
+    @Query() query: ListPrescriptionsQueryDto,
+    @CurrentUser() user: TokenPayload,
+  ) {
+    return this.prescriptionsService.findAll(query, user);
   }
 
   @Get(':id')

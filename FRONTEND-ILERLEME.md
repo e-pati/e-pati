@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Vercel Git bağlantısı ve monorepo kökü düzeltilerek güncel Faz 0 portalı `vetcep.com` production ortamına alındı
+- **Son güncelleme:** 31 Temmuz 2026 — Backend reçete liste sözleşmesi `GET /prescriptions?petId=...` ile tamamlandı; Vercel production akışı güncel
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Canlı Faz 0 ekranlarını Bakanlık düzeyi UI/UX denetiminden geçirip yalnız sunum-kritik iyileştirmeleri uygulamak; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
@@ -36,7 +36,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
 - Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. İmzasız billing webhook Origin'siz açık bırakılmadı; gerçek ödeme sağlayıcısı imza sözleşmesi ayrıca netleşmeli.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
-- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisini, muayene listesi veterinarian ilişkisini dönmeli; `GET /prescriptions?petId=...` liste rotası eklenmeli. Frontend Faz 0 için klinik hasta cache'i, `/pets/:id/summary` ve oturum kullanıcısı fallback'leriyle çalışıyor; pilot öncesi bu geçici uyumluluk katmanları belgeli API alanlarıyla sadeleştirilmeli.
+- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisini ve muayene listesi veterinarian ilişkisini dönmeli. `GET /prescriptions?petId=...` liste rotası backend tarafında eklendi; frontend Faz 0 için kalan klinik hasta cache'i, `/pets/:id/summary` ve oturum kullanıcısı fallback'leri pilot öncesi belgeli API alanlarıyla sadeleştirilmeli.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi gerekiyor. `VETERINARIAN` ve `CLINIC_ADMIN` yetkileri desteklenmeli; `SUPER_ADMIN` davranışı netleştirilmeli. Yanıt modeli `id`, `type`, `title`, `message`, `createdAt` ve `readAt` alanlarıyla belgelenmeli veya mevcut `body`/`payload`/`status` şekli sabit sözleşme olarak paylaşılmalı.
 
 ---
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-07-31 — Backend reçete liste sözleşmesi
+**Yapılanlar:** Pilot öncesi açık kalan reçete liste kontratı backend tarafında tamamlandı. `GET /prescriptions` rotası eklendi; `petId`, `page` ve `limit` query alanlarıyla paginated yanıt dönüyor. Owner kullanıcıları yalnız kendi hayvanlarının reçetelerini, veteriner/klinik admin kullanıcıları yalnız kendi klinik kapsamındaki reçeteleri, super admin ise tüm reçeteleri okuyabiliyor. Mobilin beklediği `vet.fullName`/`vet.title` uyumluluğu ve `date` alias'ı eklendi.
+**Dokunulan dosyalar:** `e-pati-api/src/prescriptions/prescriptions.controller.ts`, `e-pati-api/src/prescriptions/prescriptions.service.ts`, `e-pati-api/src/prescriptions/dto/list-prescriptions-query.dto.ts`, `e-pati-api/src/prescriptions/prescriptions.service.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün ekranı değişmedi. Portal mevcut demo fallback'iyle çalışmaya devam ediyor; mobil gerçek API'de `/prescriptions?petId=...` listesini okuyabilecek hale geldi.
+**Sıradaki:** Klinik bildirimleri için `clinicId` kapsamlı listeleme/okundu sözleşmesini tasarlamak; hasta detayındaki owner/veterinarian include alanlarını kalıcı API sözleşmesine taşımak.
+**Erol'a not (varsa):** Hedef lint temiz, backend full Jest 35/35 ve `pnpm run build` başarılı.
 
 ### 2026-07-31 — Güncel Faz 0 portalının canlıya alınması
 **Yapılanlar:** `vetcep.com` alan adının bağlı olduğu `e-pati-portal` Vercel projesindeki kopuk eski Git bağlantısı `e-pati/e-pati` reposuna yeniden bağlandı. Monorepo Root Directory değeri `./` yerine `portal`, production branch ise `main` olarak doğrulandı. Güncel `292c77b` kodunu değiştirmeyen `b0773f4` deployment tetikleme commiti önce `feature/portal`, ardından fast-forward olarak `main` dalına gönderildi. Vercel preview ve production buildleri tamamlandı; `/demo-akisi`, `/vatandas-giris`, `/bakanlik`, `/hayvancilik` ve `/belediye` rotalarının tamamı canlıda HTTP 200 ile doğrulandı.
