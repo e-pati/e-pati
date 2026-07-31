@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Registry ulusal özet/erken uyarı API çekirdeği ile portal ve mobilin kalıcı reçete liste/PDF istemci sözleşmesi main ve production üzerinde birleştirildi
+- **Son güncelleme:** 1 Ağustos 2026 — Klinik dashboard kurumsal operasyon görünümüne taşındı; gerçek veri, boş/hata durumları ve klinik bildirim sayacı responsive olarak doğrulandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Canlı portal içi ekranları aynı kurumsal UI/UX standardına göre sırayla denetlemek; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
+- **Sıradaki adım:** Hasta listesi ve hasta detay ekranlarını dashboard ile aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -33,6 +33,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Demo    | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı              | Burak + Şevval          | ✅    | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
 | Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları  | Burak                   | ✅    | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli `vetcep.com` production ortamında doğrulandı                                                              |
 | Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                           | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                         |
+| Dashboard | **Klinik operasyon panosu:** kurumsal özet, gerçek KPI, aktivite, muayene/aşı takibi ve hızlı işlemler                  | Burak                   | ✅    | Çok renkli/emoji ağırlıklı görünüm kaldırıldı; gerçek veri ve açık boş/hata durumları, API tabanlı bildirim sayacı, 1280×720 masaüstü ve 390×844 mobil düzen tamamlandı                                                                                             |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -58,6 +59,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-01 — Klinik dashboard kurumsal UI/UX turu
+
+**Yapılanlar:** `/dashboard` ekranı klinik operasyon merkezi olarak baştan düzenlendi. Eski emoji karşılama, birbirinden kopuk parlak renkli kartlar ve uygulama şablonu hissi veren hızlı işlem kutuları kaldırıldı. Lacivert kurumsal operasyon özeti, sakin ve semantik KPI kartları, gerçek muayene/aşı dağılımı, tablo ritminde son muayeneler, önceliklendirilmiş aşı uyarıları ve 44px üzeri hızlı işlem hedefleri oluşturuldu. Büyük sayılar Türkçe biçimde gösteriliyor. Veri yokken açıklamasız sentetik grafik üreten fallback kaldırıldı; gerçek boş durum ve API hata durumu birbirinden ayrıldı. Klinik özeti alınamazsa ekran artık sıfırları gerçek kayıt gibi veya “sistem aktif” ifadesiyle göstermiyor. Ortak header'daki sabit `3` bildirim rozeti kaldırılarak mevcut klinik kapsamlı `/notifications` feedindeki gerçek okunmamış sayısına bağlandı. Auth landing testi güncel “Portal girişi” erişilebilir adına, eski owner-only bildirim testi ise Erol'un güncel clinic-scope sözleşmesine uyarlandı.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/dashboard/page.tsx`, `portal/src/components/shared/dashboard-chart.tsx`, `portal/src/components/layout/header.tsx`, `portal/tests/dashboard-design.spec.ts`, `portal/tests/auth.spec.ts`, `portal/tests/notifications.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil renderlar görsel olarak incelendi; mobil KPI'lar 2×2 kompakt düzende ve yatay taşma yok. Dashboard hedef testi 2/2, auth/bildirim/dashboard regresyonu 16/16, Faz 0 demo paketi 25/25, portal lint, TypeScript ve Next.js production build başarılı. Production doğrulaması Git pushundan sonra yapılacak.
+
+**Sıradaki:** Hasta listesi (`/patients`) ve ardından hasta detayını (`/patients/[id]`) aynı kurumsal ağırlık, boş/hata durumu ve responsive ritimle yenilemek.
+
+**Erol'a not (varsa):** Yeni backend değişikliği gerekmiyor. Mevcut klinik dashboard ve clinic-scope bildirim sözleşmeleri aynen kullanılıyor.
 
 ### 2026-08-01 — Reçete liste ve PDF istemci sözleşmesi
 

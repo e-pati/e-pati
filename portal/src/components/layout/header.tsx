@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
 import { QRScannerModal } from '@/components/shared/qr-scanner-modal'
+import { useAuthStore } from '@/stores/auth.store'
+import { useNotifications } from '@/hooks/use-notifications'
+import { canAccessNotifications } from '@/services/notifications.service'
 
 interface HeaderProps {
   title: string
@@ -18,6 +21,12 @@ export function Header({ title, subtitle, action }: HeaderProps) {
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [qrOpen, setQrOpen] = useState(false)
+  const user = useAuthStore(state => state.user)
+  const notificationsQuery = useNotifications({
+    enabled: canAccessNotifications(user?.role),
+    subjectId: user?.id,
+  })
+  const unreadCount = notificationsQuery.data?.filter(item => !item.isRead && !item.readAt).length ?? 0
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,11 +66,15 @@ export function Header({ title, subtitle, action }: HeaderProps) {
             variant="ghost"
             size="icon"
             className="relative h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-gray-50"
+            onClick={() => router.push('/notifications')}
+            aria-label={unreadCount > 0 ? `${unreadCount} okunmamış bildirim` : 'Bildirimleri görüntüle'}
           >
             <Bell className="w-4 h-4" />
-            <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 text-[9px] flex items-center justify-center bg-primary border-white border-2">
-              3
-            </Badge>
+            {unreadCount > 0 && (
+              <Badge className="absolute -top-0.5 -right-0.5 h-4 min-w-4 p-0 px-1 text-[9px] flex items-center justify-center bg-primary border-white border-2">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </Badge>
+            )}
           </Button>
 
           {action && (
