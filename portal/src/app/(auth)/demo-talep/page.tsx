@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { ArrowLeft, BadgeCheck, CheckCircle2 } from 'lucide-react'
 import { BrandMark } from '@/components/landing/brand-mark'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
@@ -100,9 +100,9 @@ export default function DemoRequestPage() {
 
         <div className="relative z-10 max-w-md">
           <BrandMark inverse />
-          <h1 className="mt-8 text-4xl font-bold leading-[1.08] tracking-[-0.035em]">
+          <p className="mt-8 text-4xl font-bold leading-[1.08] tracking-[-0.035em]">
             Ürün değerlendirmesi için görüşme planlayalım.
-          </h1>
+          </p>
           <p className="mt-5 text-base leading-7 text-white/70">
             Demo görüşmesinde çalışan ürün yüzeylerini, sentetik veri sınırlarını ve sınırlı pilot
             için gerekli kararları açık biçimde paylaşırız.
@@ -128,7 +128,8 @@ export default function DemoRequestPage() {
 
           <Card className="border-slate-200 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-[#102a43]">Demo görüşmesi talebi</CardTitle>
+              {/* Sayfanın tek h1'i: CardTitle div render ettiği için doğrudan başlık kullanılır. */}
+              <h1 className="text-2xl font-bold text-[#102a43]">Demo görüşmesi talebi</h1>
               <CardDescription>
                 Bilgileriniz yalnız görüşme planlaması için kullanılır.
               </CardDescription>

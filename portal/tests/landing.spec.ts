@@ -37,6 +37,15 @@ test.describe('VetCep landing page', () => {
     expect(pageErrors).toEqual([])
   })
 
+  test('demo talep sayfası oturum olmadan erişilebilir olmalı', async ({ page }) => {
+    // Ana CTA hedefi public olmalı; proxy allowlist'inden düşerse /login'e yönlenir.
+    const response = await page.goto('/demo-talep')
+
+    expect(response?.status()).toBe(200)
+    await expect(page).toHaveURL(/\/demo-talep$/)
+    await expect(page.getByRole('heading', { name: 'Demo görüşmesi talebi' })).toBeVisible()
+  })
+
   test('bölgesel harita sentetik veri kümesinden türetilmiş olmalı', async ({ page }) => {
     await page.goto('/')
 

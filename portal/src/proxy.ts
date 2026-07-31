@@ -5,6 +5,7 @@ const PUBLIC_PATHS = [
   '/',
   '/login',
   '/clinic-onboarding',
+  '/demo-talep',
   '/get-app',
   '/vatandas-giris',
   '/bakanlik',
@@ -14,6 +15,9 @@ const PUBLIC_PATHS = [
   '/opengraph-image',
   '/icon.svg',
 ]
+// Oturum açıkken /dashboard'a yönlenen sayfalar. /demo-talep bilinçli olarak
+// bu listede değil: landing'in ana CTA'sı, klinik oturumu açık olsa da
+// (ör. sunum sırasında) erişilebilir kalmalıdır.
 const AUTH_PATHS = ['/login', '/clinic-onboarding']
 
 export function proxy(request: NextRequest) {
