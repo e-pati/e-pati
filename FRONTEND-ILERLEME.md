@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Cookie-auth CSRF politikası native Bearer ve imzalı WhatsApp webhook istisnalarıyla netleştirildi
+- **Son güncelleme:** 31 Temmuz 2026 — Vercel Git bağlantısı ve monorepo kökü düzeltilerek güncel Faz 0 portalı `vetcep.com` production ortamına alındı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Gerçek toplantı ve teknik birim bilgileri belli olduğunda Pilot Ön Çerçevesini birlikte doldurmak; yazılı sponsor, veri kaynağı ve kabul kararlarını toplamak
+- **Sıradaki adım:** Canlı Faz 0 ekranlarını Bakanlık düzeyi UI/UX denetiminden geçirip yalnız sunum-kritik iyileştirmeleri uygulamak; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
 
 ---
 
@@ -30,7 +30,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.7 | e-Devlet tarzı vatandaş giriş ekranı (görsel simülasyon) | Burak | ✅ | Mock giriş, açık simülasyon etiketi; demo kaynağına duyarlı, sahte mağaza linki göstermeyen Pamuk + Sarıkız mobil geçişi tamamlandı |
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
 | 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik/dış-paylaşım/sunum/yedek materyalleri, gizli danışman paketi, toplantı sonrası takip paketi ve tek sayfalık Pilot Ön Çerçevesi doğrulandı. Yazılı uzman/Bakanlık kararları, gerçek toplantı bilgileri ve onaylı baskı bekliyor |
-| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır |
+| Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-07-31 — Güncel Faz 0 portalının canlıya alınması
+**Yapılanlar:** `vetcep.com` alan adının bağlı olduğu `e-pati-portal` Vercel projesindeki kopuk eski Git bağlantısı `e-pati/e-pati` reposuna yeniden bağlandı. Monorepo Root Directory değeri `./` yerine `portal`, production branch ise `main` olarak doğrulandı. Güncel `292c77b` kodunu değiştirmeyen `b0773f4` deployment tetikleme commiti önce `feature/portal`, ardından fast-forward olarak `main` dalına gönderildi. Vercel preview ve production buildleri tamamlandı; `/demo-akisi`, `/vatandas-giris`, `/bakanlik`, `/hayvancilik` ve `/belediye` rotalarının tamamı canlıda HTTP 200 ile doğrulandı.
+**Dokunulan dosyalar:** `FRONTEND-ILERLEME.md` (ürün kodu değişmedi; Vercel proje ayarları ve Git bağlantısı düzeltildi)
+**Ekran/akış durumu:** Güncel 25 dakikalık Faz 0 sunum kumandası ve tüm public demo yüzeyleri `vetcep.com` üzerinde canlı. Eski `/login` yönlendirmesi kaldırıldı; güncel sunum kumandası görsel olarak doğrulandı.
+**Sıradaki:** Canlı ekranları Bakanlık düzeyi UI/UX incelemesinden geçirmek; Burak'ın geri bildirimlerine göre yalnız sunum-kritik düzenlemeleri küçük parçalar halinde uygulamak.
+**Erol'a not (varsa):** Backend değişikliği gerekmiyor. Vercel production artık `main` dalını ve `portal` kökünü izliyor; gelecekteki main pushları otomatik production deployment oluşturmalı.
 
 ### 2026-07-31 — Cookie-auth CSRF kapsam ayrımı
 **Yapılanlar:** Backend `Origin/Referer` guard'ı cookie tabanlı tarayıcı oturumlarını korumaya devam edecek şekilde daraltıldı. Auth cookie taşımayan `Authorization: Bearer` unsafe istekleri native mobil istemci için Origin olmadan kabul ediliyor; auth cookie ile birlikte gelen Bearer istekleri hâlâ 403 alıyor. Meta WhatsApp webhook'u yalnız `x-hub-signature-256` header'ı varsa Origin'siz geçiyor; imzasız WhatsApp ve billing webhook POST'ları Origin'siz reddediliyor.
