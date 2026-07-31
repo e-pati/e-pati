@@ -28,6 +28,12 @@ export interface ApiPrescription {
 
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }
 
+export interface PrescriptionPdfResponse {
+  prescriptionId: string
+  url: string | null
+  status: 'ready' | 'pending_pdf_generation'
+}
+
 function unwrapList<T>(response: ListResponse<T>): T[] {
   if (Array.isArray(response)) return response
   if ('data' in response) return response.data
@@ -36,7 +42,9 @@ function unwrapList<T>(response: ListResponse<T>): T[] {
 
 export const prescriptionsService = {
   async getAll(params: { petId?: string } = {}): Promise<ApiPrescription[]> {
-    const { data } = await api.get<ListResponse<ApiPrescription>>('/prescriptions', { params })
+    const { data } = await api.get<ListResponse<ApiPrescription>>('/prescriptions', {
+      params: { limit: 100, ...params },
+    })
     return unwrapList(data)
   },
 
@@ -45,7 +53,8 @@ export const prescriptionsService = {
     return data
   },
 
-  getPdfUrl(id: string): string {
-    return `${api.defaults.baseURL}/prescriptions/${id}/pdf`
+  async getPdfStatus(id: string): Promise<PrescriptionPdfResponse> {
+    const { data } = await api.get<PrescriptionPdfResponse>(`/prescriptions/${id}/pdf`)
+    return data
   },
 }

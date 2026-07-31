@@ -10,26 +10,42 @@ const ownerUser: AuthUser = {
 }
 
 test.describe('Bildirim rol sözleşmesi', () => {
-  test('klinik kullanıcısı owner bildirim endpointini çağırmamalı', async ({ page }) => {
+  test('klinik kullanıcısı kendi kapsamındaki bildirim feedini kullanmalı', async ({ page }) => {
     let notificationApiCalls = 0
     await page.route('http://localhost:3000/notifications', route => {
       notificationApiCalls += 1
       return route.fulfill({
-        status: 403,
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Only owners can access notifications.' }),
+        body: JSON.stringify({
+          items: [
+            {
+              id: 'clinic-notification-1',
+              clinicId: clinicUser.clinicId,
+              title: 'Yeni laboratuvar sonucu',
+              body: 'Pamuk için laboratuvar sonucu kaydedildi.',
+              payload: { type: 'lab', petId: 'pet-pamuk' },
+              status: 'SENT',
+              createdAt: '2026-08-01T09:00:00.000Z',
+              readAt: null,
+            },
+          ],
+          total: 1,
+          page: 1,
+          limit: 20,
+        }),
       })
     })
     await mockAuthenticatedSession(page, clinicUser)
 
     await page.goto('/dashboard')
     await expect(page.getByText('Dr. Test Veteriner').first()).toBeVisible({ timeout: 10000 })
-    expect(notificationApiCalls).toBe(0)
+    await expect.poll(() => notificationApiCalls).toBeGreaterThan(0)
 
     await page.goto('/notifications')
-    await expect(page.getByRole('heading', { name: 'Klinik bildirim servisi hazırlanıyor' })).toBeVisible()
-    await expect(page.getByText('Portal, sahip bildirim endpoint')).toBeVisible()
-    expect(notificationApiCalls).toBe(0)
+    await expect(page.getByText('Yeni laboratuvar sonucu')).toBeVisible()
+    await expect(page.getByText('Pamuk için laboratuvar sonucu kaydedildi.')).toBeVisible()
+    expect(notificationApiCalls).toBeGreaterThan(0)
   })
 
   test('owner yanıtındaki body, payload ve status alanlarını portal modeline çevirmeli', async ({ page }) => {

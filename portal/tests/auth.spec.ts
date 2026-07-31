@@ -41,7 +41,7 @@ test.describe('Auth', () => {
     await page.goto('/')
     await expect(page).toHaveURL(/\/$/)
     await expect(page.locator('body')).toContainText('VetCep')
-    const loginLink = page.getByRole('link', { name: /Giriş|Login/ }).first()
+    const loginLink = page.locator('header').getByRole('link', { name: 'Portal girişi', exact: true })
     await expect(loginLink).toBeVisible()
   })
 

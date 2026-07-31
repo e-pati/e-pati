@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useQueryClient } from '@tanstack/react-query'
 import { prescriptionsService } from '@/services/prescriptions.service'
+import { openPrescriptionPdf } from '@/lib/open-prescription-pdf'
 import { whatsappService } from '@/services/whatsapp.service'
 import { toast } from 'sonner'
 import { Pill, X, Plus, Trash2, Zap } from 'lucide-react'
@@ -85,7 +86,7 @@ export function AddPrescriptionDialog({ petId, petName, ownerName, ownerPhone, o
       toast.success('Reçete kaydedildi', {
         action: {
           label: 'PDF İndir',
-          onClick: () => window.open(prescriptionsService.getPdfUrl(rx.id), '_blank'),
+          onClick: () => void openPrescriptionPdf(rx.id),
         },
       })
       qc.invalidateQueries({ queryKey: ['prescriptions', { petId }] })

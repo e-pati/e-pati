@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePrescriptions } from '@/hooks/use-prescriptions'
 import { useAllClinicPatients } from '@/hooks/use-clinic'
-import { prescriptionsService, type ApiMedication } from '@/services/prescriptions.service'
+import type { ApiMedication } from '@/services/prescriptions.service'
+import { openPrescriptionPdf } from '@/lib/open-prescription-pdf'
 import { formatDate, speciesEmoji } from '@/lib/utils'
 import { Search, Pill, Download } from 'lucide-react'
 import Link from 'next/link'
@@ -148,7 +149,7 @@ function PrescriptionsContent() {
                       variant="outline"
                       size="sm"
                       className="h-7 text-xs gap-1"
-                      onClick={() => window.open(prescriptionsService.getPdfUrl(rx.id), '_blank', 'noreferrer')}
+                      onClick={() => void openPrescriptionPdf(rx.id)}
                     >
                       <Download className="w-3 h-3" />
                       PDF

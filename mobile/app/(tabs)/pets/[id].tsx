@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  SafeAreaView, ActivityIndicator, Modal, Share, Image, Platform,
+  SafeAreaView, ActivityIndicator, Alert, Modal, Share, Image, Platform, Linking,
 } from 'react-native'
 import * as Print from 'expo-print'
 import * as Sharing from 'expo-sharing'
@@ -21,7 +21,6 @@ import { AddVaccinationModal } from '@/components/AddVaccinationModal'
 import { AddLabResultModal } from '@/components/AddLabResultModal'
 import { AddPrescriptionModal } from '@/components/AddPrescriptionModal'
 import { AddExaminationModal } from '@/components/AddExaminationModal'
-import { Linking } from 'react-native'
 import { DEMO_PET_ID, demoPetProfile } from '@/lib/mobile-demo-data'
 
 type Tab = 'summary' | 'exams' | 'vaccines' | 'prescriptions' | 'lab'
@@ -46,6 +45,33 @@ export default function PetDetailScreen() {
   const [labModalVisible, setLabModalVisible] = useState(false)
   const [prescriptionModalVisible, setPrescriptionModalVisible] = useState(false)
   const [examinationModalVisible, setExaminationModalVisible] = useState(false)
+
+  const openPrescriptionPdf = async (prescriptionId: string) => {
+    try {
+      const pdf = await prescriptionsService.getPdfStatus(prescriptionId)
+
+      if (pdf.status !== 'ready' || !pdf.url) {
+        Alert.alert(
+          'Reçete PDF’i hazırlanıyor',
+          'Dosya hazır olduğunda bu ekrandan yeniden açabilirsiniz.',
+        )
+        return
+      }
+
+      const canOpen = await Linking.canOpenURL(pdf.url)
+      if (!canOpen) {
+        Alert.alert('Reçete PDF’i açılamadı', 'Dosya bağlantısı bu cihazda açılamıyor.')
+        return
+      }
+
+      await Linking.openURL(pdf.url)
+    } catch {
+      Alert.alert(
+        'Reçete PDF’i açılamadı',
+        'Bağlantı alınamadı. Lütfen kısa süre sonra yeniden deneyin.',
+      )
+    }
+  }
 
   const petQuery = useQuery({
     queryKey: ['pets', id],
@@ -505,7 +531,7 @@ export default function PetDetailScreen() {
                       {!isDemoPet && (
                         <TouchableOpacity
                           style={styles.pdfBtn}
-                          onPress={() => Linking.openURL(prescriptionsService.getPdfUrl(rx.id))}
+                          onPress={() => void openPrescriptionPdf(rx.id)}
                         >
                           <Text style={styles.pdfBtnText}>📄 PDF</Text>
                         </TouchableOpacity>
