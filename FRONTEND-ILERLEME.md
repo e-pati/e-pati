@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Backend registry ulusal özet, il detayı ve erken uyarı endpoint sözleşmeleri eklendi; frontend portal giriş production doğrulaması main'den dev/backend'e alındı
+- **Son güncelleme:** 1 Ağustos 2026 — Registry ulusal özet/erken uyarı API çekirdeği ile portal ve mobilin kalıcı reçete liste/PDF istemci sözleşmesi güncel main üzerinde birleştirildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Canlı portal ve demo ekranlarını aynı kurumsal UI/UX standardına göre sırayla denetlemek; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
+- **Sıradaki adım:** Canlı portal içi ekranları aynı kurumsal UI/UX standardına göre sırayla denetlemek; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -33,6 +33,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Demo    | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı              | Burak + Şevval          | ✅    | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
 | Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları  | Burak                   | ✅    | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli `vetcep.com` production ortamında doğrulandı                                                              |
 | Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                           | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                         |
+| Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
 
@@ -40,7 +41,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Bakanlık konsolu pilot API çekirdeği için `GET /registry/national-summary`, `GET /registry/provinces/:province/summary` ve `GET /registry/early-warnings` eklendi. Endpointler şimdilik yalnız `SUPER_ADMIN` erişiminde; mevcut registry, belediye, klinik aşı ve hareket verilerinden özet/uyarı adayı üretir.
 - Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. Billing webhook artık `x-vetcep-event-id`, `x-vetcep-timestamp` ve `x-vetcep-signature` ile HMAC doğrulaması ve Redis replay kilidi olmadan işlenmez; gerçek ödeme sağlayıcısına özel adapter ayrıca bağlanabilir.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
-- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisi ve muayene liste/detay yanıtlarında veterinarian ilişkisi backend tarafında tamamlandı. `GET /prescriptions?petId=...` liste rotası da eklendi; frontend Faz 0 için kalan klinik hasta cache'i ve `/pets/:id/summary` uyumluluk katmanı pilot öncesi sadeleştirilebilir.
+- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisi ve muayene liste/detay yanıtlarında veterinarian ilişkisi backend tarafında tamamlandı. Portal ve mobil reçete istemcileri `GET /prescriptions?petId=...` kalıcı liste rotasına ve yetkili PDF durum sözleşmesine taşındı; eski `/pets/:id/summary` uyumluluk çağrısı kaldırıldı.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi backend ve portal tarafında tamamlandı. `VETERINARIAN`, `CLINIC_ADMIN` ve `SUPER_ADMIN` erişimi destekleniyor; yanıt mevcut `body`/`payload`/`status` şeklini koruyor, portal bunu `message`/`type`/`isRead` modeline normalize ediyor.
 
 ---
@@ -57,6 +58,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-01 — Reçete liste ve PDF istemci sözleşmesi
+
+**Yapılanlar:** Erol'un kalıcı reçete sözleşmesi portal ve mobilde tamamlandı. Portalın hayvan bazlı reçete sorgusunda kullandığı eski `/pets/:id/summary` uyumluluk çağrısı kaldırıldı; listeleme `/prescriptions?petId=...` rotasına taşındı ve mevcut istemci sayfalaması için üst sınır 100 kayıt olarak açıkça gönderildi. Portal ve mobil PDF düğmeleri artık korumalı `/prescriptions/:id/pdf` adresini doğrudan açmıyor: önce Axios üzerinden mevcut cookie/Bearer oturumuyla belge durumunu alıyor, belge hazırsa backend'in döndürdüğü imzalı bağlantıyı açıyor. PDF henüz üretilmediyse ve çağrı başarısızsa kullanıcıya Türkçe durum mesajı gösteriliyor. Portal hasta detayındaki veteriner adı mevcut `vet.fullName` alanını zaten kullandığı için gereksiz ek uyumluluk kodu eklenmedi. Belediye endpointleri clinic/shelter scope'u, yeni registry ulusal özet uçları ise `SUPER_ADMIN` oturumu gerektirdiğinden public Faz 0 belediye ve Bakanlık demolarındaki sentetik veri bilinçli olarak korundu.
+
+**Dokunulan dosyalar:** `portal/src/services/prescriptions.service.ts`, `portal/src/lib/open-prescription-pdf.ts`, `portal/src/app/(dashboard)/prescriptions/page.tsx`, `portal/src/app/(dashboard)/patients/[id]/page.tsx`, `portal/src/components/patients/add-prescription-dialog.tsx`, `portal/tests/prescription-contract.spec.ts`, `mobile/services/prescriptions.service.ts`, `mobile/app/(tabs)/pets/[id].tsx`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** Portal reçete listesi, hasta detayı ve reçete oluşturma sonrası PDF eylemi aynı yetkili yardımcı akışı kullanıyor; mobil hayvan detayındaki PDF eylemi Bearer oturumunu koruyor. Sözleşme testleri 2/2, mobil TypeScript kontrolü, portal lint ve Next.js production build başarılı; Faz 0 demo regresyon paketi 25/25 geçti. Gerçek PDF üretimi canlı oturum ve reçete kaydı gerektirdiği için kullanıcı kimlik bilgisi olmadan production üzerinde uçtan uca çalıştırılmadı.
+
+**Sıradaki:** Değişikliği `feature/portal` ve `main` dallarına aktararak Vercel production dağıtımını doğrulamak; ardından portal içi sıradaki ekranı kurumsal UI/UX standardına taşımak.
+
+**Erol'a not (varsa):** Yeni backend değişikliği gerekmiyor; mevcut liste ve PDF durum sözleşmeleri kullanılıyor. Belediye ve registry canlı entegrasyonları Faz 0 engeli değil; pilotta bağlanmadan önce belediye/shelter rolü ile Bakanlık konsolunun kimliği doğrulanmış admin yüzeyi birlikte netleştirilmeli.
 
 ### 2026-08-01 — Registry Bakanlık özet ve erken uyarı endpointleri
 

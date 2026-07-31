@@ -21,7 +21,8 @@ import { usePrescriptions } from '@/hooks/use-prescriptions'
 import { useLabResults } from '@/hooks/use-lab-results'
 import { useAuthStore } from '@/stores/auth.store'
 import type { ApiExamination } from '@/services/examinations.service'
-import { prescriptionsService, type ApiPrescription } from '@/services/prescriptions.service'
+import type { ApiPrescription } from '@/services/prescriptions.service'
+import { openPrescriptionPdf } from '@/lib/open-prescription-pdf'
 import { labResultsService, type ApiLabResult } from '@/services/lab-results.service'
 import { AddVaccinationDialog } from '@/components/patients/add-vaccination-dialog'
 import { AddPrescriptionDialog } from '@/components/patients/add-prescription-dialog'
@@ -398,7 +399,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                         variant="outline"
                         size="sm"
                         className="text-xs gap-1.5"
-                        onClick={() => window.open(prescriptionsService.getPdfUrl(rx.id), '_blank', 'noreferrer')}
+                        onClick={() => void openPrescriptionPdf(rx.id)}
                       >
                         <FileText className="w-3.5 h-3.5" />
                         PDF İndir

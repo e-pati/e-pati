@@ -31,7 +31,14 @@ export interface CreatePrescriptionPayload {
 
 export interface PrescriptionListParams {
   petId?: string
-  examinationId?: string
+  page?: number
+  limit?: number
+}
+
+export interface PrescriptionPdfResponse {
+  prescriptionId: string
+  url: string | null
+  status: 'ready' | 'pending_pdf_generation'
 }
 
 type ListResponse<T> = T[] | { data: T[] } | { items: T[] }
@@ -58,14 +65,9 @@ function normalizePrescription(prescription: ApiPrescription): ApiPrescription {
 
 export const prescriptionsService = {
   async getAll(params: PrescriptionListParams = {}): Promise<ApiPrescription[]> {
-    if (params.petId) {
-      const { data } = await api.get<{ activePrescriptions: ApiPrescription[] }>(
-        `/pets/${params.petId}/summary`,
-      )
-      return data.activePrescriptions.map(normalizePrescription)
-    }
-
-    const { data } = await api.get<ListResponse<ApiPrescription>>('/prescriptions', { params })
+    const { data } = await api.get<ListResponse<ApiPrescription>>('/prescriptions', {
+      params: { limit: 100, ...params },
+    })
     return unwrapList(data).map(normalizePrescription)
   },
 
@@ -79,7 +81,8 @@ export const prescriptionsService = {
     return data
   },
 
-  getPdfUrl(id: string): string {
-    return `${api.defaults.baseURL}/prescriptions/${id}/pdf`
+  async getPdfStatus(id: string): Promise<PrescriptionPdfResponse> {
+    const { data } = await api.get<PrescriptionPdfResponse>(`/prescriptions/${id}/pdf`)
+    return data
   },
 }
