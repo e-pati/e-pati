@@ -1,9 +1,11 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import {
+  AdoptionListingStatus,
   AnimalClass,
   AnimalIdentifierType,
   AnimalSex,
+  MunicipalityCaseStatus,
   MovementReason,
   NotificationChannel,
   NotificationStatus,
@@ -39,6 +41,9 @@ const ids = {
   strayAnimal: 'seed-animal-stray-dog-001',
   cattleMovement: 'seed-movement-cow-birth',
   strayMovement: 'seed-movement-shelter-intake',
+  municipalityCase: 'seed-municipality-case-tarcin',
+  sterilizationRecord: 'seed-sterilization-tarcin',
+  adoptionListing: 'seed-adoption-listing-tarcin',
 };
 
 async function main() {
@@ -563,6 +568,90 @@ async function main() {
       reason: MovementReason.SHELTER_INTAKE,
       occurredAt: new Date('2026-04-29T10:30:00.000Z'),
       notes: 'Citizen report followed by municipal intake.',
+    },
+  });
+
+  await prisma.municipalityAnimalCase.upsert({
+    where: { id: ids.municipalityCase },
+    update: {
+      animalId: ids.strayAnimal,
+      shelterPremiseId: ids.shelterPremise,
+      caseNumber: 'BEL-06-2026-0001',
+      municipalityName: 'Cankaya Belediyesi',
+      intakeSource: 'Vatandas bildirimi',
+      intakeAt: new Date('2026-04-29T10:30:00.000Z'),
+      foundProvince: 'Ankara',
+      foundDistrict: 'Cankaya',
+      foundNeighborhood: 'Mimar Sinan',
+      publicLocationNote: 'Mahalle olceginde sentetik demo konumu',
+      status: MunicipalityCaseStatus.ADOPTION_READY,
+      notes: 'Demo belediye vakasi.',
+      deletedAt: null,
+    },
+    create: {
+      id: ids.municipalityCase,
+      animalId: ids.strayAnimal,
+      shelterPremiseId: ids.shelterPremise,
+      caseNumber: 'BEL-06-2026-0001',
+      municipalityName: 'Cankaya Belediyesi',
+      intakeSource: 'Vatandas bildirimi',
+      intakeAt: new Date('2026-04-29T10:30:00.000Z'),
+      foundProvince: 'Ankara',
+      foundDistrict: 'Cankaya',
+      foundNeighborhood: 'Mimar Sinan',
+      publicLocationNote: 'Mahalle olceginde sentetik demo konumu',
+      status: MunicipalityCaseStatus.ADOPTION_READY,
+      notes: 'Demo belediye vakasi.',
+    },
+  });
+
+  await prisma.sterilizationRecord.upsert({
+    where: { id: ids.sterilizationRecord },
+    update: {
+      caseId: ids.municipalityCase,
+      performedAt: new Date('2026-04-30T08:30:00.000Z'),
+      veterinarianName: 'Dr. Ayse Demir',
+      clinicName: 'Ankara Pati Veteriner Klinigi',
+      surgeryNotes: 'Komplikasyonsuz demo operasyon kaydi.',
+    },
+    create: {
+      id: ids.sterilizationRecord,
+      caseId: ids.municipalityCase,
+      performedAt: new Date('2026-04-30T08:30:00.000Z'),
+      veterinarianName: 'Dr. Ayse Demir',
+      clinicName: 'Ankara Pati Veteriner Klinigi',
+      surgeryNotes: 'Komplikasyonsuz demo operasyon kaydi.',
+    },
+  });
+
+  await prisma.adoptionListing.upsert({
+    where: { id: ids.adoptionListing },
+    update: {
+      caseId: ids.municipalityCase,
+      title: 'Tarcin icin guvenli yuva araniyor',
+      description:
+        'Cankaya Belediyesi bakimevinde saglik kontrolleri tamamlanan sentetik demo sahiplendirme ilani.',
+      healthSummary: 'Kuduz asisi ve kisirlastirma kaydi tamamlandi.',
+      suitabilityNotes:
+        'Bahceli veya duzenli yuruyus imkani olan evler uygundur.',
+      contactName: 'Cankaya Belediyesi Bakimevi',
+      contactPhone: '+903120000000',
+      status: AdoptionListingStatus.PUBLISHED,
+      publishedAt: new Date('2026-04-30T12:00:00.000Z'),
+    },
+    create: {
+      id: ids.adoptionListing,
+      caseId: ids.municipalityCase,
+      title: 'Tarcin icin guvenli yuva araniyor',
+      description:
+        'Cankaya Belediyesi bakimevinde saglik kontrolleri tamamlanan sentetik demo sahiplendirme ilani.',
+      healthSummary: 'Kuduz asisi ve kisirlastirma kaydi tamamlandi.',
+      suitabilityNotes:
+        'Bahceli veya duzenli yuruyus imkani olan evler uygundur.',
+      contactName: 'Cankaya Belediyesi Bakimevi',
+      contactPhone: '+903120000000',
+      status: AdoptionListingStatus.PUBLISHED,
+      publishedAt: new Date('2026-04-30T12:00:00.000Z'),
     },
   });
 

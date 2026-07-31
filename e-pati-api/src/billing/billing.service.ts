@@ -1,4 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import Redis from 'ioredis';
 import {
   BillingAccountType,
   PaymentStatus,
@@ -22,8 +29,19 @@ const OWNER_PRICES = {
   [SubscriptionPlan.YEARLY]: 99900,
 };
 
+const DEFAULT_WEBHOOK_TOLERANCE_SECONDS = 300;
+
+type BillingWebhookVerification = {
+  eventId?: string;
+  rawBody?: Buffer;
+  signature?: string;
+  timestamp?: string;
+};
+
 @Injectable()
 export class BillingService {
+  private redis?: Redis;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
@@ -123,7 +141,12 @@ export class BillingService {
     return { ...result, isActive: result.status === 'active' };
   }
 
-  async handleWebhook(payload: Record<string, unknown>) {
+  async handleWebhook(
+    payload: Record<string, unknown>,
+    verification?: BillingWebhookVerification,
+  ) {
+    await this.verifyWebhook(verification);
+
     const subscriptionId = String(
       payload.subscriptionId ??
         payload.conversationId ??
@@ -344,5 +367,120 @@ export class BillingService {
     if (user.role !== Role.OWNER) {
       throw new ForbiddenException('Owner subscription requires owner access.');
     }
+  }
+
+  private async verifyWebhook(
+    verification: BillingWebhookVerification | undefined,
+  ): Promise<void> {
+    const secret = this.configService.get<string>('BILLING_WEBHOOK_SECRET');
+
+    if (!secret) {
+      throw new ServiceUnavailableException(
+        'Billing webhook secret is not configured.',
+      );
+    }
+
+    if (
+      !verification?.eventId ||
+      !verification.rawBody ||
+      !verification.signature ||
+      !verification.timestamp
+    ) {
+      throw new UnauthorizedException(
+        'Billing webhook signature, timestamp and event id are required.',
+      );
+    }
+
+    this.verifyWebhookTimestamp(verification.timestamp);
+    this.verifyWebhookSignature(
+      secret,
+      verification.timestamp,
+      verification.rawBody,
+      verification.signature,
+    );
+    await this.rememberWebhookEvent(verification.eventId);
+  }
+
+  private verifyWebhookTimestamp(timestamp: string): void {
+    const timestampSeconds = Number(timestamp);
+
+    if (!Number.isInteger(timestampSeconds) || timestampSeconds <= 0) {
+      throw new UnauthorizedException('Invalid billing webhook timestamp.');
+    }
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const toleranceSeconds = this.getWebhookToleranceSeconds();
+
+    if (Math.abs(nowSeconds - timestampSeconds) > toleranceSeconds) {
+      throw new UnauthorizedException('Billing webhook timestamp is stale.');
+    }
+  }
+
+  private verifyWebhookSignature(
+    secret: string,
+    timestamp: string,
+    rawBody: Buffer,
+    signature: string,
+  ): void {
+    const expectedSignature = `sha256=${createHmac('sha256', secret)
+      .update(timestamp)
+      .update('.')
+      .update(rawBody)
+      .digest('hex')}`;
+    const receivedSignature = signature.startsWith('sha256=')
+      ? signature
+      : `sha256=${signature}`;
+    const expectedBuffer = Buffer.from(expectedSignature);
+    const receivedBuffer = Buffer.from(receivedSignature);
+
+    if (
+      expectedBuffer.length !== receivedBuffer.length ||
+      !timingSafeEqual(expectedBuffer, receivedBuffer)
+    ) {
+      throw new UnauthorizedException('Invalid billing webhook signature.');
+    }
+  }
+
+  private async rememberWebhookEvent(eventId: string): Promise<void> {
+    const eventHash = createHash('sha256').update(eventId).digest('hex');
+    const result = await this.getRedis().set(
+      `billing:webhook:event:${eventHash}`,
+      '1',
+      'EX',
+      this.getWebhookToleranceSeconds(),
+      'NX',
+    );
+
+    if (result !== 'OK') {
+      throw new UnauthorizedException(
+        'Billing webhook event has already been processed.',
+      );
+    }
+  }
+
+  private getWebhookToleranceSeconds(): number {
+    const configured = Number(
+      this.configService.get<string>('BILLING_WEBHOOK_TOLERANCE_SECONDS'),
+    );
+
+    return Number.isInteger(configured) && configured > 0
+      ? configured
+      : DEFAULT_WEBHOOK_TOLERANCE_SECONDS;
+  }
+
+  private getRedis(): Redis {
+    if (!this.redis) {
+      const redisUrl = this.configService.get<string>('REDIS_URL');
+
+      if (!redisUrl) {
+        throw new ServiceUnavailableException('Redis is not configured.');
+      }
+
+      this.redis = new Redis(redisUrl, {
+        maxRetriesPerRequest: 1,
+      });
+    }
+
+    return this.redis;
   }
 }

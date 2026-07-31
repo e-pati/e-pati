@@ -20,7 +20,7 @@ export function createUnsafeRequestOriginGuard(
     allowedOrigins.map((origin) => normalizeOrigin(origin)).filter(Boolean),
   );
   const signedWebhookPaths = new Set(
-    options.signedWebhookPaths ?? ['/whatsapp/webhook'],
+    options.signedWebhookPaths ?? ['/whatsapp/webhook', '/billing/webhook'],
   );
 
   return (request: Request, _response: Response, next: NextFunction): void => {
@@ -94,8 +94,22 @@ function isSignedWebhookRequest(
   const path = getRequestPath(request);
   return (
     signedWebhookPaths.has(path) &&
-    Boolean(getHeaderValue(request, 'x-hub-signature-256'))
+    getSignatureHeadersForPath(path).some((header) =>
+      Boolean(getHeaderValue(request, header)),
+    )
   );
+}
+
+function getSignatureHeadersForPath(path: string): string[] {
+  if (path === '/whatsapp/webhook') {
+    return ['x-hub-signature-256'];
+  }
+
+  if (path === '/billing/webhook') {
+    return ['x-vetcep-signature'];
+  }
+
+  return ['x-hub-signature-256', 'x-vetcep-signature'];
 }
 
 function hasAuthCookie(request: Request): boolean {

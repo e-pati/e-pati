@@ -53,6 +53,7 @@ Canli deploy'da compose icindeki default secret'lar kullanilmaz. Su degiskenler 
 - `R2_*`
 - `FIREBASE_*`
 - `META_WHATSAPP_*`
+- `BILLING_WEBHOOK_SECRET`
 
 Kisa vadede Supabase + Upstash kullanilabilir. Bakanlik/pilot fazinda veri yerlesimi ve KVKK nedeniyle PostgreSQL/Redis Turkiye'de barinan bir ortama tasinmalidir.
 
@@ -67,6 +68,8 @@ Kisa vadede Supabase + Upstash kullanilabilir. Bakanlik/pilot fazinda veri yerle
 Production API `DATABASE_URL`, `REDIS_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `QR_TOKEN_SECRET` ve `CORS_ORIGINS` olmadan acilmaz. Bu bilerek yapildi; placeholder secret ile deploy etmek yerine uygulama erken hata verir.
 
 `CORS_ORIGINS` sadece CORS icin degil, POST/PATCH/PUT/DELETE isteklerinde Origin/Referer dogrulamasi icin de kullanilir. Production portal domainleri bu listeye eksiksiz eklenmelidir; baska originlerden gelen unsafe cookie-auth istekleri 403 ile reddedilir.
+
+`/billing/webhook` tarayici cookie akisi degildir; Origin/Referer yerine imzali webhook sozlesmesiyle calisir. Gercek odeme saglayicisi callback'i etkinlestirilmeden once `BILLING_WEBHOOK_SECRET` uretilir ve her istek `x-vetcep-event-id`, `x-vetcep-timestamp` ve `x-vetcep-signature` header'lariyla gonderilir. Imza formati `sha256=<hex>` ve imzalanan metin `timestamp.rawBody` seklindedir; ayni event Redis replay kilidiyle tekrar islenmez.
 
 Secret uretimi icin:
 

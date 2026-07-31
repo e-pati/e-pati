@@ -133,6 +133,30 @@ enum MovementReason {
   OTHER
 }
 
+enum MunicipalityCaseStatus {
+  INTAKE
+  UNDER_TREATMENT
+  STERILIZED
+  ADOPTION_READY
+  ADOPTED
+  RETURNED_TO_AREA
+  CLOSED
+}
+
+enum SterilizationStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+}
+
+enum AdoptionListingStatus {
+  DRAFT
+  PUBLISHED
+  RESERVED
+  ADOPTED
+  ARCHIVED
+}
+
 model Owner {
   id                      String           @id @default(cuid())
   email                   String           @unique
@@ -217,14 +241,14 @@ model Veterinarian {
 }
 
 model Premise {
-  id                 String           @id @default(cuid())
+  id                 String                   @id @default(cuid())
   type               PremiseType
   name               String
   ownerId            String?
-  owner              Owner?           @relation(fields: [ownerId], references: [id])
+  owner              Owner?                   @relation(fields: [ownerId], references: [id])
   clinicId           String?
-  clinic             Clinic?          @relation(fields: [clinicId], references: [id])
-  ministryCode       String?          @unique
+  clinic             Clinic?                  @relation(fields: [clinicId], references: [id])
+  ministryCode       String?                  @unique
   province           String
   district           String
   neighborhood       String?
@@ -232,13 +256,14 @@ model Premise {
   latitude           Float?
   longitude          Float?
   capacity           Int?
-  currentAnimalCount Int              @default(0)
+  currentAnimalCount Int                      @default(0)
   metadata           Json?
   animals            Animal[]
-  outgoingMovements  AnimalMovement[] @relation("MovementFromPremise")
-  incomingMovements  AnimalMovement[] @relation("MovementToPremise")
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  outgoingMovements  AnimalMovement[]         @relation("MovementFromPremise")
+  incomingMovements  AnimalMovement[]         @relation("MovementToPremise")
+  municipalityCases  MunicipalityAnimalCase[]
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
   deletedAt          DateTime?
 
   @@index([ownerId])
@@ -248,30 +273,31 @@ model Premise {
 }
 
 model Animal {
-  id                String             @id @default(cuid())
-  hkn               String             @unique
+  id                String                   @id @default(cuid())
+  hkn               String                   @unique
   class             AnimalClass
   species           String
   breed             String?
   name              String?
-  sex               AnimalSex          @default(UNKNOWN)
+  sex               AnimalSex                @default(UNKNOWN)
   birthDate         DateTime?
   birthPlace        String?
   color             String?
   photoUrl          String?
-  status            AnimalStatus       @default(ACTIVE)
+  status            AnimalStatus             @default(ACTIVE)
   ownerId           String?
-  owner             Owner?             @relation(fields: [ownerId], references: [id])
+  owner             Owner?                   @relation(fields: [ownerId], references: [id])
   clinicId          String?
-  clinic            Clinic?            @relation(fields: [clinicId], references: [id])
-  petId             String?            @unique
-  pet               Pet?               @relation(fields: [petId], references: [id])
+  clinic            Clinic?                  @relation(fields: [clinicId], references: [id])
+  petId             String?                  @unique
+  pet               Pet?                     @relation(fields: [petId], references: [id])
   currentPremiseId  String?
-  currentPremise    Premise?           @relation(fields: [currentPremiseId], references: [id])
+  currentPremise    Premise?                 @relation(fields: [currentPremiseId], references: [id])
   identifiers       AnimalIdentifier[]
-  movements         AnimalMovement[]   @relation("MovementAnimal")
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  movements         AnimalMovement[]         @relation("MovementAnimal")
+  municipalityCases MunicipalityAnimalCase[]
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
   deletedAt         DateTime?
 
   @@index([class])
@@ -320,6 +346,75 @@ model AnimalMovement {
   @@index([toPremiseId])
   @@index([reason])
   @@index([occurredAt])
+}
+
+model MunicipalityAnimalCase {
+  id                 String                 @id @default(cuid())
+  animalId           String
+  animal             Animal                 @relation(fields: [animalId], references: [id])
+  shelterPremiseId   String
+  shelterPremise     Premise                @relation(fields: [shelterPremiseId], references: [id])
+  caseNumber         String?                @unique
+  municipalityName   String
+  intakeSource       String?
+  intakeAt           DateTime
+  foundProvince      String
+  foundDistrict      String
+  foundNeighborhood  String?
+  publicLocationNote String?
+  status             MunicipalityCaseStatus @default(INTAKE)
+  notes              String?
+  sterilizations     SterilizationRecord[]
+  adoptionListings   AdoptionListing[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  deletedAt          DateTime?
+
+  @@index([animalId])
+  @@index([shelterPremiseId])
+  @@index([status])
+  @@index([foundProvince, foundDistrict])
+  @@index([intakeAt])
+}
+
+model SterilizationRecord {
+  id                String                 @id @default(cuid())
+  caseId            String
+  case              MunicipalityAnimalCase @relation(fields: [caseId], references: [id])
+  performedAt       DateTime
+  veterinarianName  String
+  clinicName        String?
+  anesthesiaNotes   String?
+  surgeryNotes      String?
+  complicationNotes String?
+  status            SterilizationStatus    @default(COMPLETED)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  @@index([caseId])
+  @@index([performedAt])
+  @@index([status])
+}
+
+model AdoptionListing {
+  id               String                 @id @default(cuid())
+  caseId           String
+  case             MunicipalityAnimalCase @relation(fields: [caseId], references: [id])
+  title            String
+  description      String
+  healthSummary    String?
+  suitabilityNotes String?
+  contactName      String?
+  contactPhone     String?
+  status           AdoptionListingStatus  @default(DRAFT)
+  publishedAt      DateTime?
+  adoptedAt        DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@index([caseId])
+  @@index([status])
+  @@index([publishedAt])
 }
 
 model RefreshToken {

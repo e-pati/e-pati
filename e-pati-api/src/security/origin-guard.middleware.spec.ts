@@ -130,6 +130,18 @@ describe('createUnsafeRequestOriginGuard', () => {
     );
   });
 
+  it('allows signed billing webhooks without origin headers', () => {
+    const next = runGuard({
+      method: 'POST',
+      path: '/billing/webhook',
+      headers: {
+        'x-vetcep-signature': 'sha256=signature',
+      },
+    });
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
   it('rejects unsafe requests from an untrusted origin', () => {
     const next = runGuard({
       method: 'POST',
