@@ -36,9 +36,10 @@ describe('PetsService', () => {
       Promise<{ id: string }>,
       [{ data: Record<string, unknown>; select: { id: true } }]
     >();
+    const petFindFirst = jest.fn().mockResolvedValue(findFirstResult);
     const prisma = {
       pet: {
-        findFirst: jest.fn().mockResolvedValue(findFirstResult),
+        findFirst: petFindFirst,
         create: petCreate,
         update: petUpdate,
       },
@@ -53,13 +54,14 @@ describe('PetsService', () => {
       prisma,
       petCreate,
       petUpdate,
+      petFindFirst,
       ownerFindFirst,
       ownerCreate,
     };
   }
 
   it('allows an owner to read their own pet', async () => {
-    const { service } = createService(pet);
+    const { service, petFindFirst } = createService(pet);
 
     await expect(
       service.findOne(pet.id, {
@@ -69,6 +71,15 @@ describe('PetsService', () => {
         type: 'owner',
       }),
     ).resolves.toEqual(pet);
+    expect(petFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: {
+          owner: {
+            select: { id: true, fullName: true, email: true, phone: true },
+          },
+        },
+      }),
+    );
   });
 
   it('rejects an owner reading another owner pet', async () => {

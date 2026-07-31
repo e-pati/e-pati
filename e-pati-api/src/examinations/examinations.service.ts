@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Examination, Pet, Role } from '@prisma/client';
+import { Pet, Role } from '@prisma/client';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -34,7 +34,10 @@ export class ExaminationsService {
     const [items, total] = await Promise.all([
       this.prisma.examination.findMany({
         where,
-        include: { clinic: { select: { id: true, name: true } } },
+        include: {
+          clinic: { select: { id: true, name: true } },
+          veterinarian: { select: { id: true, fullName: true } },
+        },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
@@ -42,7 +45,12 @@ export class ExaminationsService {
       this.prisma.examination.count({ where }),
     ]);
 
-    return { items, total, page, limit };
+    return {
+      items: items.map((item) => this.present(item)),
+      total,
+      page,
+      limit,
+    };
   }
 
   async create(dto: CreateExaminationDto, user: TokenPayload) {
@@ -59,7 +67,10 @@ export class ExaminationsService {
         assessment: dto.assessment,
         plan: dto.plan,
       },
-      include: { clinic: { select: { id: true, name: true } } },
+      include: {
+        clinic: { select: { id: true, name: true } },
+        veterinarian: { select: { id: true, fullName: true } },
+      },
     });
 
     await this.notificationsService.createOwnerNotification({
@@ -84,13 +95,17 @@ export class ExaminationsService {
       },
     });
 
-    return examination;
+    return this.present(examination);
   }
 
-  async findOne(id: string, user: TokenPayload): Promise<Examination> {
+  async findOne(id: string, user: TokenPayload) {
     const examination = await this.prisma.examination.findFirst({
       where: { id, deletedAt: null },
-      include: { pet: true, clinic: { select: { id: true, name: true } } },
+      include: {
+        pet: true,
+        clinic: { select: { id: true, name: true } },
+        veterinarian: { select: { id: true, fullName: true } },
+      },
     });
 
     if (!examination) {
@@ -98,7 +113,7 @@ export class ExaminationsService {
     }
 
     this.ensureCanRead(examination.pet, user);
-    return examination;
+    return this.present(examination);
   }
 
   async update(id: string, dto: UpdateExaminationDto, user: TokenPayload) {
@@ -119,7 +134,10 @@ export class ExaminationsService {
         assessment: dto.assessment,
         plan: dto.plan,
       },
-      include: { clinic: { select: { id: true, name: true } } },
+      include: {
+        clinic: { select: { id: true, name: true } },
+        veterinarian: { select: { id: true, fullName: true } },
+      },
     });
 
     await this.prisma.auditLog.create({
@@ -132,7 +150,7 @@ export class ExaminationsService {
       },
     });
 
-    return updated;
+    return this.present(updated);
   }
 
   private async findPetForClinic(
@@ -172,5 +190,24 @@ export class ExaminationsService {
     }
 
     throw new ForbiddenException('Only veterinarians can perform this action.');
+  }
+
+  private present<
+    T extends {
+      createdAt: Date;
+      veterinarian?: { id: string; fullName: string } | null;
+    },
+  >(examination: T) {
+    return {
+      ...examination,
+      date: examination.createdAt,
+      vet: examination.veterinarian
+        ? {
+            id: examination.veterinarian.id,
+            fullName: examination.veterinarian.fullName,
+            title: 'Dr.',
+          }
+        : undefined,
+    };
   }
 }

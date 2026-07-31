@@ -36,6 +36,11 @@ export class PetsService {
           ownerId: user.sub,
           deletedAt: null,
         },
+        include: {
+          owner: {
+            select: { id: true, fullName: true, email: true, phone: true },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -45,6 +50,11 @@ export class PetsService {
         where: {
           clinicId: user.clinicId,
           deletedAt: null,
+        },
+        include: {
+          owner: {
+            select: { id: true, fullName: true, email: true, phone: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
       });
@@ -144,6 +154,11 @@ export class PetsService {
       where: {
         id,
         deletedAt: null,
+      },
+      include: {
+        owner: {
+          select: { id: true, fullName: true, email: true, phone: true },
+        },
       },
     });
 

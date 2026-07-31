@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Klinik bildirim sözleşmesi korunarak public landing bağımsız, kurumsal ve izin-sınırları açık VetCep anlatısıyla sıfırdan tasarlandı
+- **Son güncelleme:** 31 Temmuz 2026 — Public landing kurumsal anlatıya alındı; backend hasta detay, muayene veteriner, reçete liste ve klinik bildirim sözleşmeleri tamamlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Canlı portal ve demo ekranlarını aynı kurumsal UI/UX standardına göre sırayla denetlemek; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
@@ -37,7 +37,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
 - Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. İmzasız billing webhook Origin'siz açık bırakılmadı; gerçek ödeme sağlayıcısı imza sözleşmesi ayrıca netleşmeli.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
-- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisini ve muayene listesi veterinarian ilişkisini dönmeli. `GET /prescriptions?petId=...` liste rotası backend tarafında eklendi; frontend Faz 0 için kalan klinik hasta cache'i, `/pets/:id/summary` ve oturum kullanıcısı fallback'leri pilot öncesi belgeli API alanlarıyla sadeleştirilmeli.
+- Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisi ve muayene liste/detay yanıtlarında veterinarian ilişkisi backend tarafında tamamlandı. `GET /prescriptions?petId=...` liste rotası da eklendi; frontend Faz 0 için kalan klinik hasta cache'i ve `/pets/:id/summary` uyumluluk katmanı pilot öncesi sadeleştirilebilir.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi backend ve portal tarafında tamamlandı. `VETERINARIAN`, `CLINIC_ADMIN` ve `SUPER_ADMIN` erişimi destekleniyor; yanıt mevcut `body`/`payload`/`status` şeklini koruyor, portal bunu `message`/`type`/`isRead` modeline normalize ediyor.
 
 ---
@@ -62,11 +62,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 **Sıradaki:** Değişikliği `feature/portal` ve `main` üzerinden Vercel production'a almak; canlı landing, metadata varlıkları ve public demo rotalarını yeniden smoke testten geçirmek. Ardından portalın sıradaki UI/UX yüzeyini Burak'ın önceliğine göre ele almak.
 **Erol'a not (varsa):** Backend değişikliği gerekmiyor. Public landing herhangi bir resmî bağlantı veya tamamlanmış entegrasyon iddiası taşımıyor; gerçek bağlantılar yetki, protokol ve teknik değerlendirmeye bağlı olarak anlatılıyor.
 
+### 2026-07-31 — Hasta detay ve muayene veteriner sözleşmesi
+**Yapılanlar:** `GET /pets` ve `GET /pets/:id` yanıtlarına owner özeti (`id`, `fullName`, `email`, `phone`) eklendi. `GET /examinations`, `GET /examinations/:id`, muayene oluşturma ve güncelleme yanıtları veterinarian ilişkisini ve mobil/portal uyumlu `vet.fullName`/`vet.title` alias'ını dönecek şekilde genişletildi.
+**Dokunulan dosyalar:** `e-pati-api/src/pets/pets.service.ts`, `e-pati-api/src/pets/pets.service.spec.ts`, `e-pati-api/src/examinations/examinations.service.ts`, `e-pati-api/src/examinations/examinations.service.spec.ts`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Portal hasta detayındaki sahip bilgisi ve muayene veteriner adı artık kalıcı API alanlarından beslenebilir. Mevcut fallback'ler kırılmadı.
+**Sıradaki:** Frontend uyumluluk katmanlarını sadeleştirmek veya ödeme sağlayıcısı netleşince billing webhook imza/zaman damgası/replay korumasını eklemek.
+**Erol'a not (varsa):** Backend hedef lint, hedef Jest, full Jest 43/43, backend build ve portal production build başarılı.
+
 ### 2026-07-31 — Klinik bildirim sözleşmesi
 **Yapılanlar:** `Notification` modeli owner yanında opsiyonel `clinicId` alacak şekilde genişletildi ve migration eklendi. `/notifications` artık owner, veteriner, klinik yöneticisi ve super admin rollerinde kapsamlı listeleme yapıyor; `PATCH /notifications/:id/read` aynı kapsam kontrolüyle çalışıyor. Muayene, aşı, reçete ve lab kaydı oluşturulduğunda owner push bildirimi korunurken klinik için in-app bildirim kaydı da yazılıyor. Seed'e Misket için sentetik klinik bildirimi eklendi. Portal bildirim sayfası ve sidebar badge'i klinik rollerine açıldı.
 **Dokunulan dosyalar:** `e-pati-api/prisma/schema.prisma`, `e-pati-api/prisma/migrations/20260731143000_clinic_notifications/migration.sql`, `e-pati-api/prisma/seed.ts`, `e-pati-api/src/notifications/notifications.service.ts`, `e-pati-api/src/notifications/notifications.service.spec.ts`, `e-pati-api/src/examinations/examinations.service.ts`, `e-pati-api/src/vaccinations/vaccinations.service.ts`, `e-pati-api/src/prescriptions/prescriptions.service.ts`, `e-pati-api/src/lab-results/lab-results.service.ts`, `portal/src/services/notifications.service.ts`, `portal/src/app/(dashboard)/notifications/page.tsx`, `portal/src/components/layout/sidebar.tsx`, `FRONTEND-ILERLEME.md`
 **Ekran/akış durumu:** Klinik hesabıyla `/notifications` artık “entegrasyon bekliyor” ekranında kalmadan yetkili klinik bildirimlerini okuyabilecek. Owner push/preference endpointleri owner-only kalmaya devam ediyor.
-**Sıradaki:** `GET /pets/:id` owner ilişkisi ve muayene listesi veterinarian ilişkisini kalıcı API sözleşmesine almak; ödeme sağlayıcısı netleşince billing webhook imza/zaman damgası/replay korumasını eklemek.
+**Sıradaki:** Frontend uyumluluk katmanlarını sadeleştirmek; ödeme sağlayıcısı netleşince billing webhook imza/zaman damgası/replay korumasını eklemek.
 **Erol'a not (varsa):** Prisma generate ve validate başarılı; backend hedef lint, full Jest 40/40, backend build, portal hedef lint ve portal production build başarılı.
 
 ### 2026-07-31 — Backend reçete liste sözleşmesi
