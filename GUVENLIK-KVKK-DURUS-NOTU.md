@@ -34,7 +34,7 @@ Hayvan sağlık kaydı tek başına insan sağlık verisi değildir; ancak TCKN,
 Faz 0'da bulunan güvenlik temelleri:
 
 - portal oturumunda erişim ve yenileme tokenları JavaScript tarafından okunamayan httpOnly cookie'de tutulur;
-- tarayıcı kaynaklı güvenli olmayan isteklerde Origin/Referer allowlist kontrolü bulunur;
+- tarayıcı kaynaklı güvenli olmayan isteklerde Origin/Referer allowlist kontrolü bulunur; auth cookie taşımayan native Bearer istekleri ve imzalı WhatsApp webhook'u ayrı doğrulama yolundan geçer;
 - rol tabanlı koruma ve klinik kapsamı için başlangıç modeli vardır;
 - Docker ile tekrarlanabilir yerel demo ortamı ve gerçek oturum smoke testi bulunur;
 - demo kamu entegrasyonları ve sentetik veriler açıkça etiketlenir.
@@ -42,7 +42,7 @@ Faz 0'da bulunan güvenlik temelleri:
 Pilot öncesi tamamlanması gereken başlıca boşluklar:
 
 - ulusal/il/ilçe/kurum hiyerarşisini kapsayan yetki modeli ve veri katmanı politikaları;
-- native mobil kimlik doğrulama ile imzalı dış servis webhook'larının güvenli istek politikası;
+- ödeme webhook'ları için sağlayıcı imzası, zaman damgası ve replay koruması;
 - merkezi secret yönetimi, anahtar rotasyonu ve depo geçmişi güvenlik taraması;
 - kişisel veri envanteri, aydınlatma, hukuki işleme şartı, saklama-imha ve ilgili kişi başvuru süreçleri;
 - Türkiye'de onaylı barındırma ve alt işleyen/tedarikçi değerlendirmesi;

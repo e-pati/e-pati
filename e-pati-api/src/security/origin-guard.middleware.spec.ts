@@ -60,6 +60,76 @@ describe('createUnsafeRequestOriginGuard', () => {
     );
   });
 
+  it('allows native bearer-auth unsafe requests without origin headers', () => {
+    const next = runGuard({
+      method: 'POST',
+      headers: {
+        authorization: 'Bearer mobile.jwt',
+      },
+    });
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('rejects bearer requests without origin headers when auth cookies are present', () => {
+    const next = runGuard({
+      method: 'POST',
+      headers: {
+        authorization: 'Bearer browser.jwt',
+        cookie: 'accessToken=cookie.jwt',
+      },
+      cookies: {
+        accessToken: 'cookie.jwt',
+      },
+    } as Partial<Request> & { cookies: Record<string, string> });
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 403,
+      }),
+    );
+  });
+
+  it('allows signed WhatsApp webhooks without origin headers', () => {
+    const next = runGuard({
+      method: 'POST',
+      path: '/whatsapp/webhook',
+      headers: {
+        'x-hub-signature-256': 'sha256=signature',
+      },
+    });
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('rejects unsigned WhatsApp webhooks without origin headers', () => {
+    const next = runGuard({
+      method: 'POST',
+      path: '/whatsapp/webhook',
+      headers: {},
+    });
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 403,
+      }),
+    );
+  });
+
+  it('rejects unsigned billing webhooks without origin headers', () => {
+    const next = runGuard({
+      method: 'POST',
+      path: '/billing/webhook',
+      headers: {},
+    });
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 403,
+      }),
+    );
+  });
+
   it('rejects unsafe requests from an untrusted origin', () => {
     const next = runGuard({
       method: 'POST',

@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 26 Temmuz 2026 — Fiyat içermeyen, doldurulabilir tek sayfalık Pilot Ön Çerçevesi hazırlandı
+- **Son güncelleme:** 31 Temmuz 2026 — Cookie-auth CSRF politikası native Bearer ve imzalı WhatsApp webhook istisnalarıyla netleştirildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Gerçek toplantı ve teknik birim bilgileri belli olduğunda Pilot Ön Çerçevesini birlikte doldurmak; yazılı sponsor, veri kaynağı ve kabul kararlarını toplamak
@@ -23,7 +23,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 | # | Görev | Sorumlu | Durum | Not |
 |---|---|---|---|---|
-| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ⛔ | Portal ve temel backend sözleşmesi tamamlandı: tokenlar yalnız httpOnly cookie'de, yanıt gövdesi `{ user }`, Origin/Referer allowlist mevcut; native mobil ve dış servis webhook'larının Originsiz unsafe istekleri için kapsam düzeltmesi Erol'da |
+| 0.1 | Portal token'ı localStorage → httpOnly cookie (güvenlik) | Burak + Erol | ✅ | Portal ve backend sözleşmesi tamamlandı: tokenlar yalnız httpOnly cookie'de, yanıt gövdesi `{ user }`, Origin/Referer allowlist mevcut; native Bearer-auth ve imzalı WhatsApp webhook istisnaları negatif testlerle eklendi |
 | 0.3 | Büyükbaş/küçükbaş demo ekranları (işletme kaydı, küpe ile hayvan girişi, hareket görünümü, olay geçmişi) | Burak | ✅ | Sentetik işletme kaydı, Sarıkız küpe girişi, hareket ve olay geçmişi; 390×844 touch akışı ve 44px eylem hedefleri tamamlandı |
 | 0.4 | Sokak/belediye demo ekranları (barınak girişi → kısırlaştırma → sahiplendirme ilanı) | Burak | ✅ | Dost kabul/kısırlaştırma/ilan zinciri; 390×844 touch akışı, 44px eylem hedefleri ve mobil başlık cilası tamamlandı |
 | 0.5 | **Bakanlık konsolu (PARA EKRANI):** ulusal harita + il drill-down, aşılama/popülasyon panoları, sahte hastalık-uyarı akışı | Burak | ✅ | Gerçek Türkiye silüeti üzerinde 81 tıklanabilir il alanı, açıklamalı risk dağılımı, aşılama ve aktif uyarı içeren bilgi balonu, ulusal KPI, drill-down, Recharts panoları, tıklanabilir erken uyarı ve 1366×768 projektör akışı tamamlandı |
@@ -34,7 +34,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
-- Erol'un `4b9b661` ve `9767a94` auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Ancak middleware şu an bütün `POST/PATCH/PUT/DELETE` isteklerini Originsiz durumda 403 ile reddediyor. React Native istemcisi ile WhatsApp/ödeme sağlayıcısı webhook'ları tarayıcı Origin/Referer başlığı göndermeyebilir; cookie-auth tarayıcı rotaları korunurken native Bearer-auth ve imzalı webhook rotaları için belgeli istisna/alternatif doğrulama ile negatif testler eklenmeli.
+- Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. İmzasız billing webhook Origin'siz açık bırakılmadı; gerçek ödeme sağlayıcısı imza sözleşmesi ayrıca netleşmeli.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
 - Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisini, muayene listesi veterinarian ilişkisini dönmeli; `GET /prescriptions?petId=...` liste rotası eklenmeli. Frontend Faz 0 için klinik hasta cache'i, `/pets/:id/summary` ve oturum kullanıcısı fallback'leriyle çalışıyor; pilot öncesi bu geçici uyumluluk katmanları belgeli API alanlarıyla sadeleştirilmeli.
 - Klinik bildirimleri için `clinicId` kapsamlı listeleme ve okundu işaretleme sözleşmesi gerekiyor. `VETERINARIAN` ve `CLINIC_ADMIN` yetkileri desteklenmeli; `SUPER_ADMIN` davranışı netleştirilmeli. Yanıt modeli `id`, `type`, `title`, `message`, `createdAt` ve `readAt` alanlarıyla belgelenmeli veya mevcut `body`/`payload`/`status` şekli sabit sözleşme olarak paylaşılmalı.
@@ -53,6 +53,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-07-31 — Cookie-auth CSRF kapsam ayrımı
+**Yapılanlar:** Backend `Origin/Referer` guard'ı cookie tabanlı tarayıcı oturumlarını korumaya devam edecek şekilde daraltıldı. Auth cookie taşımayan `Authorization: Bearer` unsafe istekleri native mobil istemci için Origin olmadan kabul ediliyor; auth cookie ile birlikte gelen Bearer istekleri hâlâ 403 alıyor. Meta WhatsApp webhook'u yalnız `x-hub-signature-256` header'ı varsa Origin'siz geçiyor; imzasız WhatsApp ve billing webhook POST'ları Origin'siz reddediliyor.
+**Dokunulan dosyalar:** `e-pati-api/src/security/origin-guard.middleware.ts`, `e-pati-api/src/security/origin-guard.middleware.spec.ts`, `e-pati-api/README.md`, `GUVENLIK-KVKK-DURUS-NOTU.md`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** Ürün ekranı değişmedi. Auth/CSRF backend sözleşmesi hedefli test, backend build ve full Jest turunda doğrulandı.
+**Sıradaki:** Ödeme sağlayıcısı seçimi kesinleşince `/billing/webhook` için imza/zaman damgası/replay politikası eklemek; pilot öncesi klinik bildirim endpoint sözleşmesini ve hasta detay sözleşmesini sadeleştirmek.
+**Erol'a not (varsa):** Billing webhook imzası netleşmeden bu rotayı Origin'siz dış dünyaya açmıyoruz.
 
 <!-- Yeni kayıtları buradan itibaren, en üste ekle -->
 
