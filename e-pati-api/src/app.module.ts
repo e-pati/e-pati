@@ -25,6 +25,7 @@ import { PrivacyModule } from './privacy/privacy.module';
 import { validateEnvironment } from './config/env.validation';
 import { RegistryModule } from './registry/registry.module';
 import { MunicipalityModule } from './municipality/municipality.module';
+import { IntegrationsModule } from './integrations/integrations.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { MunicipalityModule } from './municipality/municipality.module';
     PrivacyModule,
     RegistryModule,
     MunicipalityModule,
+    IntegrationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
