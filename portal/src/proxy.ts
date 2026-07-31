@@ -11,6 +11,8 @@ const PUBLIC_PATHS = [
   '/hayvancilik',
   '/belediye',
   '/demo-akisi',
+  '/opengraph-image',
+  '/icon.svg',
 ]
 const AUTH_PATHS = ['/login', '/clinic-onboarding']
 

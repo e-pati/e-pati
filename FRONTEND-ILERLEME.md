@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Backend reçete liste ve klinik bildirim sözleşmeleri tamamlandı; Vercel production akışı güncel
+- **Son güncelleme:** 31 Temmuz 2026 — Klinik bildirim sözleşmesi korunarak public landing bağımsız, kurumsal ve izin-sınırları açık VetCep anlatısıyla sıfırdan tasarlandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Canlı Faz 0 ekranlarını Bakanlık düzeyi UI/UX denetiminden geçirip yalnız sunum-kritik iyileştirmeleri uygulamak; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
+- **Sıradaki adım:** Canlı portal ve demo ekranlarını aynı kurumsal UI/UX standardına göre sırayla denetlemek; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
 
 ---
 
@@ -31,6 +31,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | 0.8 | Mobil demo: bir evcil hayvan + bir inek (üretici görünümü) için aşı kartı & kayıtlar | Burak | ✅ | Pamuk ve Sarıkız sentetik profilleri; kimlik, aşı ve olay kayıtları, sunum-güvenli fallback, 44px dokunma hedefleri ve 390×844 aşı kartı etkileşim doğrulaması tamamlandı |
 | 0.11 | Bakanlık materyalleri: mimari, güvenlik/KVKK, fazlı teslim/fiyat, sunum ve yedek paket | Burak + Erol + danışman | 🟡 | Teknik/dış-paylaşım/sunum/yedek materyalleri, gizli danışman paketi, toplantı sonrası takip paketi ve tek sayfalık Pilot Ön Çerçevesi doğrulandı. Yazılı uzman/Bakanlık kararları, gerçek toplantı bilgileri ve onaylı baskı bekliyor |
 | Demo | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı | Burak + Şevval | ✅ | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
+| Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları | Burak | ✅ | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli tamamlandı |
 
 **Erol'dan (backend) beklenenler:**
 - Faz 0 demosu için engel yok. Erol'un `d55f3a2` ile gönderdiği registry çekirdeği işletme, kimliklendirme ve hareket temelini sağlıyor. Şema değişikliklerinden sonra lokal `npm run db:generate` çalıştırılmalı; canlı belediye akışında kısırlaştırma ve sahiplendirme endpoint sözleşmeleri ayrıca gerekecek.
@@ -53,6 +54,13 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-07-31 — Public landing page kurumsal yeniden tasarımı
+**Yapılanlar:** Landing page sıfırdan tasarlanarak VetCep yalnız kliniklere satılan genel bir SaaS görünümünden çıkarıldı. Bağımsız hayvan sağlığı teknolojisi konumlandırması; hayvan sahibi, veteriner, üretici, saha operasyonu ve bölgesel analitik kullanım alanları; yaşam boyu kayıt döngüsü; sentetik Türkiye haritası; izin ve protokole bağlı entegrasyon yaklaşımı; demo, pilot ve üretim olgunluk çizgisi tek kurumsal anlatıda birleştirildi. Kamu kurumu/sistem adı ve logo kullanımı, resmî bağlantı çağrışımı, sahte klinik referansları, testimonial'lar, fiyatlandırma ve doğrulanmamış KVKK/ISO/barındırma iddiaları public sayfadan çıkarıldı. Özgün VetCep marka işareti, favicon, dinamik sosyal paylaşım görseli ve güvenli metadata hazırlandı. Auth proxy'si metadata rotalarını public sunacak şekilde düzeltildi.
+**Dokunulan dosyalar:** `portal/src/app/page.tsx`, `portal/src/app/layout.tsx`, `portal/src/app/icon.svg`, `portal/src/app/opengraph-image.tsx`, `portal/src/components/landing/brand-mark.tsx`, `portal/src/components/landing/section-heading.tsx`, `portal/src/components/landing/site-header.tsx`, `portal/src/components/landing/site-footer.tsx`, `portal/src/components/landing/platform-visuals.tsx`, `portal/src/proxy.ts`, `portal/tests/landing.spec.ts`, `portal/tests/prod-smoke.spec.ts`, `output/landing-redesign/*`, `FRONTEND-ILERLEME.md`
+**Ekran/akış durumu:** 1440×900 masaüstü ve 390×844 mobil tam sayfa görselleri denetlendi; yatay taşma ve çalışma zamanı hatası yok. Landing/metadata regresyonları 3/3, tam Faz 0 demo paketi 25/25, portal lint ve Next.js production build başarılı. OG görseli ile favicon public ve auth yönlendirmesinden bağımsız çalışıyor.
+**Sıradaki:** Değişikliği `feature/portal` ve `main` üzerinden Vercel production'a almak; canlı landing, metadata varlıkları ve public demo rotalarını yeniden smoke testten geçirmek. Ardından portalın sıradaki UI/UX yüzeyini Burak'ın önceliğine göre ele almak.
+**Erol'a not (varsa):** Backend değişikliği gerekmiyor. Public landing herhangi bir resmî bağlantı veya tamamlanmış entegrasyon iddiası taşımıyor; gerçek bağlantılar yetki, protokol ve teknik değerlendirmeye bağlı olarak anlatılıyor.
 
 ### 2026-07-31 — Klinik bildirim sözleşmesi
 **Yapılanlar:** `Notification` modeli owner yanında opsiyonel `clinicId` alacak şekilde genişletildi ve migration eklendi. `/notifications` artık owner, veteriner, klinik yöneticisi ve super admin rollerinde kapsamlı listeleme yapıyor; `PATCH /notifications/:id/read` aynı kapsam kontrolüyle çalışıyor. Muayene, aşı, reçete ve lab kaydı oluşturulduğunda owner push bildirimi korunurken klinik için in-app bildirim kaydı da yazılıyor. Seed'e Misket için sentetik klinik bildirimi eklendi. Portal bildirim sayfası ve sidebar badge'i klinik rollerine açıldı.

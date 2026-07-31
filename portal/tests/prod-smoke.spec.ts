@@ -25,7 +25,7 @@ test.describe('Prod smoke', () => {
 
     await page.goto('/')
     await expect(page.locator('text=VetCep').first()).toBeVisible()
-    await expect(page.getByRole('link', { name: /Giriş Yap|Klinik Girişi/ }).first()).toHaveAttribute('href', '/login')
+    await expect(page.getByRole('link', { name: /Portal girişi|Giriş Yap|Klinik Girişi/i }).first()).toHaveAttribute('href', '/login')
 
     await page.goto('/login')
     await page.locator('input[type="email"]').fill(email as string)
