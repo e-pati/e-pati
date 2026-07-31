@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Registry ulusal özet/erken uyarı API çekirdeği ile portal ve mobilin kalıcı reçete liste/PDF istemci sözleşmesi güncel main üzerinde birleştirildi
+- **Son güncelleme:** 1 Ağustos 2026 — Registry ulusal özet/erken uyarı API çekirdeği ile portal ve mobilin kalıcı reçete liste/PDF istemci sözleşmesi main ve production üzerinde birleştirildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Canlı portal içi ekranları aynı kurumsal UI/UX standardına göre sırayla denetlemek; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
@@ -65,9 +65,9 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Dokunulan dosyalar:** `portal/src/services/prescriptions.service.ts`, `portal/src/lib/open-prescription-pdf.ts`, `portal/src/app/(dashboard)/prescriptions/page.tsx`, `portal/src/app/(dashboard)/patients/[id]/page.tsx`, `portal/src/components/patients/add-prescription-dialog.tsx`, `portal/tests/prescription-contract.spec.ts`, `mobile/services/prescriptions.service.ts`, `mobile/app/(tabs)/pets/[id].tsx`, `FRONTEND-ILERLEME.md`
 
-**Ekran/akış durumu:** Portal reçete listesi, hasta detayı ve reçete oluşturma sonrası PDF eylemi aynı yetkili yardımcı akışı kullanıyor; mobil hayvan detayındaki PDF eylemi Bearer oturumunu koruyor. Sözleşme testleri 2/2, mobil TypeScript kontrolü, portal lint ve Next.js production build başarılı; Faz 0 demo regresyon paketi 25/25 geçti. Gerçek PDF üretimi canlı oturum ve reçete kaydı gerektirdiği için kullanıcı kimlik bilgisi olmadan production üzerinde uçtan uca çalıştırılmadı.
+**Ekran/akış durumu:** Portal reçete listesi, hasta detayı ve reçete oluşturma sonrası PDF eylemi aynı yetkili yardımcı akışı kullanıyor; mobil hayvan detayındaki PDF eylemi Bearer oturumunu koruyor. Sözleşme testleri 2/2, mobil TypeScript kontrolü, portal lint ve Next.js production build başarılı; Faz 0 demo regresyon paketi 25/25 geçti. `ed8a54b` production deploymentı `Ready` durumuna geçti ve `vetcep.com` aliaslarını aldı; canlı smoke turunda beş public demo rotası geçti, kimlik bilgisi gerektiren admin senaryosu beklendiği gibi atlandı. Gerçek PDF üretimi canlı klinik oturumu ve reçete kaydı gerektirdiği için kullanıcı kimlik bilgisi olmadan production üzerinde uçtan uca çalıştırılmadı.
 
-**Sıradaki:** Değişikliği `feature/portal` ve `main` dallarına aktararak Vercel production dağıtımını doğrulamak; ardından portal içi sıradaki ekranı kurumsal UI/UX standardına taşımak.
+**Sıradaki:** Portal içi sıradaki ekranı kurumsal UI/UX standardına taşımak; pilot rol ve oturum modeli netleştiğinde registry/belediye canlı istemci entegrasyonunu planlamak.
 
 **Erol'a not (varsa):** Yeni backend değişikliği gerekmiyor; mevcut liste ve PDF durum sözleşmeleri kullanılıyor. Belediye ve registry canlı entegrasyonları Faz 0 engeli değil; pilotta bağlanmadan önce belediye/shelter rolü ile Bakanlık konsolunun kimliği doğrulanmış admin yüzeyi birlikte netleştirilmeli.
 
