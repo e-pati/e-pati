@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 31 Temmuz 2026 — Public landing ile aynı kurumsal kayıt dili portal girişine taşındı; tema kontrastı, responsive form ve erişilebilirlik regresyonları kapatıldı
+- **Son güncelleme:** 31 Temmuz 2026 — Public landing ile aynı kurumsal kayıt dili portal girişine taşındı; tema kontrastı, responsive form ve erişilebilirlik regresyonları production ortamında doğrulandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Canlı portal ve demo ekranlarını aynı kurumsal UI/UX standardına göre sırayla denetlemek; gerçek toplantı ve teknik birim bilgileri geldiğinde Pilot Ön Çerçevesini doldurmak
@@ -63,9 +63,9 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Dokunulan dosyalar:** `portal/src/app/(auth)/login/page.tsx`, `portal/src/app/(auth)/login/layout.tsx`, `portal/tests/login.spec.ts`, `FRONTEND-ILERLEME.md`
 
-**Ekran/akış durumu:** 1440×900 masaüstü ve 390×844 mobil görsel inceleme tamamlandı; yatay taşma yok ve form koyu sistem tercihinde de beyaz zemin/koyu metin kontrastını koruyor. Login Playwright testleri 4/4, Faz 0 demo paketi 25/25, portal lint ve Next.js production build başarılı. Şifre desteği mevcut sözleşmeye uygun olarak kullanıcıyı klinik sistem yöneticisine yönlendiren bilgilendirme mesajını koruyor.
+**Ekran/akış durumu:** 1440×900 masaüstü ve 390×844 mobil görsel inceleme hem lokal hem `vetcep.com/login` production üzerinde tamamlandı; yatay taşma yok ve form koyu sistem tercihinde de beyaz zemin/koyu metin kontrastını koruyor. Login Playwright testleri 4/4, Faz 0 demo paketi 25/25, portal lint ve Next.js production build başarılı. Production smoke turunda kimlik bilgisi gerektirmeyen 5/5 public demo senaryosu geçti; admin senaryosu ortam kimlik bilgisi olmadığı için beklendiği gibi atlandı. Canlı `/login` HTTP 200 ve rota metadata başlığı `Portal girişi | VetCep` olarak doğrulandı. Şifre desteği mevcut sözleşmeye uygun olarak kullanıcıyı klinik sistem yöneticisine yönlendiren bilgilendirme mesajını koruyor.
 
-**Sıradaki:** Canlı `/login` production deploymentını doğrulamak; ardından portal içi ekranları aynı ağırlık, köşe, kontrast ve ritim sistemine sırayla hizalamak.
+**Sıradaki:** Portal içi ekranları aynı ağırlık, köşe, kontrast ve ritim sistemine Burak'ın önceliğine göre sırayla hizalamak.
 
 **Erol'a not (varsa):** Backend değişikliği gerekmiyor. Mevcut `/auth/clinic/login` httpOnly-cookie sözleşmesi ve rol yönlendirmeleri aynen korundu.
 
