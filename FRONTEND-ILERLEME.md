@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Klinik dashboard kurumsal operasyon görünümüne taşındı; gerçek veri, boş/hata durumları ve klinik bildirim sayacı responsive olarak doğrulandı
+- **Son güncelleme:** 1 Ağustos 2026 — Klinik hasta listesi kurumsal çalışma dizinine dönüştürüldü; gerçek veri, arama/filtre, boş/hata durumları ve responsive düzen doğrulandı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Hasta listesi ve hasta detay ekranlarını dashboard ile aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
+- **Sıradaki adım:** Hasta detay ekranını (`/patients/[id]`) dashboard ve hasta listesiyle aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -34,6 +34,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları  | Burak                   | ✅    | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli `vetcep.com` production ortamında doğrulandı                                                              |
 | Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                           | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                         |
 | Dashboard | **Klinik operasyon panosu:** kurumsal özet, gerçek KPI, aktivite, muayene/aşı takibi ve hızlı işlemler                  | Burak                   | ✅    | Çok renkli/emoji ağırlıklı görünüm kaldırıldı; gerçek veri ve açık boş/hata durumları, API tabanlı bildirim sayacı, 1280×720 masaüstü ve 390×844 mobil düzen tamamlandı                                                                                             |
+| Hastalar | **Klinik hasta dizini:** arama, tür filtresi, kimlik/sahip özeti, sayfalama ve durum yüzeyleri                            | Burak                   | ✅    | Mevcut klinik API sözleşmesi korunarak kurumsal masaüstü çalışma listesi ve mobil kayıt düzeni; gerçek toplam, açık yükleme/boş/hata durumları ve 390×844 taşma kontrolü tamamlandı                                                                                |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -59,6 +60,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-01 — Klinik hasta listesi kurumsal UI/UX turu
+
+**Yapılanlar:** `/patients` ekranı dashboard ile aynı kurumsal klinik çalışma diliyle baştan düzenlendi. Eski birbirini tekrar eden kart ızgarası ve emoji ağırlıklı boş durumlar kaldırıldı. Lacivert hasta dizini özeti, API'den gelen gerçek toplam kayıt sayısı, hasta adı/sahip/mikroçip araması, Türkçe tür filtresi ve taranabilir masaüstü çalışma listesi oluşturuldu. Mobil görünüm aynı kayıtları sahip, kimlik ve kayıt tarihi alanlarını açıkça etiketleyen kompakt düzende gösteriyor. Tür ve cinsiyet değerleri Türkçeleştirildi; bilinmeyen tür güvenli biçimde “Diğer” olarak ele alınıyor. API hatası artık boş liste gibi görünmüyor; açıklamalı uyarı ve yeniden deneme eylemi sunuyor. Yükleme, filtresiz boş kayıt, filtreden sonuç çıkmaması ve sayfalama durumları birbirinden ayrıldı. Yeni kütüphane eklenmedi ve mevcut `/clinics/:clinicId/patients` sözleşmesi değişmedi.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/patients/page.tsx`, `portal/tests/patient-list-design.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; mobil görünümde yatay taşma yok. Yeni hasta listesi testi 2/2, hasta/auth/bildirim/dashboard regresyonu 24/24 ve Faz 0 demo paketi 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı. Canlı doğrulama deployment tamamlandıktan sonra aynı kayıt içinde güncellenecek.
+
+**Sıradaki:** Hasta detayını (`/patients/[id]`) kimlik özeti, klinik geçmiş, aşı/reçete/laboratuvar alanları ve responsive eylemler bakımından aynı kurumsal standarda taşımak.
+
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. Mevcut klinik hasta listeleme sözleşmesi ve owner alanları aynen kullanılıyor.
 
 ### 2026-08-01 — Klinik dashboard kurumsal UI/UX turu
 
