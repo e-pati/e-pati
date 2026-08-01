@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Klinik hasta detayı kimlik, sahip ve dört sağlık kayıt modülüyle kurumsal ve responsive çalışma yüzeyine dönüştürüldü
+- **Son güncelleme:** 1 Ağustos 2026 — Klinik portalın ortak çerçevesi, Pano, Hastalar ve Hasta Detayı açık renkli kurumsal klinik tasarım sisteminde birleştirildi
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
 - **Sıradaki adım:** Yeni hasta kayıt formunu (`/patients/new`) tamamlanan hasta dizini ve detay ekranıyla aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
@@ -33,9 +33,9 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Demo    | **25 dakikalık Faz 0 sunum rotası:** vatandaş/mobil → klinik → üretici → belediye → Bakanlık → pilot kapanışı              | Burak + Şevval          | ✅    | Teknik rota, Şevval konuşmacı/Burak kumanda rol dağılımı, 13 sayfalık sunumcu paketi ve yedi frontend demo paketini tek turda çalıştıran `npm run test:demo` preflight komutu hazır; public demo rotaları `vetcep.com` production ortamında 200 yanıtıyla doğrulandı |
 | Landing | **Public VetCep vitrini:** bağımsız platform konumlandırması, kullanım alanları, yaşam döngüsü, analitik, güven sınırları  | Burak                   | ✅    | Eski klinik SaaS şablonu, sahte referans/fiyat/yorum ve doğrulanmamış uyum iddiaları kaldırıldı; özgün responsive landing, metadata, favicon ve OG görseli `vetcep.com` production ortamında doğrulandı                                                              |
 | Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                           | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                         |
-| Dashboard | **Klinik operasyon panosu:** kurumsal özet, gerçek KPI, aktivite, muayene/aşı takibi ve hızlı işlemler                  | Burak                   | ✅    | Çok renkli/emoji ağırlıklı görünüm kaldırıldı; gerçek veri ve açık boş/hata durumları, API tabanlı bildirim sayacı, 1280×720 masaüstü ve 390×844 mobil düzen tamamlandı                                                                                             |
-| Hastalar | **Klinik hasta dizini:** arama, tür filtresi, kimlik/sahip özeti, sayfalama ve durum yüzeyleri                            | Burak                   | ✅    | Mevcut klinik API sözleşmesi korunarak kurumsal masaüstü çalışma listesi ve mobil kayıt düzeni; gerçek toplam, açık yükleme/boş/hata durumları ve 390×844 taşma kontrolü tamamlandı                                                                                |
-| Hasta detayı | **Klinik hasta dosyası:** kimlik, sahip, muayene, aşı, reçete, laboratuvar ve kayıt eylemleri                         | Burak                   | ✅    | Gerçek modül sayaçları ve her sorgu için ayrı yükleme/boş/hata durumu; masaüstü klinik dosya düzeni, mobil 2×2 özet ve yatay taşmasız sekmeli sağlık geçmişi tamamlandı                                                                                           |
+| Dashboard | **Klinik operasyon panosu:** kurumsal özet, gerçek KPI, aktivite, muayene/aşı takibi ve hızlı işlemler                  | Burak                   | ✅    | Koyu tanıtım yüzeyi ve emoji ağırlığı kaldırıldı; açık klinik operasyon özeti, semantik ikonlar, gerçek veri/boş/hata durumları, API tabanlı bildirim sayacı ve responsive düzen tamamlandı                                                                        |
+| Hastalar | **Klinik hasta dizini:** arama, tür filtresi, kimlik/sahip özeti, sayfalama ve durum yüzeyleri                            | Burak                   | ✅    | Açık kayıt yönetimi yüzeyi, masaüstü çalışma listesi ve mobil kayıt düzeni; gerçek toplam, açık yükleme/boş/hata durumları ve 390×844 taşma kontrolü mevcut klinik API sözleşmesi korunarak tamamlandı                                                           |
+| Hasta detayı | **Klinik hasta dosyası:** kimlik, sahip, muayene, aşı, reçete, laboratuvar ve kayıt eylemleri                         | Burak                   | ✅    | Koyu kimlik kartı kaldırıldı; açık hasta dosyası başlığı, gerçek modül sayaçları, ayrı yükleme/boş/hata durumları, mobil 2×2 özet ve yatay taşmasız sekmeli sağlık geçmişi tamamlandı                                                                            |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -62,6 +62,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-01 — Açık klinik portal tasarım sistemi revizyonu
+
+**Yapılanlar:** Portalın daha önce tamamlanan üç ana çalışma yüzeyi kullanıcı geri bildirimiyle yeniden ele alındı. Pano, hasta dizini ve hasta detayındaki büyük lacivert pazarlama blokları, dekoratif grid/daireler, koyu hızlı işlem ikonları ve aşırı yuvarlak kart dili kaldırıldı. Yerine açık soğuk gri uygulama zemini, beyaz çalışma yüzeyleri, düşük yoğunluklu sınırlar, kontrollü turkuaz ana renk, sakin mavi ikincil renk ve yalnız gerçek durumlarda amber/kırmızı kullanılan ortak bir klinik tasarım sistemi kuruldu. Pano karşılama alanı kompakt günlük operasyon özetine, hasta dizini kayıt yönetimi başlığına, hasta detayı ise açık renkli kimlik dosyasına dönüştürüldü. Sidebar aktif durumu, ortak üst bar, mobil VetCep başlığı ve Recharts grafik/tooltip renkleri aynı sisteme hizalandı. Emoji marka işareti Lucide ikonuyla değiştirildi; yeni kütüphane eklenmedi.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/layout.tsx`, `portal/src/components/layout/sidebar.tsx`, `portal/src/components/layout/header.tsx`, `portal/src/app/(dashboard)/dashboard/page.tsx`, `portal/src/components/shared/dashboard-chart.tsx`, `portal/src/app/(dashboard)/patients/page.tsx`, `portal/src/app/(dashboard)/patients/[id]/page.tsx`, `portal/tests/patient-list-design.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** Pano, hasta listesi ve hasta detayı 1280×720 masaüstü ile 390×844 mobil Chromium renderlarında görsel olarak incelendi; koyu ana yüzey kalmadı ve mobil yatay taşma yok. Hedef tasarım paketi 7/7, ürün akışları 8/8 ve Faz 0 demo paketi 25/25 geçti. Geniş paralel regresyon turundaki Next.js dev-server chunk/zaman aşımı dalgalanmaları ilgili testlerin tekil temiz koşularıyla ayrıştırıldı. Portal lint, TypeScript kontrolü ve Next.js production build başarılı.
+
+**Sıradaki:** Yeni hasta kayıt formunu (`/patients/new`) aynı açık klinik tasarım sistemi, alan grupları, doğrulama sunumu ve mobil ritimle yenilemek.
+
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. Bu tur yalnız portal görsel sistemi ve mevcut istemci davranışlarını kapsıyor; API sözleşmeleri değişmedi.
 
 ### 2026-08-01 — Klinik hasta detayı kurumsal UI/UX turu
 

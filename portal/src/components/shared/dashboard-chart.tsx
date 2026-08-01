@@ -94,18 +94,18 @@ export function DashboardChart() {
         <Tooltip
           cursor={{ fill: '#f8fafc' }}
           contentStyle={{
-            background: '#0f172a',
-            border: '0',
-            borderRadius: '12px',
-            boxShadow: '0 16px 30px -18px rgba(15, 23, 42, 0.7)',
-            color: '#f8fafc',
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            boxShadow: '0 12px 24px -16px rgba(15, 23, 42, 0.35)',
+            color: '#334155',
             fontSize: '12px',
           }}
-          labelStyle={{ color: '#cbd5e1', fontWeight: 600, marginBottom: '4px' }}
-          itemStyle={{ color: '#f8fafc' }}
+          labelStyle={{ color: '#64748b', fontWeight: 600, marginBottom: '4px' }}
+          itemStyle={{ color: '#334155' }}
         />
-        <Bar dataKey="muayene" name="Muayene" fill="#0f172a" radius={[5, 5, 0, 0]} maxBarSize={28} />
-        <Bar dataKey="asi" name="Aşı" fill="#06b6d4" radius={[5, 5, 0, 0]} maxBarSize={28} />
+        <Bar dataKey="muayene" name="Muayene" fill="#0d9488" radius={[4, 4, 0, 0]} maxBarSize={28} />
+        <Bar dataKey="asi" name="Aşı" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={28} />
       </BarChart>
     </ResponsiveContainer>
   )

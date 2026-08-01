@@ -35,7 +35,7 @@ export function Header({ title, subtitle, action }: HeaderProps) {
 
   return (
     <>
-      <header className="h-16 border-b border-gray-100 bg-white sticky top-0 z-10 flex items-center px-6 gap-4">
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-semibold text-foreground leading-none">{title}</h1>
           {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
@@ -47,7 +47,7 @@ export function Header({ title, subtitle, action }: HeaderProps) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Hasta ara..."
-            className="pl-9 h-9 rounded-full bg-gray-50 border-gray-100 focus-visible:bg-white focus-visible:border-primary/30 text-sm"
+            className="h-9 rounded-lg border-slate-200 bg-slate-50 pl-9 text-sm focus-visible:border-primary/30 focus-visible:bg-white"
           />
         </form>
 
@@ -55,7 +55,7 @@ export function Header({ title, subtitle, action }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-gray-50"
+            className="h-9 w-9 rounded-lg text-muted-foreground hover:bg-slate-50 hover:text-foreground"
             onClick={() => setQrOpen(true)}
             title="QR Kod Tara"
           >
@@ -65,7 +65,7 @@ export function Header({ title, subtitle, action }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground hover:bg-gray-50"
+            className="relative h-9 w-9 rounded-lg text-muted-foreground hover:bg-slate-50 hover:text-foreground"
             onClick={() => router.push('/notifications')}
             aria-label={unreadCount > 0 ? `${unreadCount} okunmamış bildirim` : 'Bildirimleri görüntüle'}
           >
@@ -80,7 +80,7 @@ export function Header({ title, subtitle, action }: HeaderProps) {
           {action && (
             <Button
               size="sm"
-              className="h-9 gap-1.5 rounded-xl ml-1 text-xs font-medium"
+              className="ml-1 h-9 gap-1.5 rounded-lg text-xs font-medium"
               onClick={action.onClick ?? (() => action.href && router.push(action.href))}
             >
               <Plus className="w-3.5 h-3.5" />

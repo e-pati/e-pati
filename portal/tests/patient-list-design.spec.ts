@@ -51,7 +51,7 @@ test.describe('Klinik hasta listesi kurumsal görünüm', () => {
     await page.goto('/patients')
 
     await expect(page.getByTestId('patients-page')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Sağlık kayıtlarına güvenli ve hızlı erişim.' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Hasta kayıtları' })).toBeVisible()
     await expect(page.getByText('2 toplam kayıt')).toBeVisible()
     await expect(page.getByRole('link', { name: 'Pamuk hasta kaydını görüntüle' })).toHaveAttribute('href', '/patients/pet-1')
     await expect(page.getByText('Ayşe Yılmaz')).toBeVisible()

@@ -61,11 +61,11 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
       : 'Kullanıcı'
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col h-screen sticky top-0">
+    <aside className="sticky top-0 flex h-screen w-60 flex-shrink-0 flex-col border-r border-slate-200 bg-white">
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-gray-100">
+      <div className="flex h-16 items-center border-b border-slate-200 px-5">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center group-hover:opacity-90 transition-opacity">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-teal-600 transition-colors group-hover:bg-teal-700">
             <PawPrint className="w-4.5 h-4.5 text-white" />
           </div>
           <div>
@@ -88,10 +88,10 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
                   href={item.href}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+                    'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                     active
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-gray-50 hover:text-foreground',
+                      ? 'bg-teal-50 text-teal-800 before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-teal-600'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900',
                   )}
                 >
                   <item.icon className="w-4.5 h-4.5 flex-shrink-0" />
@@ -114,7 +114,7 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
               <Link
                 href="/admin/dashboard"
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-muted-foreground hover:bg-gray-50 hover:text-foreground"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900"
               >
                 <ShieldCheck className="w-4.5 h-4.5 flex-shrink-0" />
                 Admin
@@ -127,10 +127,10 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+                    'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                     active
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-gray-50 hover:text-foreground',
+                      ? 'bg-teal-50 text-teal-800 before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-teal-600'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900',
                   )}
                 >
                   <item.icon className="w-4.5 h-4.5 flex-shrink-0" />
@@ -143,10 +143,10 @@ export function Sidebar({ onClose }: SidebarProps = {}) {
       </nav>
 
       {/* User */}
-      <div className="p-3 border-t border-gray-100">
+      <div className="border-t border-slate-200 p-3">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 cursor-pointer group transition-colors text-left"
+          className="group flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-red-50"
         >
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 text-xs font-bold text-white">
             {user?.fullName?.slice(0, 2).toUpperCase() ?? 'KL'}

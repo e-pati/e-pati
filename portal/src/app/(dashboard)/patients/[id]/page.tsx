@@ -159,32 +159,28 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        <section className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950 px-5 py-6 text-white shadow-[0_20px_50px_-36px_rgba(15,23,42,0.9)] sm:px-7 sm:py-7 lg:px-8">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-50 [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:linear-gradient(to_right,black,transparent_82%)]" />
-          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full border border-cyan-300/10 bg-cyan-300/5" />
-
-          <div className="relative grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.9fr)] lg:items-center">
+        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+          <div className="h-1 bg-teal-600" />
+          <div className="grid gap-6 px-5 py-5 sm:px-6 sm:py-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(440px,1.15fr)] lg:items-center lg:px-7">
             <div className="flex min-w-0 items-center gap-4 sm:gap-5">
-              <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-white/15 bg-white/10 text-4xl shadow-[0_16px_35px_-24px_rgba(0,0,0,0.8)] sm:size-24">
+              <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-teal-50 text-4xl ring-1 ring-teal-100 sm:size-24">
                 <PatientAvatar name={pet.name} photoUrl={pet.photoUrl} species={petSpecies} size={96} />
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="border border-white/10 bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-[0.08em] text-slate-200 shadow-none hover:bg-white/10">
-                    HASTA KİMLİK KAYDI
-                  </Badge>
-                  <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-300">
-                    <ShieldCheck className="size-3.5" /> Klinik kaydı
+                  <span className="text-xs font-medium text-slate-500">Hasta kimliği</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-100">
+                    <ShieldCheck className="size-3.5" /> Aktif klinik kaydı
                   </span>
                 </div>
-                <h2 className="mt-4 truncate text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">{pet.name}</h2>
-                <p className="mt-2 text-sm text-slate-300">
+                <h2 className="mt-3 truncate text-2xl font-semibold tracking-[-0.03em] text-slate-950 sm:text-3xl">{pet.name}</h2>
+                <p className="mt-1.5 text-sm text-slate-500">
                   {speciesLabel(petSpecies)} · {pet.breed || 'Irk bilgisi belirtilmemiş'} · {sexLabel(pet.sex)}
                 </p>
               </div>
             </div>
 
-            <dl className="grid grid-cols-2 gap-x-5 gap-y-5 border-t border-white/10 pt-6 sm:grid-cols-4 lg:border-l lg:border-t-0 lg:pl-7 lg:pt-0">
+            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-4">
               <IdentityField label="Mikroçip" value={pet.microchipNo || 'Kayıt yok'} mono={Boolean(pet.microchipNo)} />
               <IdentityField label="Doğum tarihi" value={pet.birthDate ? formatDateShort(pet.birthDate) : 'Belirtilmemiş'} />
               <IdentityField label="Yaş" value={pet.birthDate ? calculateAge(pet.birthDate) : 'Belirtilmemiş'} />
@@ -236,7 +232,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         </section>
 
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.02)]">
+          <section className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
             <Tabs defaultValue="examinations" className="gap-0">
               <div className="overflow-x-auto border-b border-slate-100 px-4 pt-3 sm:px-6">
                 <TabsList variant="line" className="h-12 min-w-max gap-5 p-0 sm:gap-7">
@@ -453,12 +449,12 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </section>
 
           <aside className="space-y-5">
-            <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.02)] sm:p-6">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">Hasta yakını</p>
-              <h3 className="mt-1 text-base font-semibold text-slate-900">Sahip bilgileri</h3>
+            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-6">
+              <p className="text-xs font-medium text-slate-500">Hasta yakını</p>
+              <h3 className="mt-0.5 text-base font-semibold text-slate-900">Sahip bilgileri</h3>
 
               <div className="mt-5 flex items-center gap-3 border-b border-slate-100 pb-5">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 ring-1 ring-slate-200">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700 ring-1 ring-blue-100">
                   <UserRound className="size-5" />
                 </div>
                 <div className="min-w-0">
@@ -492,7 +488,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               )}
             </section>
 
-            <section className="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5 sm:p-6">
+            <section className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6">
               <div className="flex items-start gap-3">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 ring-1 ring-slate-200">
                   <ShieldCheck className="size-[18px]" />
@@ -568,9 +564,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
 function IdentityField({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</dt>
-      <dd className={`mt-1.5 truncate text-xs font-medium text-slate-200 ${mono ? 'font-mono text-[11px]' : ''}`}>{value}</dd>
+    <div className="min-w-0 bg-slate-50 px-3 py-3.5">
+      <dt className="text-[10px] font-medium text-slate-500">{label}</dt>
+      <dd className={`mt-1 truncate text-xs font-semibold text-slate-800 ${mono ? 'font-mono text-[11px]' : ''}`}>{value}</dd>
     </div>
   )
 }
@@ -591,9 +587,9 @@ function RecordMetric({
   isError: boolean
 }) {
   return (
-    <div className="min-h-32 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.02)] sm:p-5">
+    <div className="min-h-32 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex size-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600 ring-1 ring-slate-200/80">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-teal-50 text-teal-700 ring-1 ring-teal-100">
           <Icon className="size-4" />
         </div>
         {isLoading ? (
@@ -624,8 +620,8 @@ function PanelHeader({
   return (
     <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">{eyebrow}</p>
-        <h3 className="mt-1 text-base font-semibold text-slate-900">{title}</h3>
+        <p className="text-xs font-medium text-slate-500">{eyebrow}</p>
+        <h3 className="mt-0.5 text-base font-semibold text-slate-900">{title}</h3>
         <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
       </div>
       <div className="shrink-0">{action}</div>
@@ -674,11 +670,11 @@ function PatientDetailSkeleton() {
       <Header title="Hasta Detayı" subtitle="Klinik kayıtları yükleniyor" />
       <main className="mx-auto max-w-[1600px] space-y-5 p-4 sm:p-6 lg:p-8">
         <Skeleton className="h-11 w-40 rounded-xl" />
-        <Skeleton className="h-56 rounded-[28px]" />
+        <Skeleton className="h-52 rounded-xl" />
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-32 rounded-2xl" />)}
+          {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-32 rounded-xl" />)}
         </div>
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-xl" />
       </main>
     </div>
   )
@@ -689,7 +685,7 @@ function PatientDetailError({ onRetry }: { onRetry: () => void }) {
     <div className="min-h-full">
       <Header title="Hasta Detayı" subtitle="Klinik kayıtları" />
       <main className="mx-auto max-w-[1600px] p-4 sm:p-6 lg:p-8">
-        <section role="alert" className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-amber-200 bg-amber-50 px-5 py-14 text-center">
+        <section role="alert" className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-5 py-14 text-center">
           <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 ring-1 ring-amber-200">
             <AlertTriangle className="size-6" />
           </div>

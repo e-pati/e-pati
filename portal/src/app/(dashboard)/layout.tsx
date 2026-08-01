@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
-import { Menu } from 'lucide-react'
+import { Menu, PawPrint } from 'lucide-react'
 import { SubscriptionBanner } from '@/components/shared/subscription-banner'
 import { SubscriptionGuard } from '@/components/shared/subscription-guard'
 import { AuthGuard } from '@/components/auth/auth-guard'
@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <AuthGuard>
-      <div className="flex h-screen bg-[#F8FAFC]">
+      <div className="flex h-screen bg-[#F4F7F8]">
       {/* Mobil overlay */}
       {sidebarOpen && (
         <div
@@ -32,16 +32,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Ana içerik */}
       <main className="flex-1 overflow-y-auto min-w-0">
         {/* Mobil header — hamburger */}
-        <div className="lg:hidden flex items-center gap-3 h-14 px-4 border-b border-border bg-background sticky top-0 z-20">
+        <div className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 rounded-lg hover:bg-muted transition-colors"
           >
             <Menu className="w-5 h-5 text-foreground" />
           </button>
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🐾</span>
-            <span className="font-bold text-primary">VetCep</span>
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-teal-600 text-white">
+              <PawPrint className="size-4" />
+            </span>
+            <span className="text-sm font-semibold text-slate-900">VetCep Klinik</span>
           </div>
         </div>
         <SubscriptionBanner />
