@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Klinik hasta listesi kurumsal çalışma dizinine dönüştürüldü; Erol'un HAYBİS/PETVET/e-Devlet entegrasyon simülasyon sınırları güncel main ile birlikte alındı
+- **Son güncelleme:** 1 Ağustos 2026 — Klinik hasta detayı kimlik, sahip ve dört sağlık kayıt modülüyle kurumsal ve responsive çalışma yüzeyine dönüştürüldü
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Hasta detay ekranını (`/patients/[id]`) dashboard ve hasta listesiyle aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
+- **Sıradaki adım:** Yeni hasta kayıt formunu (`/patients/new`) tamamlanan hasta dizini ve detay ekranıyla aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -35,6 +35,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Portal  | **Yetkili portal girişi:** kurumsal auth yüzeyi, tema kontrastı, responsive ve erişilebilir form                           | Burak                   | ✅    | Eski emoji/kart tabanlı klinik-SaaS görünümü kaldırıldı; landing ile uyumlu kayıt/erişim dili, tema bağımsız kontrast, 44px eylemler ve nötr `/demo-talep` geçişi tamamlandı                                                                                         |
 | Dashboard | **Klinik operasyon panosu:** kurumsal özet, gerçek KPI, aktivite, muayene/aşı takibi ve hızlı işlemler                  | Burak                   | ✅    | Çok renkli/emoji ağırlıklı görünüm kaldırıldı; gerçek veri ve açık boş/hata durumları, API tabanlı bildirim sayacı, 1280×720 masaüstü ve 390×844 mobil düzen tamamlandı                                                                                             |
 | Hastalar | **Klinik hasta dizini:** arama, tür filtresi, kimlik/sahip özeti, sayfalama ve durum yüzeyleri                            | Burak                   | ✅    | Mevcut klinik API sözleşmesi korunarak kurumsal masaüstü çalışma listesi ve mobil kayıt düzeni; gerçek toplam, açık yükleme/boş/hata durumları ve 390×844 taşma kontrolü tamamlandı                                                                                |
+| Hasta detayı | **Klinik hasta dosyası:** kimlik, sahip, muayene, aşı, reçete, laboratuvar ve kayıt eylemleri                         | Burak                   | ✅    | Gerçek modül sayaçları ve her sorgu için ayrı yükleme/boş/hata durumu; masaüstü klinik dosya düzeni, mobil 2×2 özet ve yatay taşmasız sekmeli sağlık geçmişi tamamlandı                                                                                           |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -61,6 +62,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-01 — Klinik hasta detayı kurumsal UI/UX turu
+
+**Yapılanlar:** `/patients/[id]` ekranı hasta kimlik dosyası olarak baştan düzenlendi. Eski dekoratif gradyan bant, renkli uygulama kartları ve yalnız ilk yüklemeyi ele alan durum yapısı kaldırıldı. Lacivert hasta kimlik yüzeyi; mikroçip, doğum, yaş ve kayıt tarihi; sakin dört modül özeti; sahip iletişim alanı ve kronolojik sağlık geçmişi oluşturuldu. Muayene, aşı, reçete ve laboratuvar sekmeleri kurumsal çalışma listelerine dönüştürüldü; mevcut düzenleme, silme, yeni muayene, aşı ekleme, reçete yazma, PDF ve sonuç yükleme eylemleri korundu. Dört alt API sorgusu artık yüklenirken sahte `0` göstermiyor; her modülün ayrı yükleme, boş, hata ve yeniden deneme durumu var. Ana hasta isteği hata verdiğinde 404 yerine açıklamalı bağlantı hatası gösteriliyor. Liste sıralamalarının React Query önbelleğini yerinde değiştirmesi engellendi ve silme başarısızlığı Türkçe kullanıcı mesajıyla ele alındı. Yeni kütüphane eklenmedi.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/patients/[id]/page.tsx`, `portal/tests/patient-detail-design.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; mobilde kimlik alanları ve sağlık özetleri 2×2 düzende, sekmeler yatay kontrollü ve sayfa genelinde taşma yok. Hasta detay hedef testi 3/3, ilgili portal regresyonu 29/29 ve Faz 0 demo paketi 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı. Canlı doğrulama deployment tamamlandıktan sonra bu kayıt içinde güncellenecek.
+
+**Sıradaki:** Yeni hasta kayıt formunu (`/patients/new`) hasta dizini ve detay ekranıyla aynı hiyerarşi, alan açıklığı, mobil düzen ve hata sunumuna taşımak.
+
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. Mevcut pet, owner, muayene, aşı, reçete/PDF ve laboratuvar sözleşmeleri aynen kullanılıyor.
 
 ### 2026-08-01 — Klinik hasta listesi kurumsal UI/UX turu
 
