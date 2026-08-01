@@ -68,7 +68,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Dokunulan dosyalar:** `portal/src/app/(dashboard)/patients/page.tsx`, `portal/tests/patient-list-design.spec.ts`, `FRONTEND-ILERLEME.md`
 
-**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; mobil görünümde yatay taşma yok. Yeni hasta listesi testi 2/2, hasta/auth/bildirim/dashboard regresyonu 24/24 ve Faz 0 demo paketi 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı. Canlı doğrulama deployment tamamlandıktan sonra aynı kayıt içinde güncellenecek.
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; mobil görünümde yatay taşma yok. Yeni hasta listesi testi 2/2, hasta/auth/bildirim/dashboard regresyonu 24/24 ve Faz 0 demo paketi 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı. Erol'un güncel entegrasyon adaptörleri journal çakışmasında iki tarafın kaydı korunarak birleştirildi; birleşik `ffd58e6` önce `feature/portal`, ardından fast-forward olarak `main` dalına gönderildi. Vercel production deploymentı 58 saniyede `Ready` oldu ve `vetcep.com`, `www.vetcep.com` ile `e-pati-portal.vercel.app` aliaslarını aldı. Canlı public demo smoke turu 5/5 geçti; admin senaryosu production kimlik bilgisi olmadığı için atlandı. Korumalı `/patients` rotası oturumsuz erişimi beklendiği gibi `/login?next=%2Fpatients` hedefine yönlendiriyor; yetkili production hasta verisi klinik kimlik bilgisi olmadan açılmadı.
 
 **Sıradaki:** Hasta detayını (`/patients/[id]`) kimlik özeti, klinik geçmiş, aşı/reçete/laboratuvar alanları ve responsive eylemler bakımından aynı kurumsal standarda taşımak.
 
