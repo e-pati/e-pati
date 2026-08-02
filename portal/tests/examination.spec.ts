@@ -6,7 +6,7 @@ test.describe('Muayene Formu', () => {
     await mockAuthenticatedSession(page)
     await page.goto('/examinations/new')
     await expect(page).toHaveURL(/\/examinations\/new/)
-    await expect(page.locator('form').filter({ hasText: 'Hasta Seçimi' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('form').filter({ hasText: 'Hasta seçimi' })).toBeVisible({ timeout: 10000 })
   })
 
   test('submit butonu var olmalı', async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe('Dashboard', () => {
     await mockAuthenticatedSession(page)
     await page.goto('/dashboard')
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
-    await expect(page.locator('main, [role="main"]').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.getByTestId('clinic-dashboard')).toBeVisible({ timeout: 10000 })
   })
 
   test('dashboard sayfasında içerik görünmeli', async ({ page }) => {
