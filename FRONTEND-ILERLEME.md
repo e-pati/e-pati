@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 2 Ağustos 2026 — Yeni muayene kayıt formu hasta seçimi, klinik notlar ve bilgilendirme akışıyla açık klinik tasarım sistemine taşındı
+- **Son güncelleme:** 2 Ağustos 2026 — Muayene kayıt listesi klinik özet, arama, filtre ve mobil çalışma düzeniyle açık portal tasarım sistemine taşındı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Muayene listesini (`/examinations`) portalın açık klinik çalışma listesi, filtre, boş/hata durumları ve mobil düzen standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
+- **Sıradaki adım:** Randevu listesini (`/appointments`) portalın açık klinik takvim/çalışma listesi, durum filtreleri ve mobil düzen standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -38,6 +38,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Hasta detayı | **Klinik hasta dosyası:** kimlik, sahip, muayene, aşı, reçete, laboratuvar ve kayıt eylemleri                         | Burak                   | ✅    | Koyu kimlik kartı kaldırıldı; açık hasta dosyası başlığı, gerçek modül sayaçları, ayrı yükleme/boş/hata durumları, mobil 2×2 özet ve yatay taşmasız sekmeli sağlık geçmişi tamamlandı                                                                            |
 | Hasta kaydı | **Yeni klinik hasta dosyası:** hayvan kimliği, sahip iletişimi, fotoğraf ve kayıt sonucu                              | Burak                   | ✅    | Emoji ve numaralı kart şablonu kaldırıldı; açık klinik form bölümleri, sabit kayıt özeti, alan doğrulama, sürükle/seç fotoğraf, mevcut API payloadı, başarı yönlendirmesi ve 390×844 mobil akış tamamlandı                                                     |
 | Muayene kaydı | **Yeni klinik muayene:** hasta seçimi, SOAP notları, sahip bilgilendirmesi ve kayıt sonucu                         | Burak                   | ✅    | Emoji ve numaralı kart şablonu kaldırıldı; aranabilir klinik hasta listesi, seçili hasta özeti, Türkçe SOAP alanları, gerçek API payloadı, WhatsApp seçeneği, hata/başarı durumları ve 390×844 mobil akış tamamlandı                                       |
+| Muayene listesi | **Klinik muayene kayıtları:** özet metrikler, hasta/tarih filtreleri, klinik değerlendirme ve mobil kayıt görünümü | Burak                   | ✅    | Açık klinik çalışma listesi; gerçek toplam/son 7 gün/takip tarihi özetleri, hasta–sahip–şikayet–değerlendirme–veteriner araması, hasta ve dönem filtresi, kısmi veri/hata/boş durumları ile 390×844 mobil akış tamamlandı                                    |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -65,6 +66,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-02 — Muayene listesi kurumsal UI/UX turu
+
+**Yapılanlar:** `/examinations` ekranı açık klinik portal tasarım sistemiyle baştan düzenlendi. Eski emoji kart listesi, tek alanlı arama ve sınırlı boş/hata sunumu kaldırıldı. Gerçek muayene verisinden toplam kayıt, son 7 gün ve yaklaşan takip tarihi özetleri hesaplanıyor. Hasta, sahip, şikayet, değerlendirme ve veteriner içinde arama; hastaya ve son 7/30 güne göre filtreleme; en yeni kayıt önce sıralama ve istemci sayfalaması eklendi. Masaüstünde hasta/sahip, klinik kayıt, veteriner ve tarih sütunlu çalışma listesi; mobilde etiketli tek sütun kayıt düzeni kuruldu. Hasta fotoğrafı yoksa emoji yerine nötr klinik simge kullanılıyor. Ana muayene servisi hatası yeniden deneme eylemiyle, hasta servisi hatası ise klinik notları göstermeyi engellemeyen kısmi veri uyarısıyla ele alındı. Filtreli boş durum ile klinikte hiç kayıt olmaması ayrıldı; mevcut `/examinations` ve klinik hasta API sözleşmeleri değiştirilmedi, yeni kütüphane eklenmedi.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/examinations/page.tsx`, `portal/tests/examination-list-design.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; yatay taşma yok, özet/filtre/liste hiyerarşisi okunabilir ve yeni muayene eylemi erişilebilir. Muayene listesi hedef paketi 4/4, liste + form + mevcut portal erişim paketi 17/17 ve Faz 0 demo regresyonu 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı.
+
+**Sıradaki:** Randevu listesini (`/appointments`) aynı açık klinik çalışma sistemi, durum filtreleri, veri durumları ve mobil ritimle yenilemek.
+
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. Mevcut `GET /examinations?limit=200` ve klinik hasta listesi sözleşmeleri kullanılıyor; hasta bilgisi alınamazsa klinik notları göstermeye devam eden güvenli kısmi görünüm hazır.
 
 ### 2026-08-02 — Yeni muayene kayıt formu kurumsal UI/UX turu
 
