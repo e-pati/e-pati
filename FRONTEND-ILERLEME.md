@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 2 Ağustos 2026 — Muayene kayıt listesi klinik özet, arama, filtre ve mobil çalışma düzeniyle açık portal tasarım sistemine taşındı
+- **Son güncelleme:** 2 Ağustos 2026 — Randevu programı gerçek hafta aralığı, durum filtreleri, işlem kuyrukları ve mobil gün ajandasıyla açık portal tasarım sistemine taşındı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Randevu listesini (`/appointments`) portalın açık klinik takvim/çalışma listesi, durum filtreleri ve mobil düzen standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
+- **Sıradaki adım:** Yeni randevu formunu (`/appointments/new`) aynı açık klinik hiyerarşi, hasta seçimi, tarih/saat doğrulaması ve mobil çalışma düzenine taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -39,6 +39,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Hasta kaydı | **Yeni klinik hasta dosyası:** hayvan kimliği, sahip iletişimi, fotoğraf ve kayıt sonucu                              | Burak                   | ✅    | Emoji ve numaralı kart şablonu kaldırıldı; açık klinik form bölümleri, sabit kayıt özeti, alan doğrulama, sürükle/seç fotoğraf, mevcut API payloadı, başarı yönlendirmesi ve 390×844 mobil akış tamamlandı                                                     |
 | Muayene kaydı | **Yeni klinik muayene:** hasta seçimi, SOAP notları, sahip bilgilendirmesi ve kayıt sonucu                         | Burak                   | ✅    | Emoji ve numaralı kart şablonu kaldırıldı; aranabilir klinik hasta listesi, seçili hasta özeti, Türkçe SOAP alanları, gerçek API payloadı, WhatsApp seçeneği, hata/başarı durumları ve 390×844 mobil akış tamamlandı                                       |
 | Muayene listesi | **Klinik muayene kayıtları:** özet metrikler, hasta/tarih filtreleri, klinik değerlendirme ve mobil kayıt görünümü | Burak                   | ✅    | Açık klinik çalışma listesi; gerçek toplam/son 7 gün/takip tarihi özetleri, hasta–sahip–şikayet–değerlendirme–veteriner araması, hasta ve dönem filtresi, kısmi veri/hata/boş durumları ile 390×844 mobil akış tamamlandı                                    |
+| Randevu programı | **Klinik randevu yönetimi:** gerçek haftalık program, durum filtreleri, işlem kuyrukları ve mobil gün ajandası | Burak                   | ✅    | `from`/`to` aralıklı haftalık sorgu, önceki/sonraki hafta navigasyonu, gerçek özetler, bekleyen/onaylı/tamamlanan/iptal filtreleri, onay–iptal–tamamla eylemleri, tam genişlikte 7 günlük masaüstü programı ve yatay taşmasız mobil ajanda tamamlandı |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -66,6 +67,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-02 — Randevu programı kurumsal UI/UX turu
+
+**Yapılanlar:** `/appointments` ekranı açık klinik portal tasarım sistemiyle baştan düzenlendi. Eski kart yığını ve kullanıcıya teknik endpoint bekleme metni gösteren yüzey kaldırıldı. Gerçek haftanın pazartesi–pazar tarihleri `from`/`to` parametreleriyle sorgulanıyor; önceki hafta, sonraki hafta ve bugüne dönüş navigasyonu eklendi. Bugünkü randevu, bekleyen talep ve aktif hasta özetleri; tümü, bekleyen, onaylı, tamamlanan ve iptal durum filtreleri; tam genişlikte yedi günlük masaüstü programı ve mobil/tablet için gün seçmeli ajanda kuruldu. Haftalık kartlar taranabilir tutuldu; onay, iptal ve tamamlama eylemleri geniş mobil kartlarda ve ayrı işlem kuyruklarında korunarak masaüstü yoğunluğu azaltıldı. Yükleme, servis hatası/yeniden deneme, boş gün, boş işlem kuyruğu ve işlem sırasında bekleme durumları eklendi. Mevcut servis metotlarının bağlamını kaybeden iptal/tamamlama mutation kullanımı düzeltilerek çağrılar güvenli fonksiyonlarla sarıldı. Yeni kütüphane veya backend değişikliği yapılmadı.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/appointments/page.tsx`, `portal/tests/appointment-list-design.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; masaüstü programı tam genişlikte okunabilir, mobil görünümde yatay taşma yok ve yeni randevu eylemi erişilebilir. Randevu hedef paketi 5/5, randevu + ürün akışları 13/13 geçti. Faz 0 demo regresyonunda ilk geniş tur 23/25 geçti; randevu değişikliğinden bağımsız dokunma ve Türkiye haritası hover senaryolarında geçici süre aşımı yaşayan iki test temiz tekil tekrarda 2/2 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı.
+
+**Sıradaki:** Yeni randevu formunu (`/appointments/new`) aynı açık klinik hiyerarşi, hasta seçimi, tarih/saat doğrulaması, hata sunumu ve mobil ritimle yenilemek.
+
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. Mevcut `GET /appointments?from=...&to=...`, onaylama ve `PATCH /appointments/:id` durum güncelleme sözleşmeleri kullanılıyor. Git kontrolünde `origin/main` ve `origin/feature/portal` `bb9d19b` üzerinde eşit; `origin/dev/backend` `d8f3946` ile main'in 13 commit gerisinde ve backend dalında main'e göre yeni commit yok.
 
 ### 2026-08-02 — Muayene listesi kurumsal UI/UX turu
 
