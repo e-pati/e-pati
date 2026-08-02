@@ -73,7 +73,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 
 **Dokunulan dosyalar:** `portal/src/app/(dashboard)/examinations/page.tsx`, `portal/tests/examination-list-design.spec.ts`, `FRONTEND-ILERLEME.md`
 
-**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; yatay taşma yok, özet/filtre/liste hiyerarşisi okunabilir ve yeni muayene eylemi erişilebilir. Muayene listesi hedef paketi 4/4, liste + form + mevcut portal erişim paketi 17/17 ve Faz 0 demo regresyonu 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı.
+**Ekran/akış durumu:** 1280×720 masaüstü ve 390×844 mobil Chromium renderları görsel olarak incelendi; yatay taşma yok, özet/filtre/liste hiyerarşisi okunabilir ve yeni muayene eylemi erişilebilir. Muayene listesi hedef paketi 4/4, liste + form + mevcut portal erişim paketi 17/17 ve Faz 0 demo regresyonu 25/25 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı. `032d923` hem `feature/portal` hem `main` dalına conflict olmadan gönderildi. Vercel production deploymentı `Ready` oldu ve `vetcep.com`, `www.vetcep.com` ile `e-pati-portal.vercel.app` aliaslarını aldı. Canlı public demo smoke turu 5/5 geçti; kimlik bilgisi gerektiren admin senaryosu atlandı. Korumalı `/examinations` rotası oturumsuz erişimi doğru `/login?next=%2Fexaminations` hedefine yönlendiriyor. Yetkili production listesi canlı klinik oturumu olmadan açılmadı.
 
 **Sıradaki:** Randevu listesini (`/appointments`) aynı açık klinik çalışma sistemi, durum filtreleri, veri durumları ve mobil ritimle yenilemek.
 
