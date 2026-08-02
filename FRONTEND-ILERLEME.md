@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 1 Ağustos 2026 — Klinik portalın ortak çerçevesi, Pano, Hastalar ve Hasta Detayı açık renkli kurumsal klinik tasarım sisteminde birleştirildi
+- **Son güncelleme:** 2 Ağustos 2026 — Yeni hasta kayıt formu kimlik, sahip ve fotoğraf akışlarıyla açık klinik tasarım sistemine taşındı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `feature/portal`
-- **Sıradaki adım:** Yeni hasta kayıt formunu (`/patients/new`) tamamlanan hasta dizini ve detay ekranıyla aynı kurumsal UI/UX standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
+- **Sıradaki adım:** Yeni muayene formunu (`/examinations/new`) portalın açık klinik tasarım sistemi, alan grupları ve mobil form standardına taşımak; belediye canlı entegrasyonunu yalnız pilot rol ve oturum modeli netleştiğinde ele almak
 
 ---
 
@@ -36,6 +36,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 | Dashboard | **Klinik operasyon panosu:** kurumsal özet, gerçek KPI, aktivite, muayene/aşı takibi ve hızlı işlemler                  | Burak                   | ✅    | Koyu tanıtım yüzeyi ve emoji ağırlığı kaldırıldı; açık klinik operasyon özeti, semantik ikonlar, gerçek veri/boş/hata durumları, API tabanlı bildirim sayacı ve responsive düzen tamamlandı                                                                        |
 | Hastalar | **Klinik hasta dizini:** arama, tür filtresi, kimlik/sahip özeti, sayfalama ve durum yüzeyleri                            | Burak                   | ✅    | Açık kayıt yönetimi yüzeyi, masaüstü çalışma listesi ve mobil kayıt düzeni; gerçek toplam, açık yükleme/boş/hata durumları ve 390×844 taşma kontrolü mevcut klinik API sözleşmesi korunarak tamamlandı                                                           |
 | Hasta detayı | **Klinik hasta dosyası:** kimlik, sahip, muayene, aşı, reçete, laboratuvar ve kayıt eylemleri                         | Burak                   | ✅    | Koyu kimlik kartı kaldırıldı; açık hasta dosyası başlığı, gerçek modül sayaçları, ayrı yükleme/boş/hata durumları, mobil 2×2 özet ve yatay taşmasız sekmeli sağlık geçmişi tamamlandı                                                                            |
+| Hasta kaydı | **Yeni klinik hasta dosyası:** hayvan kimliği, sahip iletişimi, fotoğraf ve kayıt sonucu                              | Burak                   | ✅    | Emoji ve numaralı kart şablonu kaldırıldı; açık klinik form bölümleri, sabit kayıt özeti, alan doğrulama, sürükle/seç fotoğraf, mevcut API payloadı, başarı yönlendirmesi ve 390×844 mobil akış tamamlandı                                                     |
 | Klinik API | **Reçete liste ve PDF istemci sözleşmesi:** hayvan bazlı liste, yetkili PDF durumu ve imzalı bağlantı                | Burak + Erol            | ✅    | Portal ve mobil `/prescriptions?petId=...` kalıcı rotasını kullanıyor; PDF önce yetkili API çağrısıyla hazırlanma durumunu alıyor, hazırsa imzalı bağlantıyı açıyor                                                                                                  |
 
 **Erol'dan (backend) beklenenler:**
@@ -62,6 +63,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-02 — Yeni hasta kayıt formu kurumsal UI/UX turu
+
+**Yapılanlar:** `/patients/new` ekranı açık klinik portal tasarım sistemiyle baştan düzenlendi. Eski dar form, numaralı kart başlıkları, emoji tür seçenekleri, teknik R2 metni ve birbirinden kopuk başarı görünümü kaldırıldı. Hayvan kimliği, sahip bilgileri ve hasta fotoğrafı üç açık çalışma bölümüne ayrıldı; Lucide ikonları, tutarlı alan ölçüleri, alan bazlı erişilebilir hata mesajları ve masaüstünde sabit kayıt özeti eklendi. Tür/cinsiyet değerleri Türkçe gösteriliyor. Fotoğraf alanı sürükle-bırak, dosya seçme, önizleme, kaldırma ve harici URL alternatifini koruyor. Kayıt sırasında yükleme durumu, API hata mesajı ve başarılı kayıt sonrası hasta detayına yönlendirme yenilendi. Mevcut `POST /pets` payloadı ve presigned fotoğraf yükleme sözleşmesi değiştirilmedi; yeni kütüphane eklenmedi.
+
+**Dokunulan dosyalar:** `portal/src/app/(dashboard)/patients/new/page.tsx`, `portal/tests/patient-create-design.spec.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** Formun masaüstü üst/alt ve 390×844 mobil üst/alt Chromium renderları görsel olarak incelendi; yatay taşma yok ve ana kayıt eylemi erişilebilir. Yeni form tasarım/doğrulama/API/fotoğraf paketi 3/3, mevcut hasta akışıyla birlikte 9/9 ve Faz 0 demo paketi 25/25 geçti. İlgili geniş klinik turunda 25/26 test tek süreçte geçti; Next.js dev-server chunk dalgalanmasından etkilenen tek görsel test temiz süreçte 1/1 geçti. Portal lint, TypeScript kontrolü ve Next.js production build başarılı.
+
+**Sıradaki:** Yeni muayene formunu (`/examinations/new`) aynı açık klinik hiyerarşi, hasta seçimi, klinik değerlendirme alanları, hata sunumu ve mobil ritimle yenilemek.
+
+**Erol'a not (varsa):** Yeni backend ihtiyacı yok. `POST /pets`, owner alanları ve `/uploads/presign` sözleşmeleri aynen kullanılıyor.
 
 ### 2026-08-01 — Açık klinik portal tasarım sistemi revizyonu
 
