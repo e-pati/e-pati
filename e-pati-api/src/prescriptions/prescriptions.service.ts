@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Pet, Prisma, Role } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,6 +18,7 @@ export class PrescriptionsService {
     private readonly prisma: PrismaService,
     private readonly uploadsService: UploadsService,
     private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
   ) {}
 
   async create(dto: CreatePrescriptionDto, user: TokenPayload) {
@@ -63,6 +65,21 @@ export class PrescriptionsService {
         type: 'prescription',
         prescriptionId: prescription.id,
         petId: pet.id,
+      },
+    });
+
+    await this.auditService.record(user, {
+      action: 'prescription.create',
+      resourceType: 'Prescription',
+      resourceId: prescription.id,
+      metadata: {
+        petId: prescription.petId,
+        ownerId: pet.ownerId,
+        clinicId: prescription.clinicId,
+        veterinarianId: prescription.veterinarianId,
+        medicationCount: prescription.medications.length,
+        hasDiagnosis: Boolean(prescription.diagnosis),
+        hasNotes: Boolean(prescription.notes),
       },
     });
 

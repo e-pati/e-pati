@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { LabResult, Pet, Role } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,6 +18,7 @@ export class LabResultsService {
     private readonly prisma: PrismaService,
     private readonly uploadsService: UploadsService,
     private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
   ) {}
 
   async create(dto: CreateLabResultDto, user: TokenPayload) {
@@ -49,6 +51,22 @@ export class LabResultsService {
       title: 'Laboratuvar sonucu yüklendi',
       body: `${pet.name} için yeni laboratuvar sonucu klinik arşivine eklendi.`,
       payload: { type: 'lab', labResultId: labResult.id, petId: pet.id },
+    });
+
+    await this.auditService.record(user, {
+      action: 'labResult.create',
+      resourceType: 'LabResult',
+      resourceId: labResult.id,
+      metadata: {
+        petId: labResult.petId,
+        ownerId: pet.ownerId,
+        clinicId: labResult.clinicId,
+        veterinarianId: labResult.veterinarianId,
+        title: labResult.title,
+        mimeType: labResult.mimeType,
+        collectedAt: labResult.collectedAt,
+        hasFile: Boolean(labResult.fileUrl),
+      },
     });
 
     return labResult;

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Pet, Role, Vaccination } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -16,6 +17,7 @@ export class VaccinationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
   ) {}
 
   async findAll(query: ListVaccinationsQueryDto, user: TokenPayload) {
@@ -88,6 +90,10 @@ export class VaccinationsService {
       },
     });
 
+    await this.auditVaccination(user, 'vaccination.create', vaccination, {
+      ownerId: pet.ownerId,
+    });
+
     return vaccination;
   }
 
@@ -127,9 +133,9 @@ export class VaccinationsService {
 
   async update(id: string, dto: UpdateVaccinationDto, user: TokenPayload) {
     this.ensureVeterinarian(user);
-    await this.findOne(id, user);
+    const current = await this.findOne(id, user);
 
-    return this.prisma.vaccination.update({
+    const vaccination = await this.prisma.vaccination.update({
       where: { id },
       data: {
         name: dto.name,
@@ -140,6 +146,13 @@ export class VaccinationsService {
       },
       include: { clinic: { select: { id: true, name: true } } },
     });
+
+    await this.auditVaccination(user, 'vaccination.update', vaccination, {
+      previousDueAt: current.dueAt,
+      changedFields: Object.keys(dto),
+    });
+
+    return vaccination;
   }
 
   private async findPetForClinic(
@@ -179,5 +192,28 @@ export class VaccinationsService {
     }
 
     throw new ForbiddenException('Only veterinarians can perform this action.');
+  }
+
+  private auditVaccination(
+    user: TokenPayload,
+    action: string,
+    vaccination: Vaccination,
+    metadata: Record<string, unknown> = {},
+  ) {
+    return this.auditService.record(user, {
+      action,
+      resourceType: 'Vaccination',
+      resourceId: vaccination.id,
+      metadata: {
+        petId: vaccination.petId,
+        clinicId: vaccination.clinicId,
+        veterinarianId: vaccination.veterinarianId,
+        name: vaccination.name,
+        lotNumber: vaccination.lotNumber,
+        appliedAt: vaccination.appliedAt,
+        dueAt: vaccination.dueAt,
+        ...metadata,
+      },
+    });
   }
 }

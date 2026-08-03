@@ -10,7 +10,7 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 3 Ağustos 2026 — Randevu oluşturma, istek, güncelleme ve onay akışları merkezi audit-log kapsamına alındı
+- **Son güncelleme:** 3 Ağustos 2026 — Aşı, reçete ve laboratuvar sonucu yazma akışları merkezi audit-log kapsamına alındı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `dev/backend`
 - **Sıradaki adım:** Frontend tarafında yeni randevu formunu (`/appointments/new`) aynı açık klinik hiyerarşi, hasta seçimi, tarih/saat doğrulaması ve mobil çalışma düzenine taşımak; backend tarafında yeni iş yalnız pilot kararı gelirse `followUpDate`, resmî entegrasyon protokolü, rol/oturum modeli veya audit saklama/arşivleme politikası için açılmalı
@@ -50,6 +50,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Merkezi `AuditService` eklendi. Muayene güncelleme audit yazımı tek servise taşındı; registry işletme oluşturma, hayvan oluşturma, hareket kaydı ve belediye vaka/kısırlaştırma/sahiplendirme yazma akışları kullanıcı bağlamı, kaynak tipi, kaynak kimliği ve temiz JSON metadata ile `AuditLog` kaydı oluşturuyor.
 - Audit kayıtları `GET /audit/logs` ve `GET /audit/logs/:id` ile `SUPER_ADMIN` için sorgulanabilir hale geldi. Listeleme sayfalama, aksiyon, kaynak tipi/kimliği, aktör tipi/kimliği ve tarih aralığı filtrelerini destekliyor; owner/veterinarian aktör özetiyle döner.
 - Randevu yazma akışları audit kapsamına alındı: klinik randevu oluşturma, klinik güncelleme/statü değişikliği, bekleyen randevu onayı ve vatandaş randevu talebi `Appointment` kaynak tipiyle iz bırakıyor.
+- Klinik sağlık kaydı yazmaları audit kapsamına alındı: aşı oluşturma/güncelleme, reçete oluşturma ve laboratuvar sonucu yükleme `Vaccination`, `Prescription` ve `LabResult` kaynak tipleriyle iz bırakıyor. Reçete ve lab audit metadata'sı hassas klinik metni veya dosya URL'sini taşımadan kimlik, zaman, sayı ve durum bilgisiyle sınırlı tutuldu.
 - Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. Billing webhook artık `x-vetcep-event-id`, `x-vetcep-timestamp` ve `x-vetcep-signature` ile HMAC doğrulaması ve Redis replay kilidi olmadan işlenmez; gerçek ödeme sağlayıcısına özel adapter ayrıca bağlanabilir.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
 - Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisi ve muayene liste/detay yanıtlarında veterinarian ilişkisi backend tarafında tamamlandı. Portal ve mobil reçete istemcileri `GET /prescriptions?petId=...` kalıcı liste rotasına ve yetkili PDF durum sözleşmesine taşındı; eski `/pets/:id/summary` uyumluluk çağrısı kaldırıldı.
@@ -70,6 +71,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-03 — Backend klinik sağlık kayıtları audit kapsamı
+
+**Yapılanlar:** Klinik hasta dosyasındaki kritik sağlık yazmaları merkezi audit-log kapsamına alındı. Aşı oluşturma ve güncelleme `vaccination.create` / `vaccination.update`; reçete oluşturma `prescription.create`; laboratuvar sonucu yükleme `labResult.create` aksiyonlarıyla `AuditLog` kaydı üretiyor. `VaccinationsModule`, `PrescriptionsModule` ve `LabResultsModule` audit modülünü import ediyor. Reçete ve lab audit metadata'sında hassas klinik metinler veya dosya URL'leri yerine pet/owner/clinic/veterinarian kimlikleri, ilaç sayısı, dosya varlığı, mime type ve tarih bilgisi tutuluyor.
+
+**Dokunulan dosyalar:** `e-pati-api/src/vaccinations/*`, `e-pati-api/src/prescriptions/*`, `e-pati-api/src/lab-results/*`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** Frontend ekran değişikliği yok. Hedef klinik sağlık audit testleri 7/7, full backend Jest 75/75 ve Nest production build başarılı. Faz 0 demosu için yeni engel görünmüyor; hasta dosyasındaki aşı, reçete ve lab yazmaları artık audit admin API üzerinden denetlenebilir.
+
+**Sıradaki:** Pilot kararı netleşene kadar backend tarafında yeni özellik açmamak; yalnız `followUpDate`, resmî entegrasyon protokolü, rol/oturum modeli veya audit saklama/arşivleme politikası için karar gelirse ilerlemek.
+
+**Erol'a not (varsa):** Yeni migration yok. Sağlık kayıtları audit geçmişi `GET /audit/logs?resourceType=Vaccination`, `Prescription` veya `LabResult` filtreleriyle görülebilir.
 
 ### 2026-08-03 — Backend randevu audit kapsamı
 
