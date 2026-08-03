@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AppointmentStatus, Prisma, Role } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -54,6 +55,7 @@ export class AppointmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly auditService: AuditService,
   ) {}
 
   async findAll(query: ListAppointmentsQueryDto, user: TokenPayload) {
@@ -136,6 +138,10 @@ export class AppointmentsService {
       );
     }
 
+    await this.auditAppointment(user, 'appointment.create', appointment, {
+      requestedBy: user.role,
+    });
+
     return this.present(appointment);
   }
 
@@ -187,6 +193,12 @@ export class AppointmentsService {
       );
     }
 
+    await this.auditAppointment(user, 'appointment.update', appointment, {
+      previousStatus: current.status,
+      newStatus: appointment.status,
+      changedFields: Object.keys(dto),
+    });
+
     return this.present(appointment);
   }
 
@@ -213,6 +225,11 @@ export class AppointmentsService {
         appointment.reason ?? 'Randevunuz onaylandi.',
       );
     }
+
+    await this.auditAppointment(user, 'appointment.confirm', appointment, {
+      previousStatus: current.status,
+      newStatus: appointment.status,
+    });
 
     return this.present(appointment);
   }
@@ -248,6 +265,11 @@ export class AppointmentsService {
         notifyOwner: true,
       },
       include: includeAppointment,
+    });
+
+    await this.auditAppointment(user, 'appointment.request', appointment, {
+      preferredDate: dto.preferredDate,
+      preferredTime: dto.preferredTime,
     });
 
     return this.present(appointment);
@@ -368,6 +390,40 @@ export class AppointmentsService {
       title,
       body,
       payload: { type: 'appointment' },
+    });
+  }
+
+  private auditAppointment(
+    user: TokenPayload,
+    action: string,
+    appointment: {
+      id: string;
+      petId: string;
+      ownerId: string | null;
+      clinicId: string | null;
+      veterinarianId: string | null;
+      startsAt: Date;
+      durationMinutes: number;
+      status: AppointmentStatus;
+      notifyOwner: boolean;
+    },
+    metadata: Record<string, unknown> = {},
+  ) {
+    return this.auditService.record(user, {
+      action,
+      resourceType: 'Appointment',
+      resourceId: appointment.id,
+      metadata: {
+        petId: appointment.petId,
+        ownerId: appointment.ownerId,
+        clinicId: appointment.clinicId,
+        veterinarianId: appointment.veterinarianId,
+        startsAt: appointment.startsAt,
+        durationMinutes: appointment.durationMinutes,
+        status: appointment.status,
+        notifyOwner: appointment.notifyOwner,
+        ...metadata,
+      },
     });
   }
 }
