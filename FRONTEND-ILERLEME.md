@@ -10,10 +10,10 @@
 ## 1. Genel Durum Özeti
 
 - **Aktif faz:** Faz 0 — Demo-Hazır (toplantıyı kazanmak için minimum)
-- **Son güncelleme:** 3 Ağustos 2026 — Backend merkezi audit-log servisi eklendi; registry ve belediye yazma akışları izlenebilir hale getirildi
+- **Son güncelleme:** 3 Ağustos 2026 — Backend audit-log kayıtları `SUPER_ADMIN` için sorgulanabilir admin API'ye açıldı
 - **Frontend/mobil ilerleme:** %100
 - **Aktif dal:** `dev/backend`
-- **Sıradaki adım:** Frontend tarafında yeni randevu formunu (`/appointments/new`) aynı açık klinik hiyerarşi, hasta seçimi, tarih/saat doğrulaması ve mobil çalışma düzenine taşımak; backend tarafında yeni iş yalnız pilot rol/oturum modeli, resmî entegrasyon protokolü veya `followUpDate` gibi sözleşme kararı netleşirse açılmalı
+- **Sıradaki adım:** Frontend tarafında yeni randevu formunu (`/appointments/new`) aynı açık klinik hiyerarşi, hasta seçimi, tarih/saat doğrulaması ve mobil çalışma düzenine taşımak; backend tarafında sıradaki küçük sağlamlaştırma işi klinik randevu yazma akışlarını audit kapsamına almak veya pilot kararı gelirse `followUpDate`/resmî entegrasyon/rol modeli sözleşmesini açmak
 
 ---
 
@@ -48,6 +48,7 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 - Bakanlık konsolu pilot API çekirdeği için `GET /registry/national-summary`, `GET /registry/provinces/:province/summary` ve `GET /registry/early-warnings` eklendi. Endpointler şimdilik yalnız `SUPER_ADMIN` erişiminde; mevcut registry, belediye, klinik aşı ve hareket verilerinden özet/uyarı adayı üretir.
 - Simüle entegrasyonlar için `GET /integrations/status`, `GET /integrations/haybis/animals/:identifier`, `GET /integrations/petvet/pets/:identifier` ve `GET /integrations/edevlet/owner-animals?identityRef=...` eklendi. Yanıtlar bilinçli olarak `simulation: true` ve resmî bağlantı olmadığı bilgisini taşır; dış kamu servisine istek atılmaz.
 - Merkezi `AuditService` eklendi. Muayene güncelleme audit yazımı tek servise taşındı; registry işletme oluşturma, hayvan oluşturma, hareket kaydı ve belediye vaka/kısırlaştırma/sahiplendirme yazma akışları kullanıcı bağlamı, kaynak tipi, kaynak kimliği ve temiz JSON metadata ile `AuditLog` kaydı oluşturuyor.
+- Audit kayıtları `GET /audit/logs` ve `GET /audit/logs/:id` ile `SUPER_ADMIN` için sorgulanabilir hale geldi. Listeleme sayfalama, aksiyon, kaynak tipi/kimliği, aktör tipi/kimliği ve tarih aralığı filtrelerini destekliyor; owner/veterinarian aktör özetiyle döner.
 - Erol'un `4b9b661`, `9767a94` ve 31 Temmuz auth düzeltmeleri tokenları JSON gövdesinden kaldırdı, httpOnly cookie seçeneklerini ortam bazlı yaptı ve Origin/Referer allowlist ekledi. Native mobil için auth cookie taşımayan `Authorization: Bearer` unsafe istekleri Origin olmadan geçebilir; auth cookie varsa Origin/Referer zorunlu kalır. WhatsApp webhook'u sadece `x-hub-signature-256` header'ı ile Origin'siz geçer. Billing webhook artık `x-vetcep-event-id`, `x-vetcep-timestamp` ve `x-vetcep-signature` ile HMAC doğrulaması ve Redis replay kilidi olmadan işlenmez; gerçek ödeme sağlayıcısına özel adapter ayrıca bağlanabilir.
 - Commit'li Redis kimliği rotasyonu ve geçmiş temizliği Erol'un 0.1 kapsamındaki ayrı operasyonel güvenlik notu olarak geçerliliğini koruyor.
 - Klinik hasta detay sözleşmesinde `GET /pets/:id` owner ilişkisi ve muayene liste/detay yanıtlarında veterinarian ilişkisi backend tarafında tamamlandı. Portal ve mobil reçete istemcileri `GET /prescriptions?petId=...` kalıcı liste rotasına ve yetkili PDF durum sözleşmesine taşındı; eski `/pets/:id/summary` uyumluluk çağrısı kaldırıldı.
@@ -68,6 +69,18 @@ Durum: ⬜ başlanmadı · 🟡 devam ediyor · ✅ tamamlandı · ⛔ Erol'a (b
 > **Sıradaki:** ...
 > **Erol'a not (varsa):** hangi backend işine ihtiyaç var
 > ```
+
+### 2026-08-03 — Backend audit-log admin API
+
+**Yapılanlar:** Audit logların yalnız yazılmasıyla kalmaması için `SUPER_ADMIN` korumalı okuma API'si eklendi. `GET /audit/logs` sayfalama, aksiyon, kaynak tipi/kimliği, aktör tipi/kimliği ve tarih aralığı filtrelerini destekliyor. `GET /audit/logs/:id` tek kayıt detayını döndürüyor. Yanıtlar ham `ownerId`/`veterinarianId` yerine owner veya veteriner aktör özetini ekleyerek Bakanlık/pilot denetim ekranına bağlanabilir bir sözleşme sunuyor.
+
+**Dokunulan dosyalar:** `e-pati-api/src/audit/*`, `e-pati-api/src/audit/dto/list-audit-logs-query.dto.ts`, `e-pati-api/src/app.module.ts`, `FRONTEND-ILERLEME.md`
+
+**Ekran/akış durumu:** Frontend ekran değişikliği yok. Audit hedef testi 5/5, full backend Jest 67/67 ve Nest production build başarılı. Endpointler kimlik doğrulaması gerektiriyor ve admin olmayan kullanıcılar için 403 döndürüyor.
+
+**Sıradaki:** Klinik randevu oluşturma/güncelleme/iptal/tamamlama yazma akışlarını audit kapsamına almak; frontend tarafında `/appointments/new` ekranı ilerlerken ekstra backend sözleşmesi gerekip gerekmediğini takip etmek.
+
+**Erol'a not (varsa):** Yeni migration yok. Canlıda audit log görüntüleme ekranı istenirse portal tarafı `GET /audit/logs` sözleşmesine bağlanabilir.
 
 ### 2026-08-03 — Backend merkezi audit-log kapsamı
 

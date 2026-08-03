@@ -26,6 +26,7 @@ import { validateEnvironment } from './config/env.validation';
 import { RegistryModule } from './registry/registry.module';
 import { MunicipalityModule } from './municipality/municipality.module';
 import { IntegrationsModule } from './integrations/integrations.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
     RegistryModule,
     MunicipalityModule,
     IntegrationsModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [AppService],
