@@ -47,27 +47,33 @@ describe('RegistryService', () => {
     },
     $transaction: jest.fn(),
   };
+  const auditService = {
+    record: jest.fn(),
+  };
 
   const ownerUser = {
     sub: 'owner-1',
     email: 'owner@example.com',
     role: Role.OWNER,
+    type: 'owner' as const,
   };
 
   const superAdminUser = {
     sub: 'admin-1',
     email: 'admin@example.com',
     role: Role.SUPER_ADMIN,
+    type: 'veterinarian' as const,
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     prisma.$transaction.mockImplementation((callback) => callback(prisma));
+    auditService.record.mockResolvedValue({ id: 'audit-1' });
   });
 
   it('creates owner-scoped animals with an HKN identifier', async () => {
     prisma.animal.create.mockResolvedValue({ id: 'animal-1' });
-    const service = new RegistryService(prisma as never);
+    const service = new RegistryService(prisma as never, auditService as never);
 
     await service.createAnimal(ownerUser, {
       hkn: 'hkn-2026-demo',
@@ -103,6 +109,14 @@ describe('RegistryService', () => {
         }),
       }),
     );
+    expect(auditService.record).toHaveBeenCalledWith(
+      ownerUser,
+      expect.objectContaining({
+        action: 'registry.animal.create',
+        resourceType: 'Animal',
+        resourceId: 'animal-1',
+      }),
+    );
   });
 
   it('records movement and updates current premise', async () => {
@@ -111,7 +125,7 @@ describe('RegistryService', () => {
       ownerId: 'owner-1',
     });
     prisma.animalMovement.create.mockResolvedValue({ id: 'movement-1' });
-    const service = new RegistryService(prisma as never);
+    const service = new RegistryService(prisma as never, auditService as never);
 
     await service.recordMovement(ownerUser, 'animal-1', {
       reason: MovementReason.TRANSFER,
@@ -132,6 +146,14 @@ describe('RegistryService', () => {
     expect(prisma.premise.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'premise-b' },
+      }),
+    );
+    expect(auditService.record).toHaveBeenCalledWith(
+      ownerUser,
+      expect.objectContaining({
+        action: 'registry.animal.movement.record',
+        resourceType: 'AnimalMovement',
+        resourceId: 'movement-1',
       }),
     );
   });
@@ -165,7 +187,7 @@ describe('RegistryService', () => {
     ]);
     prisma.vaccination.count.mockResolvedValue(4);
     prisma.pet.count.mockResolvedValue(5);
-    const service = new RegistryService(prisma as never);
+    const service = new RegistryService(prisma as never, auditService as never);
 
     const result = await service.nationalSummary(superAdminUser);
 
@@ -180,7 +202,7 @@ describe('RegistryService', () => {
   });
 
   it('rejects national oversight summary for owners', async () => {
-    const service = new RegistryService(prisma as never);
+    const service = new RegistryService(prisma as never, auditService as never);
 
     await expect(service.nationalSummary(ownerUser)).rejects.toBeInstanceOf(
       ForbiddenException,
@@ -208,7 +230,7 @@ describe('RegistryService', () => {
       { reason: MovementReason.SHELTER_INTAKE, _count: { _all: 2 } },
     ]);
     prisma.vaccination.count.mockResolvedValue(1);
-    const service = new RegistryService(prisma as never);
+    const service = new RegistryService(prisma as never, auditService as never);
 
     const result = await service.earlyWarnings(superAdminUser);
 

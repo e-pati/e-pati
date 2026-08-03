@@ -10,6 +10,7 @@ import {
   Role,
 } from '@prisma/client';
 import { randomBytes } from 'crypto';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAnimalDto } from './dto/create-animal.dto';
@@ -67,7 +68,10 @@ const WARNING_WINDOW_DAYS = 30;
 
 @Injectable()
 export class RegistryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async overview(user: TokenPayload) {
     const [animalsByClass, animalsByStatus, premiseCount] = await Promise.all([
@@ -371,10 +375,10 @@ export class RegistryService {
     });
   }
 
-  createPremise(user: TokenPayload, dto: CreatePremiseDto) {
+  async createPremise(user: TokenPayload, dto: CreatePremiseDto) {
     const ownership = this.resolveOwnership(user, dto.ownerId, dto.clinicId);
 
-    return this.prisma.premise.create({
+    const premise = await this.prisma.premise.create({
       data: {
         type: dto.type,
         name: dto.name.trim(),
@@ -389,6 +393,21 @@ export class RegistryService {
         ...ownership,
       },
     });
+
+    await this.auditService.record(user, {
+      action: 'registry.premise.create',
+      resourceType: 'Premise',
+      resourceId: premise.id,
+      metadata: {
+        type: premise.type,
+        province: premise.province,
+        district: premise.district,
+        ownerId: premise.ownerId,
+        clinicId: premise.clinicId,
+      },
+    });
+
+    return premise;
   }
 
   listAnimals(user: TokenPayload, query: ListAnimalsQueryDto) {
@@ -420,7 +439,7 @@ export class RegistryService {
     const hkn = this.normalizeIdentifier(dto.hkn) ?? this.generateHkn();
     const identifiers = this.normalizeIdentifiers(hkn, dto.identifiers);
 
-    return this.prisma.animal.create({
+    const animal = await this.prisma.animal.create({
       data: {
         hkn,
         class: dto.class,
@@ -441,6 +460,21 @@ export class RegistryService {
       },
       include: animalInclude,
     });
+
+    await this.auditService.record(user, {
+      action: 'registry.animal.create',
+      resourceType: 'Animal',
+      resourceId: animal.id,
+      metadata: {
+        hkn: animal.hkn,
+        class: animal.class,
+        ownerId: animal.ownerId,
+        clinicId: animal.clinicId,
+        currentPremiseId: animal.currentPremiseId,
+      },
+    });
+
+    return animal;
   }
 
   async getAnimal(user: TokenPayload, id: string) {
@@ -475,7 +509,7 @@ export class RegistryService {
   ) {
     const animal = await this.getAnimal(user, animalId);
 
-    return this.prisma.$transaction(async (tx) => {
+    const movement = await this.prisma.$transaction(async (tx) => {
       const movement = await tx.animalMovement.create({
         data: {
           animalId: animal.id,
@@ -514,6 +548,21 @@ export class RegistryService {
 
       return movement;
     });
+
+    await this.auditService.record(user, {
+      action: 'registry.animal.movement.record',
+      resourceType: 'AnimalMovement',
+      resourceId: movement.id,
+      metadata: {
+        animalId: animal.id,
+        fromPremiseId: dto.fromPremiseId,
+        toPremiseId: dto.toPremiseId,
+        reason: dto.reason,
+        occurredAt: dto.occurredAt,
+      },
+    });
+
+    return movement;
   }
 
   private animalScope(user: TokenPayload): Prisma.AnimalWhereInput {

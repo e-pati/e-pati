@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Pet, Role } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -16,6 +17,7 @@ export class ExaminationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly auditService: AuditService,
   ) {}
 
   async findAll(query: ListExaminationsQueryDto, user: TokenPayload) {
@@ -140,14 +142,11 @@ export class ExaminationsService {
       },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        veterinarianId: user.sub,
-        action: 'examination.update',
-        resourceType: 'Examination',
-        resourceId: id,
-        metadata: { changedFields: Object.keys(dto) },
-      },
+    await this.auditService.record(user, {
+      action: 'examination.update',
+      resourceType: 'Examination',
+      resourceId: id,
+      metadata: { changedFields: Object.keys(dto) },
     });
 
     return this.present(updated);

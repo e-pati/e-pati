@@ -14,6 +14,7 @@ import {
   Role,
   SterilizationStatus,
 } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 import type { TokenPayload } from '../auth/types/token-payload';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAdoptionListingDto } from './dto/create-adoption-listing.dto';
@@ -66,7 +67,10 @@ const municipalityCaseInclude = {
 
 @Injectable()
 export class MunicipalityService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   listCases(query: ListMunicipalityCasesQueryDto, user: TokenPayload) {
     this.ensureMunicipalityUser(user);
@@ -104,7 +108,7 @@ export class MunicipalityService {
       this.ensureShelterPremise(dto.shelterPremiseId, user),
     ]);
 
-    return this.prisma.$transaction(async (tx) => {
+    const caseRecord = await this.prisma.$transaction(async (tx) => {
       const caseRecord = await tx.municipalityAnimalCase.create({
         data: {
           animalId: animal.id,
@@ -141,6 +145,22 @@ export class MunicipalityService {
 
       return caseRecord;
     });
+
+    await this.auditService.record(user, {
+      action: 'municipality.case.create',
+      resourceType: 'MunicipalityAnimalCase',
+      resourceId: caseRecord.id,
+      metadata: {
+        animalId: animal.id,
+        shelterPremiseId: shelter.id,
+        municipalityName: dto.municipalityName,
+        foundProvince: dto.foundProvince,
+        foundDistrict: dto.foundDistrict,
+        intakeAt: dto.intakeAt,
+      },
+    });
+
+    return caseRecord;
   }
 
   async createSterilization(
@@ -157,7 +177,7 @@ export class MunicipalityService {
           ? MunicipalityCaseStatus.UNDER_TREATMENT
           : undefined;
 
-    return this.prisma.$transaction(async (tx) => {
+    const record = await this.prisma.$transaction(async (tx) => {
       const record = await tx.sterilizationRecord.create({
         data: {
           caseId,
@@ -180,6 +200,19 @@ export class MunicipalityService {
 
       return record;
     });
+
+    await this.auditService.record(user, {
+      action: 'municipality.sterilization.create',
+      resourceType: 'SterilizationRecord',
+      resourceId: record.id,
+      metadata: {
+        caseId,
+        status,
+        performedAt: dto.performedAt,
+      },
+    });
+
+    return record;
   }
 
   async createAdoptionListing(
@@ -192,7 +225,7 @@ export class MunicipalityService {
     const publishedAt =
       status === AdoptionListingStatus.PUBLISHED ? new Date() : undefined;
 
-    return this.prisma.$transaction(async (tx) => {
+    const listing = await this.prisma.$transaction(async (tx) => {
       const listing = await tx.adoptionListing.create({
         data: {
           caseId,
@@ -216,6 +249,19 @@ export class MunicipalityService {
 
       return listing;
     });
+
+    await this.auditService.record(user, {
+      action: 'municipality.adoptionListing.create',
+      resourceType: 'AdoptionListing',
+      resourceId: listing.id,
+      metadata: {
+        caseId,
+        status,
+        publishedAt,
+      },
+    });
+
+    return listing;
   }
 
   async updateAdoptionListingStatus(
@@ -240,7 +286,7 @@ export class MunicipalityService {
 
     const now = new Date();
 
-    return this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.adoptionListing.update({
         where: { id: listing.id },
         data: {
@@ -276,6 +322,20 @@ export class MunicipalityService {
 
       return updated;
     });
+
+    await this.auditService.record(user, {
+      action: 'municipality.adoptionListing.status.update',
+      resourceType: 'AdoptionListing',
+      resourceId: updated.id,
+      metadata: {
+        caseId: listing.case.id,
+        animalId: listing.case.animalId,
+        fromStatus: listing.status,
+        toStatus: dto.status,
+      },
+    });
+
+    return updated;
   }
 
   private async ensureStrayAnimal(id: string, user: TokenPayload) {

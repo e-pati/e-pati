@@ -74,13 +74,21 @@ describe('ExaminationsService', () => {
     },
   } as unknown as PrismaService;
   const notificationsService = {} as NotificationsService;
+  const auditService = {
+    record: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    auditService.record.mockResolvedValue({ id: 'audit-1' });
   });
 
   function createService() {
-    return new ExaminationsService(prisma, notificationsService);
+    return new ExaminationsService(
+      prisma,
+      notificationsService,
+      auditService as never,
+    );
   }
 
   it('lists examinations with veterinarian contract fields', async () => {

@@ -38,6 +38,9 @@ describe('MunicipalityService', () => {
     },
     $transaction: jest.fn(),
   };
+  const auditService = {
+    record: jest.fn(),
+  };
 
   const clinicUser = {
     sub: 'vet-1',
@@ -50,6 +53,7 @@ describe('MunicipalityService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     prisma.$transaction.mockImplementation((callback) => callback(prisma));
+    auditService.record.mockResolvedValue({ id: 'audit-1' });
   });
 
   it('opens a clinic scoped municipality intake case and records shelter intake movement', async () => {
@@ -59,7 +63,10 @@ describe('MunicipalityService', () => {
     });
     prisma.premise.findFirst.mockResolvedValue({ id: 'shelter-1' });
     prisma.municipalityAnimalCase.create.mockResolvedValue({ id: 'case-1' });
-    const service = new MunicipalityService(prisma as never);
+    const service = new MunicipalityService(
+      prisma as never,
+      auditService as never,
+    );
 
     await service.createCase(
       {
@@ -104,12 +111,23 @@ describe('MunicipalityService', () => {
         }),
       }),
     );
+    expect(auditService.record).toHaveBeenCalledWith(
+      clinicUser,
+      expect.objectContaining({
+        action: 'municipality.case.create',
+        resourceType: 'MunicipalityAnimalCase',
+        resourceId: 'case-1',
+      }),
+    );
   });
 
   it('marks the case sterilized when a completed sterilization is recorded', async () => {
     prisma.municipalityAnimalCase.findFirst.mockResolvedValue({ id: 'case-1' });
     prisma.sterilizationRecord.create.mockResolvedValue({ id: 'ster-1' });
-    const service = new MunicipalityService(prisma as never);
+    const service = new MunicipalityService(
+      prisma as never,
+      auditService as never,
+    );
 
     await service.createSterilization(
       'case-1',
@@ -125,6 +143,14 @@ describe('MunicipalityService', () => {
       where: { id: 'case-1' },
       data: { status: MunicipalityCaseStatus.STERILIZED },
     });
+    expect(auditService.record).toHaveBeenCalledWith(
+      clinicUser,
+      expect.objectContaining({
+        action: 'municipality.sterilization.create',
+        resourceType: 'SterilizationRecord',
+        resourceId: 'ster-1',
+      }),
+    );
   });
 
   it('marks adopted listing, case and animal together', async () => {
@@ -138,7 +164,10 @@ describe('MunicipalityService', () => {
       },
     });
     prisma.adoptionListing.update.mockResolvedValue({ id: 'listing-1' });
-    const service = new MunicipalityService(prisma as never);
+    const service = new MunicipalityService(
+      prisma as never,
+      auditService as never,
+    );
 
     await service.updateAdoptionListingStatus(
       'listing-1',
@@ -154,5 +183,13 @@ describe('MunicipalityService', () => {
       where: { id: 'animal-1' },
       data: { status: AnimalStatus.ADOPTED },
     });
+    expect(auditService.record).toHaveBeenCalledWith(
+      clinicUser,
+      expect.objectContaining({
+        action: 'municipality.adoptionListing.status.update',
+        resourceType: 'AdoptionListing',
+        resourceId: 'listing-1',
+      }),
+    );
   });
 });
